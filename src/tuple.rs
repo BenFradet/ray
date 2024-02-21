@@ -1,4 +1,4 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Mul, Neg, Sub};
 
 use ray::enum_variants_as_structs;
 
@@ -91,9 +91,85 @@ impl Sub<Vector> for Point {
     }
 }
 
+impl Sub<Vector> for Vector {
+    type Output = Vector;
+
+    fn sub(self, rhs: Vector) -> Self::Output {
+        Vector::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
+    }
+}
+
+impl Neg for Vector {
+    type Output = Vector;
+
+    fn neg(self) -> Self::Output {
+        Vector { x: -self.x, y: -self.y, z: -self.z, w: -self.w, }
+    }
+}
+
+impl Neg for Point {
+    type Output = Point;
+
+    fn neg(self) -> Self::Output {
+        Point { x: -self.x, y: -self.y, z: -self.z, w: -self.w, }
+    }
+}
+
+impl Mul<f32> for Vector {
+    type Output = Vector;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Vector { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs, }
+    }
+}
+
+impl Mul<f32> for Point {
+    type Output = Point;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Point { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs, }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mul_for_point() -> () {
+        let p = Point::new(1.0, -2.0, 3.0);
+        let res = p * 0.5;
+        assert_eq!(res, Point { x: 0.5, y: -1.0, z: 1.5, w: 0.5 })
+    }
+
+    #[test]
+    fn mul_for_vec() -> () {
+        let p = Vector::new(1.0, -2.0, 3.0);
+        let res = p * 0.5;
+        assert_eq!(res, Vector::new(0.5, -1.0, 1.5))
+    }
+
+    #[test]
+    fn neg_for_point() -> () {
+        let p = Point::new(3.0, 2.0, 1.0);
+        let res = -p;
+        assert_eq!(res, Point { x: -3.0, y: -2.0, z: -1.0, w: -1.0 })
+    }
+
+    #[test]
+    fn neg_for_vec() -> () {
+        let v = Vector::new(3.0, 2.0, 1.0);
+        let res = -v;
+        assert_eq!(res, Vector::new(-3.0, -2.0, -1.0))
+    }
+
+    #[test]
+    fn sub_vec_from_vec() -> () {
+        let v1 = Vector::new(3.0, 2.0, 1.0);
+        let v2 = Vector::new(5.0, 6.0, 7.0);
+        let res = v1 - v2;
+        assert_eq!(res, Vector::new(-2.0, -4.0, -6.0));
+    }
 
     #[test]
     fn sub_vector_from_point() -> () {
