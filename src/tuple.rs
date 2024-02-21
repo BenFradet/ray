@@ -28,6 +28,10 @@ impl Vector {
     pub fn new(x: f32, y: f32, z: f32) -> Vector {
         Vector { x, y, z, w: 0.0 }
     }
+
+    pub fn len(self) -> f32 {
+        f32::sqrt(self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0))
+    }
 }
 
 impl Point {
@@ -134,6 +138,15 @@ impl Mul<f32> for Point {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn vec_len() -> () {
+        assert_eq!(Vector::new(1.0, 0.0, 0.0).len(), 1.0);
+        assert_eq!(Vector::new(0.0, 1.0, 0.0).len(), 1.0);
+        assert_eq!(Vector::new(0.0, 0.0, 1.0).len(), 1.0);
+        assert_eq!(Vector::new(1.0, 2.0, 3.0).len(), f32::sqrt(14.0));
+        assert_eq!(Vector::new(-1.0, -2.0, -3.0).len(), f32::sqrt(14.0));
+    }
 
     #[test]
     fn mul_for_point() -> () {
