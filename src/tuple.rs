@@ -41,6 +41,14 @@ impl Vector {
     pub fn dot(self, o: Vector) -> f64 {
         self.x * o.x + self.y * o.y + self.z * o.z + self.w * o.w
     }
+
+    pub fn cross(self, o: Vector) -> Vector {
+        Vector::new(
+            self.y * o.z - self.z * o.y,
+            self.z * o.x - self.x * o.z,
+            self.x * o.y - self.y * o.x,
+        )
+    }
 }
 
 impl Point {
@@ -147,6 +155,14 @@ impl Mul<f64> for Point {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn cross() -> () {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(2.0, 3.0, 4.0);
+        assert_eq!(v1.cross(v2), Vector::new(-1.0, 2.0, -1.0));
+        assert_eq!(v2.cross(v1), Vector::new(1.0, -2.0, 1.0));
+    }
 
     #[test]
     fn vec_dot() -> () {
