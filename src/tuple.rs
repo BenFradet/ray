@@ -8,29 +8,29 @@ enum_variants_as_structs! {
     #[derive(PartialEq, Debug, Copy, Clone)]
     enum Tuple {
         #[derive(PartialEq, Debug, Copy, Clone)]
-        Vector { x: f32, y: f32, z: f32, w: f32 },
+        Vector { x: f64, y: f64, z: f64, w: f64 },
         #[derive(PartialEq, Debug, Copy, Clone)]
-        Point { x: f32, y: f32, z: f32, w: f32 },
+        Point { x: f64, y: f64, z: f64, w: f64 },
     }
 }
 
 impl Tuple {
-    pub fn vector(x: f32, y: f32, z: f32) -> Tuple {
+    pub fn vector(x: f64, y: f64, z: f64) -> Tuple {
         Tuple::Vector(Vector::new(x, y, z))
     }
 
-    pub fn point(x: f32, y: f32, z: f32) -> Tuple {
+    pub fn point(x: f64, y: f64, z: f64) -> Tuple {
         Tuple::Point(Point::new(x, y, z))
     }
 }
 
 impl Vector {
-    pub fn new(x: f32, y: f32, z: f32) -> Vector {
+    pub fn new(x: f64, y: f64, z: f64) -> Vector {
         Vector { x, y, z, w: 0.0 }
     }
 
-    pub fn len(self) -> f32 {
-        f32::sqrt(self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0))
+    pub fn len(self) -> f64 {
+        f64::sqrt(self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0))
     }
 
     pub fn norm(self) -> Vector {
@@ -40,7 +40,7 @@ impl Vector {
 }
 
 impl Point {
-    pub fn new(x: f32, y: f32, z: f32) -> Point {
+    pub fn new(x: f64, y: f64, z: f64) -> Point {
         Point { x, y, z, w: 1.0 }
     }
 }
@@ -124,18 +124,18 @@ impl Neg for Point {
     }
 }
 
-impl Mul<f32> for Vector {
+impl Mul<f64> for Vector {
     type Output = Vector;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Vector { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs, }
     }
 }
 
-impl Mul<f32> for Point {
+impl Mul<f64> for Point {
     type Output = Point;
 
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Point { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs, }
     }
 }
@@ -148,7 +148,7 @@ mod tests {
     fn vec_norm() -> () {
         assert_eq!(Vector::new(4.0, 0.0, 0.0).norm(), Vector::new(1.0, 0.0, 0.0));
         let v = Vector::new(1.0, 2.0, 3.0);
-        let sqrt = f32::sqrt(14.0);
+        let sqrt = f64::sqrt(14.0);
         let norm = v.norm();
         assert_eq!(norm, Vector::new(1.0 / sqrt, 2.0 / sqrt, 3.0 / sqrt));
         assert_eq!(norm.len(), 1.0);
@@ -159,8 +159,8 @@ mod tests {
         assert_eq!(Vector::new(1.0, 0.0, 0.0).len(), 1.0);
         assert_eq!(Vector::new(0.0, 1.0, 0.0).len(), 1.0);
         assert_eq!(Vector::new(0.0, 0.0, 1.0).len(), 1.0);
-        assert_eq!(Vector::new(1.0, 2.0, 3.0).len(), f32::sqrt(14.0));
-        assert_eq!(Vector::new(-1.0, -2.0, -3.0).len(), f32::sqrt(14.0));
+        assert_eq!(Vector::new(1.0, 2.0, 3.0).len(), f64::sqrt(14.0));
+        assert_eq!(Vector::new(-1.0, -2.0, -3.0).len(), f64::sqrt(14.0));
     }
 
     #[test]
