@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 use ray::enum_variants_as_structs;
 
@@ -36,28 +36,28 @@ impl Point {
     }
 }
 
-impl Add<Tuple> for Tuple {
-    type Output = Tuple;
-
-    fn add(self, rhs: Tuple) -> Self::Output {
-        match self {
-            Tuple::Point(p) => {
-                match rhs {
-                    Tuple::Vector(v) => Tuple::Point(p + v),
-                    // adding a point to a point doesn't make sense
-                    // however since enum variants are not type we can't fine-grain add definitions
-                    o => o,
-                }
-            },
-            Tuple::Vector(v) => {
-                match rhs {
-                    Tuple::Vector(v2) => Tuple::Vector(v + v2),
-                    Tuple::Point(p) => Tuple::Point(p + v),
-                }
-            },
-        }
-    }
-}
+//impl Add<Tuple> for Tuple {
+//    type Output = Tuple;
+//
+//    fn add(self, rhs: Tuple) -> Self::Output {
+//        match self {
+//            Tuple::Point(p) => {
+//                match rhs {
+//                    Tuple::Vector(v) => Tuple::Point(p + v),
+//                    // adding a point to a point doesn't make sense
+//                    // however since enum variants are not type we can't fine-grain add definitions
+//                    o => o,
+//                }
+//            },
+//            Tuple::Vector(v) => {
+//                match rhs {
+//                    Tuple::Vector(v2) => Tuple::Vector(v + v2),
+//                    Tuple::Point(p) => Tuple::Point(p + v),
+//                }
+//            },
+//        }
+//    }
+//}
 
 impl Add<Vector> for Vector {
     type Output = Vector;
@@ -75,40 +75,56 @@ impl Add<Vector> for Point {
     }
 }
 
+impl Sub<Point> for Point {
+    type Output = Vector;
+
+    fn sub(self, rhs: Point) -> Self::Output {
+        Vector::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
+    }
+}
+
+impl Sub<Vector> for Point {
+    type Output = Point;
+
+    fn sub(self, rhs: Vector) -> Self::Output {
+        Point::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn add_point_to_point() -> () {
-        let p1 = Tuple::point(3.0, -2.0, 5.0);
-        let p2 = Tuple::point(-2.0, 3.0, 1.0);
-        let res = p1 + p2;
-        assert_eq!(res, p2);
+    fn sub_vector_from_point() -> () {
+        let p = Point::new(3.0, 2.0, 1.0);
+        let v = Vector::new(5.0, 6.0, 7.0);
+        let res = p - v;
+        assert_eq!(res, Point::new(-2.0, -4.0, -6.0));
     }
 
     #[test]
-    fn add_point_to_vector() -> () {
-        let p = Tuple::point(3.0, -2.0, 5.0);
-        let v = Tuple::vector(-2.0, 3.0, 1.0);
-        let res = v + p;
-        assert_eq!(res, Tuple::point(1.0, 1.0, 6.0));
+    fn sub_point_from_point() -> () {
+        let p1 = Point::new(3.0, 2.0, 1.0);
+        let p2 = Point::new(5.0, 6.0, 7.0);
+        let res = p1 - p2;
+        assert_eq!(res, Vector::new(-2.0, -4.0, -6.0));
     }
 
     #[test]
     fn add_vector_to_point() -> () {
-        let p = Tuple::point(3.0, -2.0, 5.0);
-        let v = Tuple::vector(-2.0, 3.0, 1.0);
+        let p = Point::new(3.0, -2.0, 5.0);
+        let v = Vector::new(-2.0, 3.0, 1.0);
         let res = p + v;
-        assert_eq!(res, Tuple::point(1.0, 1.0, 6.0));
+        assert_eq!(res, Point::new(1.0, 1.0, 6.0));
     }
 
     #[test]
     fn add_vector_to_vector() -> () {
-        let p = Tuple::point(3.0, -2.0, 5.0);
-        let v = Tuple::vector(-2.0, 3.0, 1.0);
-        let res = p + v;
-        assert_eq!(res, Tuple::point(1.0, 1.0, 6.0));
+        let v1 = Vector::new(3.0, -2.0, 5.0);
+        let v2 = Vector::new(-2.0, 3.0, 1.0);
+        let res = v1 + v2;
+        assert_eq!(res, Vector::new(1.0, 1.0, 6.0));
     }
 
     #[test]
