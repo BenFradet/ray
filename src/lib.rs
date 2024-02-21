@@ -1,16 +1,21 @@
 #[macro_export]
 macro_rules! enum_variants_as_structs {
     (
+        $(#[$meta_enum:meta])*
         enum $Name:ident {
-            $($Variant:ident { $($f:ident: $ty:ty),* }),* $(,)?
+            // haven't found a way to propagate enum meta's to variants because
+            // "meta-variable x repeats N times, but y repeats M times"
+            $($(#[$meta_variant:meta])* $Variant:ident { $($f:ident: $ty:ty),* }),* $(,)?
         }
     ) => {
+        $(#[$meta_enum])*
         enum $Name {
             $($Variant($Variant),)*
         }
 
         $(
-            struct $Variant { $($f: $ty)+ }
+            $(#[$meta_variant])*
+            struct $Variant { $($f: $ty),+ }
 
             impl TryFrom<$Name> for $Variant {
                 type Error = $Name;
@@ -25,15 +30,18 @@ macro_rules! enum_variants_as_structs {
         )*
     };
     (
+        $(#[$meta_enum:meta])*
         enum $Name:ident {
-            $($Variant:ident($($f:ident),+)),* $(,)?
+            $($(#[$meta_variant:meta])* $Variant:ident($($f:ident),+)),* $(,)?
         }
     ) => {
+        $(#[$meta_enum])*
         enum $Name {
             $($Variant($Variant),)*
         }
 
         $(
+            $(#[$meta_variant])*
             struct $Variant($($f)+);
 
             impl TryFrom<$Name> for $Variant {
