@@ -32,6 +32,11 @@ impl Vector {
     pub fn len(self) -> f32 {
         f32::sqrt(self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0))
     }
+
+    pub fn norm(self) -> Vector {
+        let l = self.len();
+        Vector { x: self.x / l, y: self.y / l, z: self.z / l, w: self.w / l, }
+    }
 }
 
 impl Point {
@@ -138,6 +143,16 @@ impl Mul<f32> for Point {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn vec_norm() -> () {
+        assert_eq!(Vector::new(4.0, 0.0, 0.0).norm(), Vector::new(1.0, 0.0, 0.0));
+        let v = Vector::new(1.0, 2.0, 3.0);
+        let sqrt = f32::sqrt(14.0);
+        let norm = v.norm();
+        assert_eq!(norm, Vector::new(1.0 / sqrt, 2.0 / sqrt, 3.0 / sqrt));
+        assert_eq!(norm.len(), 1.0);
+    }
 
     #[test]
     fn vec_len() -> () {
