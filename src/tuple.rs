@@ -37,6 +37,10 @@ impl Vector {
         let l = self.len();
         Vector { x: self.x / l, y: self.y / l, z: self.z / l, w: self.w / l, }
     }
+
+    pub fn dot(self, o: Vector) -> f64 {
+        self.x * o.x + self.y * o.y + self.z * o.z + self.w * o.w
+    }
 }
 
 impl Point {
@@ -143,6 +147,14 @@ impl Mul<f64> for Point {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn vec_dot() -> () {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(2.0, 3.0, 4.0);
+        let res = v1.dot(v2);
+        assert_eq!(res, 20.0)
+    }
 
     #[test]
     fn vec_norm() -> () {
