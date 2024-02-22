@@ -14,14 +14,14 @@ impl Colour {
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
 
-    fn scale(&self, scale: usize) -> (usize, usize, usize) {
+    pub fn scale(&self, scale: usize) -> (usize, usize, usize) {
         let f = |c: f64| -> usize {
             if c < 0.0 {
                 0
             } else if c > 1.0 {
                 scale
             } else {
-                (c * scale as f64).floor() as usize
+                (c * scale as f64).ceil() as usize
             }
         };
         (f(self.r), f(self.g), f(self.b))
