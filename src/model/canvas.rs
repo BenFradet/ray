@@ -30,6 +30,12 @@ impl Canvas {
         self.storage.get(self.idx(x, y)).copied()
     }
 
+    pub fn to_ppm(&self) -> String {
+        format!("P3
+{} {}
+255", self.width, self.height)
+    }
+
     fn idx(&self, x: usize, y: usize) -> usize {
         self.width * y + x
     }
@@ -38,6 +44,13 @@ impl Canvas {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn to_ppm_header() -> () {
+        let c = Canvas::new(5, 3);
+        let res = c.to_ppm();
+        assert!(res.starts_with("P3\n5 3\n255"));
+    }
 
     #[test]
     fn update_at() -> () {

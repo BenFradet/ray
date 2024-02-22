@@ -13,6 +13,19 @@ impl Colour {
     }
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
+
+    fn scale(&self, scale: usize) -> (usize, usize, usize) {
+        let f = |c: f64| -> usize {
+            if c < 0.0 {
+                0
+            } else if c > 1.0 {
+                scale
+            } else {
+                (c * scale as f64).floor() as usize
+            }
+        };
+        (f(self.r), f(self.g), f(self.b))
+    }
 }
 
 impl Add<Colour> for Colour {
@@ -50,6 +63,35 @@ impl Mul<f64> for Colour {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn scale() -> () {
+        let c = Colour::new(1.0, 0.5, 0.5);
+        let scale = 12;
+        let (r, g, b) = c.scale(scale);
+        assert_eq!(r, scale);
+        assert_eq!(g, 6);
+        assert_eq!(b, 6);
+    }
+
+    #[test]
+    fn scale_gt1_is_scale() -> () {
+        let c = Colour::new(1.0, 2.0, 20.0);
+        let scale = 12;
+        let (r, g, b) = c.scale(scale);
+        assert_eq!(r, scale);
+        assert_eq!(g, scale);
+        assert_eq!(b, scale);
+    }
+
+    #[test]
+    fn scale_negative_is_0() -> () {
+        let c = Colour::new(-1.0, -2.0, -0.0);
+        let (r, g, b) = c.scale(255);
+        assert_eq!(r, 0);
+        assert_eq!(g, 0);
+        assert_eq!(b, 0);
+    }
 
     #[test]
     fn mul_colour() -> () {
