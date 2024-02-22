@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul, Neg, Sub};
 
-use crate::vector::Vector;
+use super::vector::Vector;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Point {

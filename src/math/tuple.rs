@@ -1,4 +1,4 @@
-use crate::{point::Point, vector::Vector};
+use super::{point::Point, vector::Vector};
 
 // haven't found a way to propagate enum meta's to variants because
 // "meta-variable x repeats N times, but y repeats M times"
