@@ -8,9 +8,11 @@ pub struct Colour {
 }
 
 impl Colour {
-    pub fn new(r: f64, g: f64, b: f64) -> Colour {
+    pub const fn new(r: f64, g: f64, b: f64) -> Colour {
         Colour { r, g, b, }
     }
+
+    pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
 }
 
 impl Add<Colour> for Colour {
@@ -64,6 +66,7 @@ mod tests {
 
     #[test]
     fn sub_colour() -> () {
+        // not sure how .9 is a sum of power of 2
         let c1 = Colour::new(0.9, 0.6, 0.75);
         let c2 = Colour::new(0.9, 0.1, 0.25);
         assert_eq!(c1 - c2, Colour::new(0.0, 0.5, 0.5));

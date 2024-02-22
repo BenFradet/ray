@@ -1,2 +1,3 @@
-pub mod projectile;
+pub mod canvas;
 pub mod environment;
+pub mod projectile;
