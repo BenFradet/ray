@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result};
 
-use crate::math::{point::Point, vector::Vector};
+use crate::base::{point::Point, vector::Vector};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Projectile {

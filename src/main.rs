@@ -2,9 +2,9 @@ use std::{thread::sleep, time::Duration};
 
 use model::{environment::Environment, projectile::Projectile};
 
-use crate::math::{point::Point, vector::Vector};
+use crate::base::{point::Point, vector::Vector};
 
-mod math;
+mod base;
 mod model;
 
 fn main() {
