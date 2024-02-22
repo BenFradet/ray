@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg, Sub};
+use std::{fmt::{Display, Formatter, Result}, ops::{Add, Mul, Neg, Sub}};
 
 use super::vector::Vector;
 
@@ -13,6 +13,12 @@ pub struct Point {
 impl Point {
     pub fn new(x: f64, y: f64, z: f64) -> Point {
         Point { x, y, z, w: 1.0 }
+    }
+}
+
+impl Display for Point {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "P({}, {}, {})", self.x, self.y, self.z)
     }
 }
 

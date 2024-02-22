@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Neg, Sub};
+use std::{fmt::{Display, Formatter, Result}, ops::{Add, Mul, Neg, Sub}};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Vector {
@@ -32,6 +32,12 @@ impl Vector {
             self.z * o.x - self.x * o.z,
             self.x * o.y - self.y * o.x,
         )
+    }
+}
+
+impl Display for Vector {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "V({}, {}, {})", self.x, self.y, self.z)
     }
 }
 
