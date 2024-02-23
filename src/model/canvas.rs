@@ -3,7 +3,7 @@ use crate::base::colour::Colour;
 pub const SCALE: usize = 255;
 pub const PPM_MAX_LINE_LENGTH: usize = 70;
 
-struct Canvas {
+pub struct Canvas {
     pub width: usize,
     pub height: usize,
     storage: Vec<Colour>,

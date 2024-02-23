@@ -10,6 +10,6 @@ pub struct Projectile {
 
 impl Display for Projectile {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "positiion: {}, velocity: {}", self.position.to_string(), self.velocity.to_string())
+        write!(f, "position: {}, velocity: {}", self.position.to_string(), self.velocity.to_string())
     }
 }
