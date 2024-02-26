@@ -2,10 +2,11 @@ use std::{fs::File, io::{Result, Write}, thread::sleep, time::Duration};
 
 use model::{environment::Environment, projectile::Projectile};
 
-use crate::{base::{colour::Colour, point::Point, vector::Vector}, model::canvas::Canvas};
+use crate::{base::{colour::Colour, point::Point, vector::Vector}, viewer::canvas::Canvas};
 
 mod base;
 mod model;
+mod viewer;
 
 fn main() {
     let mut p = Projectile {
@@ -43,7 +44,7 @@ fn main() {
     match c {
         Some(canvas) => {
             let path = "result.ppm";
-            match write_to_file(path, canvas.to_ppm()) {
+            match write_to_file(path, canvas.to_string()) {
                 Ok(()) => println!("successfully written {}", path),
                 Err(err) => println!("error writing {}", err),
             }

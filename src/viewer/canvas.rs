@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter};
+
 use crate::base::colour::Colour;
 
 pub const SCALE: usize = 255;
@@ -37,7 +39,13 @@ impl Canvas {
         self.storage.get(self.idx(x, y)).copied()
     }
 
-    pub fn to_ppm(&self) -> String {
+    fn idx(&self, x: usize, y: usize) -> usize {
+        self.width * y + x
+    }
+}
+
+impl Display for Canvas {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let (_, data) = self.storage.iter().enumerate().fold((0, String::new()), |(j, mut acc), (i, c)| {
             let (r, g, b) = (*c).scale(SCALE);
             let s = format!("{r} {g} {b}");
@@ -51,14 +59,10 @@ impl Canvas {
                 (j + s_len, acc + &s + " ")
             }
         });
-        format!("P3
+        write!(f, "P3
 {} {}
 255
 {}", self.width, self.height, data)
-    }
-
-    fn idx(&self, x: usize, y: usize) -> usize {
-        self.width * y + x
     }
 }
 
@@ -69,7 +73,7 @@ mod tests {
     #[test]
     fn to_ppm_split() -> () {
         let c = Canvas::new(10, 2, Colour::new(1.0, 0.8, 0.6));
-        let ppm = c.to_ppm();
+        let ppm = c.to_string();
         assert_eq!(ppm, "P3
 10 2
 255
@@ -89,7 +93,7 @@ mod tests {
             c2.update(4, 2, Colour::new(-0.5, 0.0, 1.0))
         }
         if let Some(r) = res() {
-            let ppm = r.to_ppm();
+            let ppm = r.to_string();
             assert_eq!(ppm, "P3
 5 3
 255
@@ -105,7 +109,7 @@ mod tests {
     #[test]
     fn to_ppm_header() -> () {
         let c = Canvas::black(5, 3);
-        let res = c.to_ppm();
+        let res = c.to_string();
         assert!(res.starts_with("P3\n5 3\n255"));
     }
 
