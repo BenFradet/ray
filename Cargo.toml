@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 macrotest = "1.0.9"
+num = "0.4.1"

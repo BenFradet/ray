@@ -1,5 +1,7 @@
 use std::ops::{Add, Mul, Sub};
 
+use num::{FromPrimitive, Num, NumCast};
+
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Colour {
     r: f64,
@@ -14,17 +16,18 @@ impl Colour {
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
 
-    pub fn scale(&self, scale: usize) -> (usize, usize, usize) {
-        let f = |c: f64| -> usize {
+    pub fn scale<T: Num + FromPrimitive + NumCast + Copy>(&self, scale: T) -> (T, T, T) {
+        let f = |c: f64, s: f64| -> T {
             if c < 0.0 {
-                0
+                T::zero()
             } else if c > 1.0 {
                 scale
             } else {
-                (c * scale as f64).ceil() as usize
+                T::from_f64((c * s).ceil()).unwrap_or(T::zero())
             }
         };
-        (f(self.r), f(self.g), f(self.b))
+        let s = T::to_f64(&scale).unwrap_or(0.0);
+        (f(self.r, s), f(self.g, s), f(self.b, s))
     }
 }
 
@@ -68,10 +71,22 @@ mod tests {
     fn scale() -> () {
         let c = Colour::new(1.0, 0.5, 0.5);
         let scale = 12;
-        let (r, g, b) = c.scale(scale);
-        assert_eq!(r, scale);
-        assert_eq!(g, 6);
-        assert_eq!(b, 6);
+        let (r8, g8, b8) = c.scale::<u8>(scale);
+        assert_eq!(r8, scale);
+        assert_eq!(g8, 6);
+        assert_eq!(b8, 6);
+        let (r16, g16, b16) = c.scale::<u16>(scale as u16);
+        assert_eq!(r16, scale as u16);
+        assert_eq!(g16, 6);
+        assert_eq!(b16, 6);
+        let (r32, g32, b32) = c.scale::<u32>(scale as u32);
+        assert_eq!(r32, scale as u32);
+        assert_eq!(g32, 6);
+        assert_eq!(b32, 6);
+        let (r64, g64, b64) = c.scale::<u64>(scale as u64);
+        assert_eq!(r64, scale as u64);
+        assert_eq!(g64, 6);
+        assert_eq!(b64, 6);
     }
 
     #[test]

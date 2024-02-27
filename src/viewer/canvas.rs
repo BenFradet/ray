@@ -2,6 +2,8 @@ use std::fmt::{Display, Formatter};
 
 use crate::base::colour::Colour;
 
+use super::drawable::Drawable;
+
 pub const SCALE: usize = 255;
 pub const PPM_MAX_LINE_LENGTH: usize = 70;
 
@@ -43,6 +45,22 @@ impl Canvas {
         self.width * y + x
     }
 }
+
+//impl Drawable for Canvas {
+//    fn draw(&self, frame: &mut [u8]) -> () {
+//        for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
+//            let x = i % self.width;
+//            let y = i / self.width;
+//            match self.at(x, y).map(|c| c.scale(SCALE)) {
+//                
+//            }
+//            match self.at(x, y) {
+//                Some(c) => (),
+//                None => (),
+//            }
+//        }
+//    }
+//}
 
 impl Display for Canvas {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
