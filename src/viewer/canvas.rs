@@ -46,21 +46,19 @@ impl Canvas {
     }
 }
 
-//impl Drawable for Canvas {
-//    fn draw(&self, frame: &mut [u8]) -> () {
-//        for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
-//            let x = i % self.width;
-//            let y = i / self.width;
-//            match self.at(x, y).map(|c| c.scale(SCALE)) {
-//                
-//            }
-//            match self.at(x, y) {
-//                Some(c) => (),
-//                None => (),
-//            }
-//        }
-//    }
-//}
+impl Drawable for Canvas {
+    fn draw(&self, frame: &mut [u8]) -> () {
+        for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
+            let x = i % self.width;
+            let y = i / self.width;
+            let rgba = match self.at(x, y).map(|c| c.scale(SCALE as u8)) {
+                Some(colour) => [colour.0, colour.1, colour.2, 0xff],
+                None => [0xff, 0xff, 0xff, 0xff],
+            };
+            pixel.copy_from_slice(&rgba)
+        }
+    }
+}
 
 impl Display for Canvas {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -89,7 +87,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn to_ppm_split() -> () {
+    fn draw() -> () {
+        let c = Canvas::new(1, 1, Colour::new(1.0, 0.8, 0.6));
+        let mut vec = vec![0, 0, 0, 0];
+        let slice = vec.as_mut_slice();
+        c.draw(slice);
+        assert_eq!(slice, vec![255, 204, 153, 255].as_mut_slice());
+    }
+
+    #[test]
+    fn display_split() -> () {
         let c = Canvas::new(10, 2, Colour::new(1.0, 0.8, 0.6));
         let ppm = c.to_string();
         assert_eq!(ppm, "P3
@@ -103,7 +110,7 @@ mod tests {
     }
 
     #[test]
-    fn to_ppm_body() -> () {
+    fn display_body() -> () {
         fn res() -> Option<Canvas> {
             let c = Canvas::black(5, 3);
             let c1 = c.update(0, 0, Colour::new(1.5, 0.0, 0.0))?;
@@ -125,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn to_ppm_header() -> () {
+    fn display_header() -> () {
         let c = Canvas::black(5, 3);
         let res = c.to_string();
         assert!(res.starts_with("P3\n5 3\n255"));
