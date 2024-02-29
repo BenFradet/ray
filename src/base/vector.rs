@@ -1,4 +1,7 @@
-use std::{fmt::{Display, Formatter, Result}, ops::{Add, Mul, Neg, Sub}};
+use std::{
+    fmt::{Display, Formatter, Result},
+    ops::{Add, Mul, Neg, Sub},
+};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Vector {
@@ -19,7 +22,12 @@ impl Vector {
 
     pub fn norm(self) -> Vector {
         let l = self.len();
-        Vector { x: self.x / l, y: self.y / l, z: self.z / l, w: self.w / l, }
+        Vector {
+            x: self.x / l,
+            y: self.y / l,
+            z: self.z / l,
+            w: self.w / l,
+        }
     }
 
     pub fn dot(self, o: Vector) -> f64 {
@@ -61,7 +69,12 @@ impl Neg for Vector {
     type Output = Vector;
 
     fn neg(self) -> Self::Output {
-        Vector { x: -self.x, y: -self.y, z: -self.z, w: -self.w, }
+        Vector {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
     }
 }
 
@@ -69,7 +82,12 @@ impl Mul<f64> for Vector {
     type Output = Vector;
 
     fn mul(self, rhs: f64) -> Self::Output {
-        Vector { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs, }
+        Vector {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
     }
 }
 
@@ -95,7 +113,10 @@ mod tests {
 
     #[test]
     fn vec_norm() -> () {
-        assert_eq!(Vector::new(4.0, 0.0, 0.0).norm(), Vector::new(1.0, 0.0, 0.0));
+        assert_eq!(
+            Vector::new(4.0, 0.0, 0.0).norm(),
+            Vector::new(1.0, 0.0, 0.0)
+        );
         let v = Vector::new(1.0, 2.0, 3.0);
         let sqrt = f64::sqrt(14.0);
         let norm = v.norm();

@@ -27,13 +27,10 @@ impl Canvas {
     }
 
     // no new canvas to avoid re-allocating storage
-    pub fn update(mut self, x: usize, y: usize, c: Colour) -> Option<Canvas> {
+    pub fn update(&mut self, x: usize, y: usize, c: Colour) -> () {
         let idx = self.idx(x, y);
         if idx < self.storage.len() {
             self.storage[idx] = c;
-            Some(self)
-        } else {
-            None
         }
     }
 
@@ -62,23 +59,31 @@ impl Drawable for Canvas {
 
 impl Display for Canvas {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let (_, data) = self.storage.iter().enumerate().fold((0, String::new()), |(j, mut acc), (i, c)| {
-            let (r, g, b) = (*c).scale(SCALE);
-            let s = format!("{r} {g} {b}");
-            let s_len = s.len() + 1;
-            if j + s_len > PPM_MAX_LINE_LENGTH {
-                acc.pop();
-                (0, acc + "\n" + &s + " ")
-            } else if (i + 1) % self.width == 0 {
-                (0, acc + &s + "\n")
-            } else {
-                (j + s_len, acc + &s + " ")
-            }
-        });
-        write!(f, "P3
+        let (_, data) =
+            self.storage
+                .iter()
+                .enumerate()
+                .fold((0, String::new()), |(j, mut acc), (i, c)| {
+                    let (r, g, b) = (*c).scale(SCALE);
+                    let s = format!("{r} {g} {b}");
+                    let s_len = s.len() + 1;
+                    if j + s_len > PPM_MAX_LINE_LENGTH {
+                        acc.pop();
+                        (0, acc + "\n" + &s + " ")
+                    } else if (i + 1) % self.width == 0 {
+                        (0, acc + &s + "\n")
+                    } else {
+                        (j + s_len, acc + &s + " ")
+                    }
+                });
+        write!(
+            f,
+            "P3
 {} {}
 255
-{}", self.width, self.height, data)
+{}",
+            self.width, self.height, data
+        )
     }
 }
 
@@ -99,36 +104,39 @@ mod tests {
     fn display_split() -> () {
         let c = Canvas::new(10, 2, Colour::new(1.0, 0.8, 0.6));
         let ppm = c.to_string();
-        assert_eq!(ppm, "P3
+        assert_eq!(
+            ppm,
+            "P3
 10 2
 255
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
-")
+"
+        )
     }
 
     #[test]
     fn display_body() -> () {
-        fn res() -> Option<Canvas> {
-            let c = Canvas::black(5, 3);
-            let c1 = c.update(0, 0, Colour::new(1.5, 0.0, 0.0))?;
-            let c2 = c1.update(2, 1, Colour::new(0.0, 0.5, 0.0))?;
-            c2.update(4, 2, Colour::new(-0.5, 0.0, 1.0))
+        fn res() -> Canvas {
+            let mut c = Canvas::black(5, 3);
+            c.update(0, 0, Colour::new(1.5, 0.0, 0.0));
+            c.update(2, 1, Colour::new(0.0, 0.5, 0.0));
+            c.update(4, 2, Colour::new(-0.5, 0.0, 1.0));
+            c
         }
-        if let Some(r) = res() {
-            let ppm = r.to_string();
-            assert_eq!(ppm, "P3
+        let ppm = res().to_string();
+        assert_eq!(
+            ppm,
+            "P3
 5 3
 255
 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 255
-")
-        } else {
-            panic!("canvas couldn't be modified")
-        }
+"
+        )
     }
 
     #[test]
@@ -140,14 +148,11 @@ mod tests {
 
     #[test]
     fn update_at() -> () {
-        let c = Canvas::black(10, 20);
+        let mut c = Canvas::black(10, 20);
         let r = Colour::new(1.0, 0.0, 0.0);
-        if let Some(res) = c.update(2, 3, r) {
-            let at = res.at(2, 3);
-            assert_eq!(at, Some(r));
-        } else {
-            panic!("update returned none")
-        }
+        c.update(2, 3, r);
+        let at = c.at(2, 3);
+        assert_eq!(at, Some(r));
     }
 
     #[test]

@@ -6,3 +6,11 @@ edition = "2021"
 [dependencies]
 macrotest = "1.0.9"
 num = "0.4.1"
+pixels = "0.13.0"
+
+[dependencies.winit_input_helper]
+version = "=0.14"
+
+[dependencies.winit]
+version = "=0.28"
+features = ["wayland"]

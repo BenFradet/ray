@@ -11,10 +11,11 @@ pub struct Colour {
 
 impl Colour {
     pub const fn new(r: f64, g: f64, b: f64) -> Colour {
-        Colour { r, g, b, }
+        Colour { r, g, b }
     }
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
+    pub const RED: Colour = Colour::new(1.0, 0.0, 0.0);
 
     pub fn scale<T: Num + FromPrimitive + NumCast + Copy>(&self, scale: T) -> (T, T, T) {
         let f = |c: f64, s: f64| -> T {
@@ -138,7 +139,11 @@ mod tests {
 
     #[test]
     fn colour() -> () {
-        let c = Colour { r: -0.5, g: 0.4, b: 1.7, };
+        let c = Colour {
+            r: -0.5,
+            g: 0.4,
+            b: 1.7,
+        };
         assert_eq!(c.r, -0.5);
         assert_eq!(c.g, 0.4);
         assert_eq!(c.b, 1.7);

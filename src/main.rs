@@ -1,63 +1,85 @@
-use std::{fs::File, io::{Result, Write}, thread::sleep, time::Duration};
+use base::colour::Colour;
+use pixels::{Error, Pixels, SurfaceTexture};
+use viewer::canvas::Canvas;
+use winit::{
+    dpi::LogicalSize,
+    event::{Event, VirtualKeyCode},
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};
+use winit_input_helper::WinitInputHelper;
 
-use model::{environment::Environment, projectile::Projectile};
-
-use crate::{base::{colour::Colour, point::Point, vector::Vector}, viewer::{canvas::Canvas, to_file::ToFile}};
+use crate::viewer::drawable::Drawable;
+use crate::{viewer::to_file::ToFile, world::World};
 
 mod base;
 mod model;
 mod viewer;
+mod world;
 
-fn main() {
-    let mut p = Projectile {
-        position: Point::new(0.0, 1.0, 0.0),
-        velocity: Vector::new(1.0, 1.8, 0.0).norm() * 11.25,
+fn main() -> Result<(), Error> {
+    let width = 900;
+    let height = 500;
+    let height_usize = height as usize;
+
+    let event_loop = EventLoop::new();
+    let mut input = WinitInputHelper::new();
+    let window = {
+        let size = LogicalSize::new(width as f64, height as f64);
+        WindowBuilder::new()
+            .with_title("ray")
+            .with_inner_size(size)
+            .with_min_inner_size(size)
+            .with_max_inner_size(size)
+            .build(&event_loop)
+            .unwrap()
     };
-    let e = Environment {
-        gravity: Vector::new(0.0, -0.1, 0.0),
-        wind: Vector::new(-0.01, 0.0, 0.0),
+
+    let mut pixels = {
+        let window_size = window.inner_size();
+        let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
+        Pixels::new(width, height, surface_texture)?
     };
 
-    let red = Colour::new(1.0, 0.0, 0.0);
+    let mut world = World::new();
+    let mut canvas = Canvas::black(width as usize, height as usize);
+    canvas.update(
+        world.p.position.x as usize,
+        height_usize - (world.p.position.y as usize),
+        Colour::RED,
+    );
 
-    let canvas_width = 900;
-    let canvas_height = 500;
-
-    let f = |canvas: Canvas, position: Point| -> Option<Canvas> {
-        canvas.update(position.x as usize, canvas_height - (position.y as usize), red)
-    };
-
-    let mut c = Some(Canvas::black(canvas_width, canvas_height))
-        .and_then(|canvas| f(canvas, p.position));
-
-    println!("environment: {e}");
-    loop {
-        println!("projectile: {p}");
-        p = tick(e, p);
-        if p.position.y <= 0.0 {
-            break;
-        }
-        c = c.and_then(|canvas| f(canvas, p.position));
-        sleep(Duration::from_millis(1));
-    }
-
-    match c {
-        Some(canvas) => {
-            let path = "result.ppm";
-            match canvas.to_file(path) {
-                Ok(()) => println!("successfully written {}", path),
-                Err(err) => println!("error writing {}", err),
+    event_loop.run(move |event, _, control_flow| {
+        if let Event::RedrawRequested(_) = event {
+            canvas.draw(pixels.frame_mut());
+            if let Err(err) = pixels.render() {
+                println!("pixels.render {}", err);
+                *control_flow = ControlFlow::Exit;
+                return;
             }
-        },
-        None => println!("no canvas"),
-    }
-}
+        }
+        if input.update(&event) {
+            // Close events
+            if input.key_pressed(VirtualKeyCode::Escape) || input.close_requested() {
+                let path = "result.ppm";
+                match canvas.to_file(path) {
+                    Ok(()) => println!("successfully written {}", path),
+                    Err(err) => println!("error writing {}", err),
+                }
 
-fn tick(env: Environment, proj: Projectile) -> Projectile {
-    let position = proj.position + proj.velocity;
-    let velocity = proj.velocity + env.gravity + env.wind;
-    Projectile {
-        position,
-        velocity,
-    }
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+        }
+
+        world.update();
+        if world.p.position.y > 0.0 {
+            canvas.update(
+                world.p.position.x as usize,
+                height_usize - (world.p.position.y as usize),
+                Colour::RED,
+            );
+        }
+        window.request_redraw();
+    });
 }

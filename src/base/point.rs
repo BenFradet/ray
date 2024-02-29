@@ -1,4 +1,7 @@
-use std::{fmt::{Display, Formatter, Result}, ops::{Add, Mul, Neg, Sub}};
+use std::{
+    fmt::{Display, Formatter, Result},
+    ops::{Add, Mul, Neg, Sub},
+};
 
 use super::vector::Vector;
 
@@ -50,7 +53,12 @@ impl Neg for Point {
     type Output = Point;
 
     fn neg(self) -> Self::Output {
-        Point { x: -self.x, y: -self.y, z: -self.z, w: -self.w, }
+        Point {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+            w: -self.w,
+        }
     }
 }
 
@@ -58,7 +66,12 @@ impl Mul<f64> for Point {
     type Output = Point;
 
     fn mul(self, rhs: f64) -> Self::Output {
-        Point { x: self.x * rhs, y: self.y * rhs, z: self.z * rhs, w: self.w * rhs, }
+        Point {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+            w: self.w * rhs,
+        }
     }
 }
 
@@ -70,14 +83,30 @@ mod tests {
     fn mul_for_point() -> () {
         let p = Point::new(1.0, -2.0, 3.0);
         let res = p * 0.5;
-        assert_eq!(res, Point { x: 0.5, y: -1.0, z: 1.5, w: 0.5 })
+        assert_eq!(
+            res,
+            Point {
+                x: 0.5,
+                y: -1.0,
+                z: 1.5,
+                w: 0.5
+            }
+        )
     }
 
     #[test]
     fn neg_for_point() -> () {
         let p = Point::new(3.0, 2.0, 1.0);
         let res = -p;
-        assert_eq!(res, Point { x: -3.0, y: -2.0, z: -1.0, w: -1.0 })
+        assert_eq!(
+            res,
+            Point {
+                x: -3.0,
+                y: -2.0,
+                z: -1.0,
+                w: -1.0
+            }
+        )
     }
 
     #[test]

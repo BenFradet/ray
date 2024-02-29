@@ -10,6 +10,11 @@ pub struct Environment {
 
 impl Display for Environment {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "gravity: {}, wind: {}", self.gravity.to_string(), self.wind.to_string())
+        write!(
+            f,
+            "gravity: {}, wind: {}",
+            self.gravity.to_string(),
+            self.wind.to_string()
+        )
     }
 }
