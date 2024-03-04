@@ -1,3 +1,5 @@
+use std::ops::Mul;
+
 // todo: use nalgebra when done
 #[derive(Debug, PartialEq)]
 pub struct Matrix2x2 {
@@ -137,9 +139,35 @@ impl Matrix4x4 {
     }
 }
 
+impl Mul<Matrix4x4> for Matrix4x4 {
+    type Output = Matrix4x4;
+
+    fn mul(self, rhs: Matrix4x4) -> Self::Output {
+        let mut res = Matrix4x4::repeat(0.0);
+        for row in 0..4 {
+            for col in 0..4 {
+                res.storage[row][col] =
+                    self.storage[row][0] * rhs.storage[0][col] +
+                    self.storage[row][1] * rhs.storage[1][col] +
+                    self.storage[row][2] * rhs.storage[2][col] +
+                    self.storage[row][3] * rhs.storage[3][col]
+            }
+        }
+        res
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mul() -> () {
+        let m1 = Matrix4x4::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0);
+        let m2 = Matrix4x4::new(-2.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, -1.0, 4.0, 3.0, 6.0, 5.0, 1.0, 2.0, 7.0, 8.0);
+        let ex = Matrix4x4::new(20.0, 22.0, 50.0, 48.0, 44.0, 54.0, 114.0, 108.0, 40.0, 58.0, 110.0, 102.0, 16.0, 26.0, 46.0, 42.0);
+        assert_eq!(m1 * m2, ex);
+    }
 
     #[test]
     fn new() -> () {
