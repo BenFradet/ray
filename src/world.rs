@@ -1,5 +1,5 @@
 use crate::{
-    base::{point::Point, vector::Vector},
+    math::{point::Point, vector::Vector},
     model::{environment::Environment, projectile::Projectile},
 };
 

@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter, Result};
 
-use crate::base::vector::Vector;
+use crate::math::vector::Vector;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Environment {

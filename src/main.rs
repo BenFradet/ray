@@ -1,4 +1,4 @@
-use base::colour::Colour;
+use math::colour::Colour;
 use pixels::{Error, Pixels, SurfaceTexture};
 use viewer::canvas::Canvas;
 use winit::{
@@ -12,7 +12,7 @@ use winit_input_helper::WinitInputHelper;
 use crate::viewer::drawable::Drawable;
 use crate::{viewer::to_file::ToFile, world::World};
 
-mod base;
+mod math;
 mod model;
 mod viewer;
 mod world;

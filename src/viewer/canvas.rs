@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-use crate::base::colour::Colour;
+use crate::math::colour::Colour;
 
 use super::drawable::Drawable;
 
