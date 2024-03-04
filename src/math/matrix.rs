@@ -1,9 +1,11 @@
 use std::ops::Mul;
 
+use super::vector::Vector;
+
 // todo: use nalgebra when done
 #[derive(Debug, PartialEq)]
 pub struct Matrix2x2 {
-    storage: [[f64; 2]; 2],
+    m: [[f64; 2]; 2],
 }
 
 impl Matrix2x2 {
@@ -14,13 +16,13 @@ impl Matrix2x2 {
         m11: f64,
     ) -> Self {
         Self {
-            storage: [[m00, m01], [m10, m11]],
+            m: [[m00, m01], [m10, m11]],
         }
     }
 
     pub fn repeat(m: f64) -> Self {
         Self {
-            storage: [[m, m], [m, m]],
+            m: [[m, m], [m, m]],
         }
     }
 }
@@ -32,17 +34,17 @@ mod tests2x2 {
     #[test]
     fn new() -> () {
         let m = Matrix2x2::new(-3.0, 5.0, 1.0, -2.0);
-        assert_eq!(m.storage[0][0], -3.0);
-        assert_eq!(m.storage[0][1], 5.0);
-        assert_eq!(m.storage[1][0], 1.0);
-        assert_eq!(m.storage[1][1], -2.0);
+        assert_eq!(m.m[0][0], -3.0);
+        assert_eq!(m.m[0][1], 5.0);
+        assert_eq!(m.m[1][0], 1.0);
+        assert_eq!(m.m[1][1], -2.0);
     }
 
     #[test]
     fn repeat() -> () {
         let v = 2.22;
         let m = Matrix2x2::repeat(v);
-        for row in m.storage {
+        for row in m.m {
             for i in row {
                 assert_eq!(i, v);
             }
@@ -52,7 +54,7 @@ mod tests2x2 {
 
 #[derive(Debug, PartialEq)]
 pub struct Matrix3x3 {
-    storage: [[f64; 3]; 3],
+    m: [[f64; 3]; 3],
 }
 
 impl Matrix3x3 {
@@ -68,13 +70,13 @@ impl Matrix3x3 {
         m22: f64,
     ) -> Self {
         Self {
-            storage: [[m00, m01, m02], [m10, m11, m12], [m20, m21, m22]],
+            m: [[m00, m01, m02], [m10, m11, m12], [m20, m21, m22]],
         }
     }
 
     pub fn repeat(m: f64) -> Self {
         Self {
-            storage: [[m, m, m], [m, m, m], [m, m, m]],
+            m: [[m, m, m], [m, m, m], [m, m, m]],
         }
     }
 }
@@ -86,16 +88,16 @@ mod tests3x3 {
     #[test]
     fn new() -> () {
         let m = Matrix3x3::new(-3.0, 5.0, 0.0, 1.0, -2.0, -7.0, 0.0, 1.0, 1.0);
-        assert_eq!(m.storage[0][0], -3.0);
-        assert_eq!(m.storage[1][1], -2.0);
-        assert_eq!(m.storage[2][2], 1.0);
+        assert_eq!(m.m[0][0], -3.0);
+        assert_eq!(m.m[1][1], -2.0);
+        assert_eq!(m.m[2][2], 1.0);
     }
 
     #[test]
     fn repeat() -> () {
         let v = 2.22;
         let m = Matrix3x3::repeat(v);
-        for row in m.storage {
+        for row in m.m {
             for i in row {
                 assert_eq!(i, v);
             }
@@ -105,7 +107,7 @@ mod tests3x3 {
 
 #[derive(Debug, PartialEq)]
 pub struct Matrix4x4 {
-    storage: [[f64; 4]; 4],
+    m: [[f64; 4]; 4],
 }
 
 impl Matrix4x4 {
@@ -128,13 +130,13 @@ impl Matrix4x4 {
         m33: f64,
     ) -> Self {
         Self {
-            storage: [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23], [m30, m31, m32, m33]],
+            m: [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23], [m30, m31, m32, m33]],
         }
     }
 
     pub fn repeat(m: f64) -> Self {
         Self {
-            storage: [[m, m, m, m], [m, m, m, m], [m, m, m, m], [m, m, m, m]],
+            m: [[m, m, m, m], [m, m, m, m], [m, m, m, m], [m, m, m, m]],
         }
     }
 }
@@ -146,20 +148,40 @@ impl Mul<Matrix4x4> for Matrix4x4 {
         let mut res = Matrix4x4::repeat(0.0);
         for row in 0..4 {
             for col in 0..4 {
-                res.storage[row][col] =
-                    self.storage[row][0] * rhs.storage[0][col] +
-                    self.storage[row][1] * rhs.storage[1][col] +
-                    self.storage[row][2] * rhs.storage[2][col] +
-                    self.storage[row][3] * rhs.storage[3][col]
+                res.m[row][col] =
+                    self.m[row][0] * rhs.m[0][col] +
+                    self.m[row][1] * rhs.m[1][col] +
+                    self.m[row][2] * rhs.m[2][col] +
+                    self.m[row][3] * rhs.m[3][col]
             }
         }
         res
     }
 }
 
+impl Mul<Vector> for Matrix4x4 {
+    type Output = Vector;
+
+    fn mul(self, rhs: Vector) -> Self::Output {
+        Vector {
+            x: self.m[0][0] * rhs.x + self.m[0][1] * rhs.y + self.m[0][2] * rhs.z + self.m[0][3] * rhs.w,
+            y: self.m[1][0] * rhs.x + self.m[1][1] * rhs.y + self.m[1][2] * rhs.z + self.m[1][3] * rhs.w,
+            z: self.m[2][0] * rhs.x + self.m[2][1] * rhs.y + self.m[2][2] * rhs.z + self.m[2][3] * rhs.w,
+            w: self.m[3][0] * rhs.x + self.m[3][1] * rhs.y + self.m[3][2] * rhs.z + self.m[3][3] * rhs.w,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mul_vector() -> () {
+        let m = Matrix4x4::new(1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+        let v = Vector { x: 1.0, y: 2.0, z: 3.0, w: 1.0 };
+        assert_eq!(m * v, Vector { x: 18.0, y: 24.0, z: 33.0, w: 1.0 });
+    }
 
     #[test]
     fn mul() -> () {
@@ -172,20 +194,20 @@ mod tests {
     #[test]
     fn new() -> () {
         let m = Matrix4x4::new(1.0, 2.0, 3.0, 4.0, 5.5, 6.5, 7.5, 8.5, 9.0, 10.0, 11.0, 12.0, 13.5, 14.5, 15.5, 16.5);
-        assert_eq!(m.storage[0][0], 1.0);
-        assert_eq!(m.storage[0][3], 4.0);
-        assert_eq!(m.storage[1][0], 5.5);
-        assert_eq!(m.storage[1][2], 7.5);
-        assert_eq!(m.storage[2][2], 11.0);
-        assert_eq!(m.storage[3][0], 13.5);
-        assert_eq!(m.storage[3][2], 15.5);
+        assert_eq!(m.m[0][0], 1.0);
+        assert_eq!(m.m[0][3], 4.0);
+        assert_eq!(m.m[1][0], 5.5);
+        assert_eq!(m.m[1][2], 7.5);
+        assert_eq!(m.m[2][2], 11.0);
+        assert_eq!(m.m[3][0], 13.5);
+        assert_eq!(m.m[3][2], 15.5);
     }
 
     #[test]
     fn repeat() -> () {
         let v = 2.22;
         let m = Matrix4x4::repeat(v);
-        for row in m.storage {
+        for row in m.m {
             for i in row {
                 assert_eq!(i, v);
             }
