@@ -41,6 +41,16 @@ impl Matrix4x4 {
             m: [[m, m, m, m], [m, m, m, m], [m, m, m, m], [m, m, m, m]],
         }
     }
+
+    pub fn transpose(&self) -> Self {
+        let mut res = Matrix4x4::repeat(0.0);
+        for row in 0..4 {
+            for col in 0..4 {
+                res.m[row][col] = self.m[col][row]
+            }
+        }
+        res
+    }
 }
 
 impl Mul<Matrix4x4> for Matrix4x4 {
@@ -77,6 +87,19 @@ impl Mul<Vector> for Matrix4x4 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn transpose() -> () {
+        let m = Matrix4x4::new(0.0, 9.0, 3.0, 0.0, 9.0, 8.0, 0.0, 8.0, 1.0, 8.0, 5.0, 3.0, 0.0, 0.0, 5.0, 8.0);
+        let ex = Matrix4x4::new(0.0, 9.0, 1.0, 0.0, 9.0, 8.0, 8.0, 0.0, 3.0, 0.0, 5.0, 5.0, 0.0, 8.0, 3.0, 8.0);
+        assert_eq!(m.transpose(), ex);
+    }
+
+    #[test]
+    fn transpose_id() -> () {
+        let id = Matrix4x4::ID;
+        assert_eq!(id.transpose(), id);
+    }
 
     #[test]
     fn id() -> () {
