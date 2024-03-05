@@ -51,6 +51,29 @@ impl Matrix4x4 {
         }
         res
     }
+
+    // todo refactor with traits
+    pub fn minor(&self, r: usize, c: usize) -> f64 {
+        let sub = self.sub(r, c);
+        sub.det()
+    }
+
+    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
+        let minor = self.minor(r, c);
+        if r + c % 2 == 0 {
+            minor
+        } else {
+            -minor
+        }
+    }
+
+    pub fn det(&self) -> f64 {
+        let mut det = 0.0;
+        for i in 0..4 {
+            det = det + self.m[0][i] * self.cofactor(0, i);
+        }
+        det
+    }
 }
 
 impl Mul<Matrix4x4> for Matrix4x4 {
@@ -105,8 +128,18 @@ impl SubMatrix for Matrix4x4 {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests4x4 {
     use super::*;
+
+    #[test]
+    fn det() -> () {
+        let m = Matrix4x4::new(-2.0, -8.0, 3.0, 5.0, -3.0, 1.0, 7.0, 3.0, 1.0, 2.0, -9.0, 6.0, -6.0, 7.0, 7.0, -9.0);
+        assert_eq!(m.cofactor(0, 0), 690.0);
+        assert_eq!(m.cofactor(0, 1), 447.0);
+        assert_eq!(m.cofactor(0, 2), 210.0);
+        assert_eq!(m.cofactor(0, 3), 51.0);
+        assert_eq!(m.det(), -4071.0);
+    }
 
     #[test]
     fn sub() -> () {
@@ -339,6 +372,14 @@ impl Matrix3x3 {
             -minor
         }
     }
+
+    pub fn det(&self) -> f64 {
+        let mut det = 0.0;
+        for i in 0..3 {
+            det = det + self.m[0][i] * self.cofactor(0, i);
+        }
+        det
+    }
 }
 
 impl SubMatrix for Matrix3x3 {
@@ -364,6 +405,15 @@ impl SubMatrix for Matrix3x3 {
 #[cfg(test)]
 mod tests3x3 {
     use super::*;
+
+    #[test]
+    fn det() -> () {
+        let m = Matrix3x3::new(1.0, 2.0, 6.0, -5.0, 8.0, -4.0, 2.0, 6.0, 4.0);
+        assert_eq!(m.cofactor(0, 0), 56.0);
+        assert_eq!(m.cofactor(0, 1), 12.0);
+        assert_eq!(m.cofactor(0, 2), -46.0);
+        assert_eq!(m.det(), -196.0);
+    }
 
     #[test]
     fn cofactor() -> () {
