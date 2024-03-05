@@ -325,6 +325,20 @@ impl Matrix3x3 {
         }
         m
     }
+
+    pub fn minor(&self, r: usize, c: usize) -> f64 {
+        let sub = self.sub(r, c);
+        sub.det()
+    }
+
+    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
+        let minor = self.minor(r, c);
+        if r + c % 2 == 0 {
+            minor
+        } else {
+            -minor
+        }
+    }
 }
 
 impl SubMatrix for Matrix3x3 {
@@ -350,6 +364,19 @@ impl SubMatrix for Matrix3x3 {
 #[cfg(test)]
 mod tests3x3 {
     use super::*;
+
+    #[test]
+    fn cofactor() -> () {
+        let m = Matrix3x3::new(3.0, 5.0, 0.0, 2.0, -1.0, -7.0, 6.0, -1.0, 5.0);
+        assert_eq!(m.cofactor(0, 0), -12.0);
+        assert_eq!(m.cofactor(1, 0), -25.0);
+    }
+
+    #[test]
+    fn minor() -> () {
+        let m = Matrix3x3::new(3.0, 5.0, 0.0, 2.0, -1.0, 7.0, 6.0, -1.0, 5.0);
+        assert_eq!(m.minor(1, 0), 25.0)
+    }
 
     #[test]
     fn from_iter() -> () {
