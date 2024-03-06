@@ -1,9 +1,12 @@
 pub mod colour;
 pub mod det;
 pub mod matrix;
-pub mod matrix_at;
+pub mod matrix_indexing;
+pub mod matrix_from_iter;
+pub mod matrix_invertible;
 pub mod matrix_size;
+pub mod matrix_sub;
+pub mod matrix_transpose;
 pub mod point;
-pub mod submatrix;
 pub mod tuple;
 pub mod vector;

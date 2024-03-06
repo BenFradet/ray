@@ -1,11 +1,11 @@
-use super::{matrix::Matrix2x2, matrix_at::MatrixAt, matrix_size::MatrixSize, submatrix::SubMatrix};
+use super::{matrix::Matrix2x2, matrix_indexing::MatrixIndexing, matrix_size::MatrixSize, matrix_sub::MatrixSub};
 
 pub trait Cofactor {
     fn minor(&self, r: usize, c: usize) -> f64;
     fn cofactor(&self, r: usize, c: usize) -> f64;
 }
 
-impl<A: SubMatrix<Output = B>, B: Det> Cofactor for A {
+impl<A: MatrixSub<Output = B>, B: Det> Cofactor for A {
     fn minor(&self, r: usize, c: usize) -> f64 {
         let sub = self.sub(r, c);
         sub.det()
@@ -25,10 +25,10 @@ pub trait Det {
     fn det(&self) -> f64;
 }
 
-impl <A: Cofactor + MatrixSize + MatrixAt> Det for A {
+impl <A: Cofactor + MatrixSize + MatrixIndexing> Det for A {
     fn det(&self) -> f64 {
         let mut det = 0.0;
-        for i in 0..self.size() {
+        for i in 0..Self::SIZE {
             det = det + self.at(0, i) * self.cofactor(0, i);
         }
         det

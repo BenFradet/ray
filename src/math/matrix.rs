@@ -1,6 +1,6 @@
 use std::ops::Mul;
 
-use super::{submatrix::SubMatrix, vector::Vector};
+use super::{matrix_from_iter::MatrixFromIter, vector::Vector};
 
 // todo: use nalgebra when done
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -30,26 +30,6 @@ impl Matrix4x4 {
         Self {
             m: [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23], [m30, m31, m32, m33]],
         }
-    }
-
-    pub const ID: Matrix4x4 = Self {
-        m: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
-    };
-
-    pub fn repeat(m: f64) -> Self {
-        Self {
-            m: [[m, m, m, m], [m, m, m, m], [m, m, m, m], [m, m, m, m]],
-        }
-    }
-
-    pub fn transpose(&self) -> Self {
-        let mut res = Matrix4x4::repeat(0.0);
-        for row in 0..4 {
-            for col in 0..4 {
-                res.m[row][col] = self.m[col][row]
-            }
-        }
-        res
     }
 }
 
@@ -89,35 +69,6 @@ mod tests4x4 {
     use super::*;
 
     #[test]
-    fn sub() -> () {
-        let m = Matrix4x4::new(-6.0, 1.0, 1.0, 6.0, -8.0, 5.0, 8.0, 6.0, -1.0, 0.0, 8.0, 2.0, -7.0, 1.0, -1.0, 1.0);
-        let sub = m.sub(2, 1);
-        let exp = Matrix3x3::new(-6.0, 1.0, 6.0, -8.0, 8.0, 6.0, -7.0, -1.0, 1.0);
-        assert_eq!(sub, exp);
-    }
-
-    #[test]
-    fn transpose() -> () {
-        let m = Matrix4x4::new(0.0, 9.0, 3.0, 0.0, 9.0, 8.0, 0.0, 8.0, 1.0, 8.0, 5.0, 3.0, 0.0, 0.0, 5.0, 8.0);
-        let ex = Matrix4x4::new(0.0, 9.0, 1.0, 0.0, 9.0, 8.0, 8.0, 0.0, 3.0, 0.0, 5.0, 5.0, 0.0, 8.0, 3.0, 8.0);
-        assert_eq!(m.transpose(), ex);
-    }
-
-    #[test]
-    fn transpose_id() -> () {
-        let id = Matrix4x4::ID;
-        assert_eq!(id.transpose(), id);
-    }
-
-    #[test]
-    fn id() -> () {
-        let m = Matrix4x4::new(1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0);
-        let id = Matrix4x4::ID;
-        assert_eq!(m * id, m);
-        assert_eq!(id * m, m);
-    }
-
-    #[test]
     fn mul_vector() -> () {
         let m = Matrix4x4::new(1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 4.0, 2.0, 8.0, 6.0, 4.0, 1.0, 0.0, 0.0, 0.0, 1.0);
         let v = Vector { x: 1.0, y: 2.0, z: 3.0, w: 1.0 };
@@ -142,17 +93,6 @@ mod tests4x4 {
         assert_eq!(m.m[2][2], 11.0);
         assert_eq!(m.m[3][0], 13.5);
         assert_eq!(m.m[3][2], 15.5);
-    }
-
-    #[test]
-    fn repeat() -> () {
-        let v = 2.22;
-        let m = Matrix4x4::repeat(v);
-        for row in m.m {
-            for i in row {
-                assert_eq!(i, v);
-            }
-        }
     }
 
     #[test]
@@ -187,49 +127,11 @@ impl Matrix2x2 {
             m: [[m00, m01], [m10, m11]],
         }
     }
-
-    pub fn repeat(m: f64) -> Self {
-        Self {
-            m: [[m, m], [m, m]],
-        }
-    }
-
-    pub fn from_iter<I>(items: I) -> Self
-    where
-        I: IntoIterator<Item = f64>,
-    {
-        let mut m = Self::repeat(0.0);
-        let mut iter = items.into_iter();
-        for i in 0..2 {
-            for j in 0..2 {
-                if let Some(item) = iter.next() {
-                    m.m[i][j] = item;
-                }
-            }
-        }
-        m
-    }
 }
 
 #[cfg(test)]
 mod tests2x2 {
     use super::*;
-
-    #[test]
-    fn from_iter() -> () {
-        let v1 = vec![0.0, 1.0, 2.0, 3.0];
-        let m1 = Matrix2x2::from_iter(v1);
-        let e1 = Matrix2x2::new(0.0, 1.0, 2.0, 3.0);
-        assert_eq!(m1, e1);
-        let v2 = vec![0.0, 1.0, 2.0, 3.0, 4.0];
-        let m2 = Matrix2x2::from_iter(v2);
-        let e2 = Matrix2x2::new(0.0, 1.0, 2.0, 3.0);
-        assert_eq!(m2, e2);
-        let v3 = vec![0.0, 1.0, 2.0];
-        let m3 = Matrix2x2::from_iter(v3);
-        let e3 = Matrix2x2::new(0.0, 1.0, 2.0, 0.0);
-        assert_eq!(m3, e3);
-    }
 
     #[test]
     fn new() -> () {
@@ -238,17 +140,6 @@ mod tests2x2 {
         assert_eq!(m.m[0][1], 5.0);
         assert_eq!(m.m[1][0], 1.0);
         assert_eq!(m.m[1][1], -2.0);
-    }
-
-    #[test]
-    fn repeat() -> () {
-        let v = 2.22;
-        let m = Matrix2x2::repeat(v);
-        for row in m.m {
-            for i in row {
-                assert_eq!(i, v);
-            }
-        }
     }
 }
 
@@ -273,28 +164,6 @@ impl Matrix3x3 {
             m: [[m00, m01, m02], [m10, m11, m12], [m20, m21, m22]],
         }
     }
-
-    pub fn repeat(m: f64) -> Self {
-        Self {
-            m: [[m, m, m], [m, m, m], [m, m, m]],
-        }
-    }
-
-    pub fn from_iter<I>(items: I) -> Self
-    where
-        I: IntoIterator<Item = f64>,
-    {
-        let mut m = Self::repeat(0.0);
-        let mut iter = items.into_iter();
-        for i in 0..3 {
-            for j in 0..3 {
-                if let Some(item) = iter.next() {
-                    m.m[i][j] = item;
-                }
-            }
-        }
-        m
-    }
 }
 
 #[cfg(test)]
@@ -302,45 +171,10 @@ mod tests3x3 {
     use super::*;
 
     #[test]
-    fn from_iter() -> () {
-        let v1 = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
-        let m1 = Matrix3x3::from_iter(v1);
-        let e1 = Matrix3x3::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);
-        assert_eq!(m1, e1);
-        let v2 = vec![0.0, 1.0, 2.0, 3.0, 4.0];
-        let m2 = Matrix3x3::from_iter(v2);
-        let e2 = Matrix3x3::new(0.0, 1.0, 2.0, 3.0, 4.0, 0.0, 0.0, 0.0, 0.0);
-        assert_eq!(m2, e2);
-        let v3 = vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
-        let m3 = Matrix3x3::from_iter(v3);
-        let e3 = Matrix3x3::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);
-        assert_eq!(m3, e3);
-    }
-
-    #[test]
-    fn sub() -> () {
-        let m = Matrix3x3::new(1.0, 5.0, 0.0, -3.0, 2.0, 7.0, 0.0, 6.0, -3.0);
-        let sub = m.sub(0, 2);
-        let exp = Matrix2x2::new(-3.0, 2.0, 0.0, 6.0);
-        assert_eq!(sub, exp);
-    }
-
-    #[test]
     fn new() -> () {
         let m = Matrix3x3::new(-3.0, 5.0, 0.0, 1.0, -2.0, -7.0, 0.0, 1.0, 1.0);
         assert_eq!(m.m[0][0], -3.0);
         assert_eq!(m.m[1][1], -2.0);
         assert_eq!(m.m[2][2], 1.0);
-    }
-
-    #[test]
-    fn repeat() -> () {
-        let v = 2.22;
-        let m = Matrix3x3::repeat(v);
-        for row in m.m {
-            for i in row {
-                assert_eq!(i, v);
-            }
-        }
     }
 }

@@ -1,12 +1,12 @@
-use super::matrix::{Matrix2x2, Matrix3x3, Matrix4x4};
+use super::{matrix::{Matrix2x2, Matrix3x3, Matrix4x4}, matrix_from_iter::MatrixFromIter};
 
-pub trait SubMatrix {
+pub trait MatrixSub {
     type Output;
 
     fn sub(&self, r: usize, c: usize) -> Self::Output;
 }
 
-impl SubMatrix for Matrix3x3 {
+impl MatrixSub for Matrix3x3 {
     type Output = Matrix2x2;
 
     fn sub(&self, r: usize, c: usize) -> Self::Output {
@@ -26,7 +26,7 @@ impl SubMatrix for Matrix3x3 {
     }
 }
 
-impl SubMatrix for Matrix4x4 {
+impl MatrixSub for Matrix4x4 {
     type Output = Matrix3x3;
 
     fn sub(&self, r: usize, c: usize) -> Self::Output {
@@ -43,5 +43,26 @@ impl SubMatrix for Matrix4x4 {
             }
             Matrix3x3::from_iter(v)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sub3x3() -> () {
+        let m = Matrix3x3::new(1.0, 5.0, 0.0, -3.0, 2.0, 7.0, 0.0, 6.0, -3.0);
+        let sub = m.sub(0, 2);
+        let exp = Matrix2x2::new(-3.0, 2.0, 0.0, 6.0);
+        assert_eq!(sub, exp);
+    }
+
+    #[test]
+    fn sub4x4() -> () {
+        let m = Matrix4x4::new(-6.0, 1.0, 1.0, 6.0, -8.0, 5.0, 8.0, 6.0, -1.0, 0.0, 8.0, 2.0, -7.0, 1.0, -1.0, 1.0);
+        let sub = m.sub(2, 1);
+        let exp = Matrix3x3::new(-6.0, 1.0, 6.0, -8.0, 8.0, 6.0, -7.0, -1.0, 1.0);
+        assert_eq!(sub, exp);
     }
 }
