@@ -1,5 +1,8 @@
 pub mod colour;
+pub mod det;
 pub mod matrix;
+pub mod matrix_at;
+pub mod matrix_size;
 pub mod point;
 pub mod submatrix;
 pub mod tuple;

@@ -5,7 +5,7 @@ use super::{submatrix::SubMatrix, vector::Vector};
 // todo: use nalgebra when done
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Matrix4x4 {
-    m: [[f64; 4]; 4],
+    pub m: [[f64; 4]; 4],
 }
 
 impl Matrix4x4 {
@@ -51,29 +51,6 @@ impl Matrix4x4 {
         }
         res
     }
-
-    // todo refactor with traits
-    pub fn minor(&self, r: usize, c: usize) -> f64 {
-        let sub = self.sub(r, c);
-        sub.det()
-    }
-
-    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
-        let minor = self.minor(r, c);
-        if r + c % 2 == 0 {
-            minor
-        } else {
-            -minor
-        }
-    }
-
-    pub fn det(&self) -> f64 {
-        let mut det = 0.0;
-        for i in 0..4 {
-            det = det + self.m[0][i] * self.cofactor(0, i);
-        }
-        det
-    }
 }
 
 impl Mul<Matrix4x4> for Matrix4x4 {
@@ -107,39 +84,9 @@ impl Mul<Vector> for Matrix4x4 {
     }
 }
 
-impl SubMatrix for Matrix4x4 {
-    type Output = Matrix3x3;
-
-    fn sub(&self, r: usize, c: usize) -> Self::Output {
-        if r > 3 || c > 3 {
-            Matrix3x3::repeat(0.0)
-        } else {
-            let mut v = Vec::with_capacity(9);
-            for i in 0..4 {
-                for j in 0..4 {
-                    if i != r && j != c {
-                        v.push(self.m[i][j]);
-                    }
-                }
-            }
-            Matrix3x3::from_iter(v)
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests4x4 {
     use super::*;
-
-    #[test]
-    fn det() -> () {
-        let m = Matrix4x4::new(-2.0, -8.0, 3.0, 5.0, -3.0, 1.0, 7.0, 3.0, 1.0, 2.0, -9.0, 6.0, -6.0, 7.0, 7.0, -9.0);
-        assert_eq!(m.cofactor(0, 0), 690.0);
-        assert_eq!(m.cofactor(0, 1), 447.0);
-        assert_eq!(m.cofactor(0, 2), 210.0);
-        assert_eq!(m.cofactor(0, 3), 51.0);
-        assert_eq!(m.det(), -4071.0);
-    }
 
     #[test]
     fn sub() -> () {
@@ -226,7 +173,7 @@ mod tests4x4 {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Matrix2x2 {
-    m: [[f64; 2]; 2],
+    pub m: [[f64; 2]; 2],
 }
 
 impl Matrix2x2 {
@@ -262,10 +209,6 @@ impl Matrix2x2 {
         }
         m
     }
-
-    pub fn det(&self) -> f64 {
-        self.m[0][0] * self.m[1][1] - self.m[1][0] * self.m[0][1]
-    }
 }
 
 #[cfg(test)]
@@ -286,12 +229,6 @@ mod tests2x2 {
         let m3 = Matrix2x2::from_iter(v3);
         let e3 = Matrix2x2::new(0.0, 1.0, 2.0, 0.0);
         assert_eq!(m3, e3);
-    }
-
-    #[test]
-    fn det() -> () {
-        let m = Matrix2x2::new(1.0, 5.0, -3.0, 2.0);
-        assert_eq!(m.det(), 17.0);
     }
 
     #[test]
@@ -317,7 +254,7 @@ mod tests2x2 {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Matrix3x3 {
-    m: [[f64; 3]; 3],
+    pub m: [[f64; 3]; 3],
 }
 
 impl Matrix3x3 {
@@ -358,75 +295,11 @@ impl Matrix3x3 {
         }
         m
     }
-
-    pub fn minor(&self, r: usize, c: usize) -> f64 {
-        let sub = self.sub(r, c);
-        sub.det()
-    }
-
-    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
-        let minor = self.minor(r, c);
-        if r + c % 2 == 0 {
-            minor
-        } else {
-            -minor
-        }
-    }
-
-    pub fn det(&self) -> f64 {
-        let mut det = 0.0;
-        for i in 0..3 {
-            det = det + self.m[0][i] * self.cofactor(0, i);
-        }
-        det
-    }
-}
-
-impl SubMatrix for Matrix3x3 {
-    type Output = Matrix2x2;
-
-    fn sub(&self, r: usize, c: usize) -> Self::Output {
-        if r > 2 || c > 2 {
-            Matrix2x2::repeat(0.0)
-        } else {
-            let mut v = Vec::with_capacity(4);
-            for i in 0..3 {
-                for j in 0..3 {
-                    if i != r && j != c {
-                        v.push(self.m[i][j]);
-                    }
-                }
-            }
-            Matrix2x2::from_iter(v)
-        }
-    }
 }
 
 #[cfg(test)]
 mod tests3x3 {
     use super::*;
-
-    #[test]
-    fn det() -> () {
-        let m = Matrix3x3::new(1.0, 2.0, 6.0, -5.0, 8.0, -4.0, 2.0, 6.0, 4.0);
-        assert_eq!(m.cofactor(0, 0), 56.0);
-        assert_eq!(m.cofactor(0, 1), 12.0);
-        assert_eq!(m.cofactor(0, 2), -46.0);
-        assert_eq!(m.det(), -196.0);
-    }
-
-    #[test]
-    fn cofactor() -> () {
-        let m = Matrix3x3::new(3.0, 5.0, 0.0, 2.0, -1.0, -7.0, 6.0, -1.0, 5.0);
-        assert_eq!(m.cofactor(0, 0), -12.0);
-        assert_eq!(m.cofactor(1, 0), -25.0);
-    }
-
-    #[test]
-    fn minor() -> () {
-        let m = Matrix3x3::new(3.0, 5.0, 0.0, 2.0, -1.0, 7.0, 6.0, -1.0, 5.0);
-        assert_eq!(m.minor(1, 0), 25.0)
-    }
 
     #[test]
     fn from_iter() -> () {
