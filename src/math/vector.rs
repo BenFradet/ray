@@ -13,11 +13,11 @@ pub struct Vector {
 
 impl Vector {
     pub fn new(x: f64, y: f64, z: f64) -> Vector {
-        Vector { x, y, z, w: 0.0 }
+        Vector { x, y, z, w: 0. }
     }
 
     pub fn len(self) -> f64 {
-        f64::sqrt(self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0))
+        f64::sqrt(self.x.powf(2.) + self.y.powf(2.) + self.z.powf(2.))
     }
 
     pub fn norm(self) -> Vector {
@@ -97,69 +97,69 @@ mod tests {
 
     #[test]
     fn vec_cross() -> () {
-        let v1 = Vector::new(1.0, 2.0, 3.0);
-        let v2 = Vector::new(2.0, 3.0, 4.0);
-        assert_eq!(v1.cross(v2), Vector::new(-1.0, 2.0, -1.0));
-        assert_eq!(v2.cross(v1), Vector::new(1.0, -2.0, 1.0));
+        let v1 = Vector::new(1., 2., 3.);
+        let v2 = Vector::new(2., 3., 4.);
+        assert_eq!(v1.cross(v2), Vector::new(-1., 2., -1.));
+        assert_eq!(v2.cross(v1), Vector::new(1., -2., 1.));
     }
 
     #[test]
     fn vec_dot() -> () {
-        let v1 = Vector::new(1.0, 2.0, 3.0);
-        let v2 = Vector::new(2.0, 3.0, 4.0);
+        let v1 = Vector::new(1., 2., 3.);
+        let v2 = Vector::new(2., 3., 4.);
         let res = v1.dot(v2);
-        assert_eq!(res, 20.0)
+        assert_eq!(res, 20.)
     }
 
     #[test]
     fn vec_norm() -> () {
         assert_eq!(
-            Vector::new(4.0, 0.0, 0.0).norm(),
-            Vector::new(1.0, 0.0, 0.0)
+            Vector::new(4., 0., 0.).norm(),
+            Vector::new(1., 0., 0.)
         );
-        let v = Vector::new(1.0, 2.0, 3.0);
-        let sqrt = f64::sqrt(14.0);
+        let v = Vector::new(1., 2., 3.);
+        let sqrt = f64::sqrt(14.);
         let norm = v.norm();
-        assert_eq!(norm, Vector::new(1.0 / sqrt, 2.0 / sqrt, 3.0 / sqrt));
-        assert_eq!(norm.len(), 1.0);
+        assert_eq!(norm, Vector::new(1. / sqrt, 2. / sqrt, 3. / sqrt));
+        assert_eq!(norm.len(), 1.);
     }
 
     #[test]
     fn vec_len() -> () {
-        assert_eq!(Vector::new(1.0, 0.0, 0.0).len(), 1.0);
-        assert_eq!(Vector::new(0.0, 1.0, 0.0).len(), 1.0);
-        assert_eq!(Vector::new(0.0, 0.0, 1.0).len(), 1.0);
-        assert_eq!(Vector::new(1.0, 2.0, 3.0).len(), f64::sqrt(14.0));
-        assert_eq!(Vector::new(-1.0, -2.0, -3.0).len(), f64::sqrt(14.0));
+        assert_eq!(Vector::new(1., 0., 0.).len(), 1.);
+        assert_eq!(Vector::new(0., 1., 0.).len(), 1.);
+        assert_eq!(Vector::new(0., 0., 1.).len(), 1.);
+        assert_eq!(Vector::new(1., 2., 3.).len(), f64::sqrt(14.));
+        assert_eq!(Vector::new(-1., -2., -3.).len(), f64::sqrt(14.));
     }
 
     #[test]
     fn mul_for_vec() -> () {
-        let p = Vector::new(1.0, -2.0, 3.0);
+        let p = Vector::new(1., -2., 3.);
         let res = p * 0.5;
-        assert_eq!(res, Vector::new(0.5, -1.0, 1.5))
+        assert_eq!(res, Vector::new(0.5, -1., 1.5))
     }
 
     #[test]
     fn neg_for_vec() -> () {
-        let v = Vector::new(3.0, 2.0, 1.0);
+        let v = Vector::new(3., 2., 1.);
         let res = -v;
-        assert_eq!(res, Vector::new(-3.0, -2.0, -1.0))
+        assert_eq!(res, Vector::new(-3., -2., -1.))
     }
 
     #[test]
     fn sub_vec_from_vec() -> () {
-        let v1 = Vector::new(3.0, 2.0, 1.0);
-        let v2 = Vector::new(5.0, 6.0, 7.0);
+        let v1 = Vector::new(3., 2., 1.);
+        let v2 = Vector::new(5., 6., 7.);
         let res = v1 - v2;
-        assert_eq!(res, Vector::new(-2.0, -4.0, -6.0));
+        assert_eq!(res, Vector::new(-2., -4., -6.));
     }
 
     #[test]
     fn add_vector_to_vector() -> () {
-        let v1 = Vector::new(3.0, -2.0, 5.0);
-        let v2 = Vector::new(-2.0, 3.0, 1.0);
+        let v1 = Vector::new(3., -2., 5.);
+        let v2 = Vector::new(-2., 3., 1.);
         let res = v1 + v2;
-        assert_eq!(res, Vector::new(1.0, 1.0, 6.0));
+        assert_eq!(res, Vector::new(1., 1., 6.));
     }
 }

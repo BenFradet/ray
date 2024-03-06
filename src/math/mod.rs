@@ -1,9 +1,10 @@
 pub mod colour;
-pub mod det;
+pub mod matrix_det;
 pub mod matrix;
-pub mod matrix_indexing;
+pub mod matrix_const;
 pub mod matrix_from_iter;
-pub mod matrix_invertible;
+pub mod matrix_indexing;
+pub mod matrix_invert;
 pub mod matrix_size;
 pub mod matrix_sub;
 pub mod matrix_transpose;

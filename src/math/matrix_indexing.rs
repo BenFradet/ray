@@ -31,7 +31,9 @@ impl MatrixIndexing for Matrix3x3 {
     }
 
     fn update_at(&mut self, r: usize, c: usize, e: f64) -> () {
-        self.m[r][c] = e;
+        if r < Self::SIZE || c < Self::SIZE {
+            self.m[r][c] = e;
+        }
     }
 }
 
@@ -45,6 +47,8 @@ impl MatrixIndexing for Matrix4x4 {
     }
 
     fn update_at(&mut self, r: usize, c: usize, e: f64) -> () {
-        self.m[r][c] = e;
+        if r < Self::SIZE || c < Self::SIZE {
+            self.m[r][c] = e;
+        }
     }
 }

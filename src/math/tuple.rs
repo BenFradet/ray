@@ -53,7 +53,7 @@ mod tests {
                 assert_eq!(x, 4.3);
                 assert_eq!(y, -4.2);
                 assert_eq!(z, 3.1);
-                assert_eq!(w, 1.0);
+                assert_eq!(w, 1.);
             }
             _ => panic!("not a point"),
         }
@@ -67,7 +67,7 @@ mod tests {
                 assert_eq!(x, 4.3);
                 assert_eq!(y, -4.2);
                 assert_eq!(z, 3.1);
-                assert_eq!(w, 0.0);
+                assert_eq!(w, 0.);
             }
             _ => panic!("not a vector"),
         }
