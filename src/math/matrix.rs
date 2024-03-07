@@ -109,6 +109,17 @@ impl Matrix4x4 {
         res
     }
 
+    pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
+        let mut res = Self::ID;
+        res[(0, 1)] = xy;
+        res[(0, 2)] = xz;
+        res[(1, 0)] = yx;
+        res[(1, 2)] = yz;
+        res[(2, 0)] = zx;
+        res[(2, 1)] = zy;
+        res
+    }
+
     fn multiply(&self, x: f64, y: f64, z: f64, w: f64) -> (f64, f64, f64, f64) {
         (
             self[(0, 0)] * x + self[(0, 1)] * y + self[(0, 2)] * z + self[(0, 3)] * w,
@@ -175,6 +186,17 @@ mod tests4x4 {
     use crate::math::{matrix_invert::MatrixInvert, point::Point, round::Round};
 
     use super::*;
+
+    #[test]
+    fn shearing() -> () {
+        let p = Point::new(2., 3., 4.);
+        assert_eq!(Matrix4x4::shearing(1., 0., 0., 0., 0., 0.) * p, Point::new(5., 3., 4.));
+        assert_eq!(Matrix4x4::shearing(0., 1., 0., 0., 0., 0.) * p, Point::new(6., 3., 4.));
+        assert_eq!(Matrix4x4::shearing(0., 0., 1., 0., 0., 0.) * p, Point::new(2., 5., 4.));
+        assert_eq!(Matrix4x4::shearing(0., 0., 0., 1., 0., 0.) * p, Point::new(2., 7., 4.));
+        assert_eq!(Matrix4x4::shearing(0., 0., 0., 0., 1., 0.) * p, Point::new(2., 3., 6.));
+        assert_eq!(Matrix4x4::shearing(0., 0., 0., 0., 0., 1.) * p, Point::new(2., 3., 7.));
+    }
 
     #[test]
     fn rotation_z() -> () {
