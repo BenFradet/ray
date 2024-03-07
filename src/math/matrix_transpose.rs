@@ -1,16 +1,18 @@
-use super::{matrix_const::MatrixConst, matrix_indexing::MatrixIndexing, matrix_size::MatrixSize};
+use std::ops::{Index, IndexMut};
+
+use super::{matrix_const::MatrixConst, matrix_size::MatrixSize};
 
 pub trait MatrixTranspose {
     fn transpose(&self) -> Self;
 }
 
-impl <T: MatrixConst + MatrixIndexing + MatrixSize> MatrixTranspose for T {
+impl <T: MatrixConst + Index<(usize, usize)> + IndexMut<(usize, usize), Output = f64> + MatrixSize> MatrixTranspose for T {
     fn transpose(&self) -> Self {
         let mut res = Self::ID;
         for row in 0..Self::SIZE {
             for col in 0..Self::SIZE {
-                let v = self.at(col, row);
-                res.update_at(row, col, v);
+                let v = self[(col, row)];
+                res[(row, col)] = v;
             }
         }
         res

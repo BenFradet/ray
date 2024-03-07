@@ -1,4 +1,6 @@
-use super::{matrix::Matrix2x2, matrix_indexing::MatrixIndexing, matrix_size::MatrixSize, matrix_sub::MatrixSub};
+use std::ops::Index;
+
+use super::{matrix::Matrix2x2, matrix_size::MatrixSize, matrix_sub::MatrixSub};
 
 pub trait MatrixCofactor {
     fn minor(&self, r: usize, c: usize) -> f64;
@@ -28,11 +30,11 @@ pub trait MatrixDet {
     fn is_invertible(&self) -> bool;
 }
 
-impl <A: MatrixCofactor + MatrixSize + MatrixIndexing> MatrixDet for A {
+impl <A: MatrixCofactor + MatrixSize + Index<(usize, usize), Output = f64>> MatrixDet for A {
     fn det(&self) -> f64 {
         let mut det = 0.;
         for i in 0..Self::SIZE {
-            det = det + self.at(0, i) * self.cofactor(0, i);
+            det = det + self[(0, i)] * self.cofactor(0, i);
         }
         det
         

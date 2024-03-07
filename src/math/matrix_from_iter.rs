@@ -1,20 +1,20 @@
-use std::iter;
+use std::{iter, ops::IndexMut};
 
-use super::{matrix::{Matrix2x2, Matrix3x3, Matrix4x4}, matrix_const::MatrixConst, matrix_indexing::MatrixIndexing, matrix_size::MatrixSize};
+use super::{matrix_const::MatrixConst, matrix_size::MatrixSize};
 
 pub trait MatrixFromIter {
     fn from_iter<I>(items: I) -> Self where I: IntoIterator<Item = f64>;
     fn repeat(m: f64) -> Self;
 }
 
-impl <T: MatrixConst + MatrixSize + MatrixIndexing> MatrixFromIter for T {
+impl <T: MatrixConst + MatrixSize + IndexMut<(usize, usize), Output = f64>> MatrixFromIter for T {
     fn from_iter<I>(items: I) -> Self where I: IntoIterator<Item = f64> {
         let mut m = Self::ZERO;
         let mut iter = items.into_iter();
         for i in 0..Self::SIZE {
             for j in 0..Self::SIZE {
                 if let Some(item) = iter.next() {
-                    m.update_at(i, j, item);
+                    m[(i, j)] = item;
                 }
             }
         }
@@ -29,6 +29,8 @@ impl <T: MatrixConst + MatrixSize + MatrixIndexing> MatrixFromIter for T {
 
 #[cfg(test)]
 mod tests {
+    use crate::math::matrix::{Matrix2x2, Matrix3x3, Matrix4x4};
+
     use super::*;
 
     #[test]

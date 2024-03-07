@@ -1,13 +1,14 @@
-use std::ops::Mul;
+use std::ops::{Index, IndexMut, Mul};
 
-use super::{matrix_from_iter::MatrixFromIter, matrix_indexing::MatrixIndexing, matrix_size::MatrixSize, vector::Vector};
+use super::{matrix_const::MatrixConst, matrix_from_iter::MatrixFromIter, matrix_size::MatrixSize, vector::Vector};
 
 // new type required to impl into iterator
-pub struct Matrix<M: MatrixSize + MatrixIndexing> {
+pub struct Matrix<M: MatrixSize + Index<(usize, usize), Output = f64>> {
     pub m: M
 }
 
-impl <T: MatrixSize + MatrixIndexing> IntoIterator for Matrix<T> {
+// can't do Output: f64 because of https://github.com/rust-lang/rust/issues/52662
+impl <T: MatrixSize + Index<(usize, usize), Output = f64>> IntoIterator for Matrix<T> {
     type Item = f64;
     type IntoIter = std::vec::IntoIter<Self::Item>;
     fn into_iter(self) -> Self::IntoIter {
@@ -17,7 +18,7 @@ impl <T: MatrixSize + MatrixIndexing> IntoIterator for Matrix<T> {
         let mut v = Vec::with_capacity(T::SIZE * T::SIZE);
         for r in 0..T::SIZE {
             for c in 0..T::SIZE {
-                v.push(self.m.at(r, c));
+                v.push(self.m[(r, c)]);
             }
         }
         v.into_iter()
@@ -55,6 +56,20 @@ impl Matrix4x4 {
     }
 }
 
+impl IndexMut<(usize, usize)> for Matrix4x4 {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        &mut self.m[index.0][index.1]
+    }
+}
+
+impl Index<(usize, usize)> for Matrix4x4 {
+    type Output = f64;
+
+    fn index(&self, index: (usize, usize)) -> &Self::Output {
+        &self.m[index.0][index.1]
+    }
+}
+
 impl Mul<Matrix4x4> for Matrix4x4 {
     type Output = Matrix4x4;
 
@@ -89,6 +104,14 @@ impl Mul<Vector> for Matrix4x4 {
 #[cfg(test)]
 mod tests4x4 {
     use super::*;
+
+    #[test]
+    fn index() -> () {
+        let mut m = Matrix4x4::ID;
+        assert_eq!(m[(0, 0)], 1.);
+        m[(0, 0)] = 2.;
+        assert_eq!(m[(0, 0)], 2.);
+    }
 
     #[test]
     fn mul_vector() -> () {
@@ -151,9 +174,31 @@ impl Matrix2x2 {
     }
 }
 
+impl IndexMut<(usize, usize)> for Matrix2x2 {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        &mut self.m[index.0][index.1]
+    }
+}
+
+impl Index<(usize, usize)> for Matrix2x2 {
+    type Output = f64;
+
+    fn index(&self, index: (usize, usize)) -> &Self::Output {
+        &self.m[index.0][index.1]
+    }
+}
+
 #[cfg(test)]
 mod tests2x2 {
     use super::*;
+
+    #[test]
+    fn index() -> () {
+        let mut m = Matrix2x2::ID;
+        assert_eq!(m[(0, 0)], 1.);
+        m[(0, 0)] = 2.;
+        assert_eq!(m[(0, 0)], 2.);
+    }
 
     #[test]
     fn new() -> () {
@@ -188,9 +233,31 @@ impl Matrix3x3 {
     }
 }
 
+impl IndexMut<(usize, usize)> for Matrix3x3 {
+    fn index_mut(&mut self, index: (usize, usize)) -> &mut Self::Output {
+        &mut self.m[index.0][index.1]
+    }
+}
+
+impl Index<(usize, usize)> for Matrix3x3 {
+    type Output = f64;
+
+    fn index(&self, index: (usize, usize)) -> &Self::Output {
+        &self.m[index.0][index.1]
+    }
+}
+
 #[cfg(test)]
 mod tests3x3 {
     use super::*;
+
+    #[test]
+    fn index() -> () {
+        let mut m = Matrix3x3::ID;
+        assert_eq!(m[(0, 0)], 1.);
+        m[(0, 0)] = 2.;
+        assert_eq!(m[(0, 0)], 2.);
+    }
 
     #[test]
     fn new() -> () {

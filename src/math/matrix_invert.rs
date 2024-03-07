@@ -1,10 +1,12 @@
-use super::{matrix_const::MatrixConst, matrix_det::{MatrixCofactor, MatrixDet}, matrix_indexing::MatrixIndexing, matrix_size::MatrixSize};
+use std::ops::IndexMut;
+
+use super::{matrix_const::MatrixConst, matrix_det::{MatrixCofactor, MatrixDet}, matrix_size::MatrixSize};
 
 pub trait MatrixInvert {
     fn invert(&self) -> Option<Self> where Self: Sized;
 }
 
-impl <T: MatrixCofactor + MatrixDet + MatrixConst + MatrixSize + MatrixIndexing> MatrixInvert for T {
+impl <T: MatrixCofactor + MatrixDet + MatrixConst + MatrixSize + IndexMut<(usize, usize), Output = f64>> MatrixInvert for T {
     fn invert(&self) -> Option<Self> where Self: Sized {
         if !self.is_invertible() {
             None
@@ -15,7 +17,7 @@ impl <T: MatrixCofactor + MatrixDet + MatrixConst + MatrixSize + MatrixIndexing>
                 for col in 0..Self::SIZE {
                     let c = self.cofactor(row, col);
                     let v = c / det;
-                    i.update_at(col, row, v);
+                    i[(col, row)] = v;
                 }
             }
             Some(i)
@@ -108,7 +110,7 @@ mod tests {
         assert_eq!(a.cofactor(2, 3), -160.);
         assert!(b.is_some());
         let bp = b.unwrap();
-        assert_eq!(bp.at(3, 2), -160. / 532.);
+        assert_eq!(bp[(3, 2)], -160. / 532.);
         let exp = vec![0.21805, 0.45113, 0.24060, -0.04511, -0.80827, -1.45677, -0.44361,
             0.52068, -0.07895, -0.22368, -0.05263, 0.19737, -0.52256, -0.81391, -0.30075, 0.30639];
         assert_eq!(rounded(bp, 5), exp);
