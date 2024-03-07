@@ -71,6 +71,14 @@ impl Matrix4x4 {
         res
     }
 
+    pub fn scaling(x: f64, y: f64, z: f64) -> Self {
+        let mut res = Self::ID;
+        res[(0, 0)] = x;
+        res[(1, 1)] = y;
+        res[(2, 2)] = z;
+        res
+    }
+
     fn multiply(&self, x: f64, y: f64, z: f64, w: f64) -> (f64, f64, f64, f64) {
         (
             self[(0, 0)] * x + self[(0, 1)] * y + self[(0, 2)] * z + self[(0, 3)] * w,
@@ -135,6 +143,41 @@ mod tests4x4 {
     use crate::math::{matrix_invert::MatrixInvert, point::Point};
 
     use super::*;
+
+    #[test]
+    fn reflection() -> () {
+        let s = Matrix4x4::scaling(-1., 1., 1.);
+        let p = Point::new(2., 3., 4.);
+        let res = s * p;
+        assert_eq!(res, Point::new(-2., 3., 4.));
+    }
+
+    #[test]
+    fn scaling_vec_inv() -> () {
+        let s = Matrix4x4::scaling(2., 3., 4.);
+        let si = s.invert();
+        assert!(si.is_some());
+        let sip = si.unwrap();
+        let v = Vector::new(-4., 6., 8.);
+        let res = sip * v;
+        assert_eq!(res, Vector::new(-2., 2., 2.));
+    }
+
+    #[test]
+    fn scaling_vec() -> () {
+        let s = Matrix4x4::scaling(2., 3., 4.);
+        let v = Vector::new(-4., 6., 8.);
+        let res = s * v;
+        assert_eq!(res, Vector::new(-8., 18., 32.));
+    }
+
+    #[test]
+    fn scaling_point() -> () {
+        let s = Matrix4x4::scaling(2., 3., 4.);
+        let p = Point::new(-4., 6., 8.);
+        let res = s * p;
+        assert_eq!(res, Point::new(-8., 18., 32.));
+    }
 
     #[test]
     fn translation_vec() -> () {
