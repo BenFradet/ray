@@ -113,10 +113,7 @@ mod tests {
 
     #[test]
     fn vec_norm() -> () {
-        assert_eq!(
-            Vector::new(4., 0., 0.).norm(),
-            Vector::new(1., 0., 0.)
-        );
+        assert_eq!(Vector::new(4., 0., 0.).norm(), Vector::new(1., 0., 0.));
         let v = Vector::new(1., 2., 3.);
         let sqrt = f64::sqrt(14.);
         let norm = v.norm();

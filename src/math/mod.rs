@@ -1,7 +1,7 @@
 pub mod colour;
-pub mod matrix_det;
 pub mod matrix;
 pub mod matrix_const;
+pub mod matrix_det;
 pub mod matrix_from_iter;
 pub mod matrix_invert;
 pub mod matrix_size;

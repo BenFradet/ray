@@ -1,4 +1,7 @@
-use super::{matrix::{Matrix2x2, Matrix3x3, Matrix4x4}, matrix_from_iter::MatrixFromIter};
+use super::{
+    matrix::{Matrix2x2, Matrix3x3, Matrix4x4},
+    matrix_from_iter::MatrixFromIter,
+};
 
 pub trait MatrixSub {
     type Output;
@@ -60,7 +63,9 @@ mod tests {
 
     #[test]
     fn sub4x4() -> () {
-        let m = Matrix4x4::new(-6., 1., 1., 6., -8., 5., 8., 6., -1., 0., 8., 2., -7., 1., -1., 1.);
+        let m = Matrix4x4::new(
+            -6., 1., 1., 6., -8., 5., 8., 6., -1., 0., 8., 2., -7., 1., -1., 1.,
+        );
         let sub = m.sub(2, 1);
         let exp = Matrix3x3::new(-6., 1., 6., -8., 8., 6., -7., -1., 1.);
         assert_eq!(sub, exp);

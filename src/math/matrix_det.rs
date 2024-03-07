@@ -15,13 +15,13 @@ impl<A: MatrixSub<Output = B>, B: MatrixDet> MatrixCofactor for A {
 
     fn cofactor(&self, r: usize, c: usize) -> f64 {
         let minor = self.minor(r, c);
-        let sign = (-1i32).pow(r as u32 + c as u32 + 2);
-        sign as f64 * minor
-        //if r + c % 2 == 0 {
-        //    minor
-        //} else {
-        //    -minor
-        //}
+        //let sign = (-1i32).pow(r as u32 + c as u32);
+        //sign as f64 * minor
+        if (r + c) % 2 == 0 {
+            minor
+        } else {
+            -minor
+        }
     }
 }
 
@@ -30,14 +30,13 @@ pub trait MatrixDet {
     fn is_invertible(&self) -> bool;
 }
 
-impl <A: MatrixCofactor + MatrixSize + Index<(usize, usize), Output = f64>> MatrixDet for A {
+impl<A: MatrixCofactor + MatrixSize + Index<(usize, usize), Output = f64>> MatrixDet for A {
     fn det(&self) -> f64 {
         let mut det = 0.;
         for i in 0..Self::SIZE {
             det = det + self[(0, i)] * self.cofactor(0, i);
         }
         det
-        
     }
 
     fn is_invertible(&self) -> bool {
@@ -63,19 +62,25 @@ mod tests {
 
     #[test]
     fn is_invertible() -> () {
-        let m = Matrix4x4::new(6., 4., 4., 4., 5., 5., 7., 6., 4., -8., 3., -7., 9., 1., 7., -6.);
+        let m = Matrix4x4::new(
+            6., 4., 4., 4., 5., 5., 7., 6., 4., -8., 3., -7., 9., 1., 7., -6.,
+        );
         assert!(m.is_invertible())
     }
 
     #[test]
     fn is_not_invertible() -> () {
-        let m = Matrix4x4::new(-4., 2., -2., 3., 9., 6., 2., 6., 0., -5., 1., -5., 0., 0., 0., 0.);
+        let m = Matrix4x4::new(
+            -4., 2., -2., 3., 9., 6., 2., 6., 0., -5., 1., -5., 0., 0., 0., 0.,
+        );
         assert!(!m.is_invertible())
     }
 
     #[test]
     fn det4x4() -> () {
-        let m = Matrix4x4::new(-2., -8., 3., 5., -3., 1., 7., 3., 1., 2., -9., 6., -6., 7., 7., -9.);
+        let m = Matrix4x4::new(
+            -2., -8., 3., 5., -3., 1., 7., 3., 1., 2., -9., 6., -6., 7., 7., -9.,
+        );
         assert_eq!(m.cofactor(0, 0), 690.);
         assert_eq!(m.cofactor(0, 1), 447.);
         assert_eq!(m.cofactor(0, 2), 210.);

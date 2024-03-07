@@ -3,12 +3,17 @@ use std::{iter, ops::IndexMut};
 use super::{matrix_const::MatrixConst, matrix_size::MatrixSize};
 
 pub trait MatrixFromIter {
-    fn from_iter<I>(items: I) -> Self where I: IntoIterator<Item = f64>;
+    fn from_iter<I>(items: I) -> Self
+    where
+        I: IntoIterator<Item = f64>;
     fn repeat(m: f64) -> Self;
 }
 
-impl <T: MatrixConst + MatrixSize + IndexMut<(usize, usize), Output = f64>> MatrixFromIter for T {
-    fn from_iter<I>(items: I) -> Self where I: IntoIterator<Item = f64> {
+impl<T: MatrixConst + MatrixSize + IndexMut<(usize, usize), Output = f64>> MatrixFromIter for T {
+    fn from_iter<I>(items: I) -> Self
+    where
+        I: IntoIterator<Item = f64>,
+    {
         let mut m = Self::ZERO;
         let mut iter = items.into_iter();
         for i in 0..Self::SIZE {
