@@ -7,6 +7,7 @@ edition = "2021"
 macrotest = "1.0.9"
 num = "0.4.1"
 pixels = "0.13.0"
+rand = "0.8.5"
 
 [dependencies.winit_input_helper]
 version = "=0.14"

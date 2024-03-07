@@ -8,9 +8,10 @@ use winit::{
     window::WindowBuilder,
 };
 use winit_input_helper::WinitInputHelper;
+use world::Clock;
 
 use crate::viewer::drawable::Drawable;
-use crate::{viewer::to_file::ToFile, world::World};
+use crate::viewer::to_file::ToFile;
 
 mod math;
 mod model;
@@ -19,7 +20,8 @@ mod world;
 
 fn main() -> Result<(), Error> {
     let width = 900;
-    let height = 500;
+    let height = 900;
+    let width_usize = width as usize;
     let height_usize = height as usize;
 
     let event_loop = EventLoop::new();
@@ -41,11 +43,11 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
-    let mut world = World::new();
-    let mut canvas = Canvas::black(width as usize, height as usize);
+    let mut clock = Clock::new(width_usize, height_usize);
+    let mut canvas = Canvas::black(width_usize, height_usize);
     canvas.update(
-        world.p.position.x as usize,
-        height_usize - (world.p.position.y as usize),
+        clock.display.x as usize,
+        clock.display.y as usize,
         Colour::RED,
     );
 
@@ -61,7 +63,7 @@ fn main() -> Result<(), Error> {
         if input.update(&event) {
             // Close events
             if input.key_pressed(VirtualKeyCode::Escape) || input.close_requested() {
-                let path = "result.ppm";
+                let path = "result_clock.ppm";
                 match canvas.to_file(path) {
                     Ok(()) => println!("successfully written {}", path),
                     Err(err) => println!("error writing {}", err),
@@ -72,14 +74,12 @@ fn main() -> Result<(), Error> {
             }
         }
 
-        world.update();
-        if world.p.position.y > 0.0 {
-            canvas.update(
-                world.p.position.x as usize,
-                height_usize - (world.p.position.y as usize),
-                Colour::RED,
-            );
-        }
+        clock.update();
+        canvas.update(
+            clock.display.x as usize,
+            clock.display.y as usize,
+            Colour::RED,
+        );
         window.request_redraw();
     });
 }

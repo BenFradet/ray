@@ -1,5 +1,9 @@
+use std::f64::consts::FRAC_PI_6;
+
+use rand::Rng;
+
 use crate::{
-    math::{point::Point, vector::Vector},
+    math::{matrix::Matrix4x4, point::Point, vector::Vector},
     model::{environment::Environment, projectile::Projectile},
 };
 
@@ -25,5 +29,40 @@ impl World {
         let position = self.p.position + self.p.velocity;
         let velocity = self.p.velocity + self.e.gravity + self.e.wind;
         self.p = Projectile { position, velocity };
+    }
+}
+
+pub struct Clock {
+    pub display: Point,
+    reference: Point,
+    t: Matrix4x4,
+    s: Matrix4x4,
+}
+
+impl Clock {
+    pub fn new(w: usize, h: usize) -> Self {
+        let scale = 3. / 8.;
+        let wf = w as f64;
+        let hf = h as f64;
+        Self {
+            display: Point::new(0., 1., 0.),
+            reference: Point::new(0., 1., 0.),
+            t: Matrix4x4::translation(wf / 2., hf / 2., 0.),
+            s: Matrix4x4::scaling(scale * wf, scale * hf , 1.)
+        }
+    }
+
+    fn rand_angle(divisions: f64, jitter: f64) -> f64 {
+        let mut rand = rand::thread_rng();
+        let r: f64 = rand.gen();
+        let j = r * jitter * 2. - jitter;
+        let f = (r * divisions).trunc();
+        f * FRAC_PI_6 + j
+    }
+
+    pub fn update(&mut self) -> () {
+        let angle = Self::rand_angle(12., 0.4);
+        let new = self.t * self.s * Matrix4x4::rotation_z(angle) * self.reference;
+        self.display = new;
     }
 }

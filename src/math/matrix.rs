@@ -71,12 +71,20 @@ impl Matrix4x4 {
         res
     }
 
+    pub fn translate(self, x: f64, y: f64, z: f64) -> Self {
+        Self::translation(x, y, z) * self
+    }
+
     pub fn scaling(x: f64, y: f64, z: f64) -> Self {
         let mut res = Self::ID;
         res[(0, 0)] = x;
         res[(1, 1)] = y;
         res[(2, 2)] = z;
         res
+    }
+
+    pub fn scale(self, x: f64, y: f64, z: f64) -> Self {
+        Self::scaling(x, y, z) * self
     }
 
     pub fn rotation_x(r: f64) -> Self {
@@ -89,6 +97,10 @@ impl Matrix4x4 {
         res
     }
 
+    pub fn rotate_x(self, r: f64) -> Self {
+        Self::rotation_x(r) * self
+    }
+
     pub fn rotation_y(r: f64) -> Self {
         let mut res = Self::ID;
         let (s, c) = r.sin_cos();
@@ -97,6 +109,10 @@ impl Matrix4x4 {
         res[(2, 0)] = -s;
         res[(2, 2)] = c;
         res
+    }
+
+    pub fn rotate_y(self, r: f64) -> Self {
+        Self::rotation_y(r) * self
     }
 
     pub fn rotation_z(r: f64) -> Self {
@@ -109,6 +125,10 @@ impl Matrix4x4 {
         res
     }
 
+    pub fn rotate_z(self, r: f64) -> Self {
+        Self::rotation_z(r) * self
+    }
+
     pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         let mut res = Self::ID;
         res[(0, 1)] = xy;
@@ -118,6 +138,10 @@ impl Matrix4x4 {
         res[(2, 0)] = zx;
         res[(2, 1)] = zy;
         res
+    }
+
+    pub fn shear(self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
+        Self::shearing(xy, xz, yx, yz, zx, zy) * self
     }
 
     fn multiply(&self, x: f64, y: f64, z: f64, w: f64) -> (f64, f64, f64, f64) {
