@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut, Mul};
 
-use super::{matrix_const::MatrixConst, matrix_from_iter::MatrixFromIter, matrix_size::MatrixSize, vector::Vector};
+use super::{matrix_const::MatrixConst, matrix_from_iter::MatrixFromIter, matrix_size::MatrixSize, point::Point, vector::Vector};
 
 // new type required to impl into iterator
 pub struct Matrix<M: MatrixSize + Index<(usize, usize), Output = f64>> {
@@ -54,6 +54,23 @@ impl Matrix4x4 {
             m: [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23], [m30, m31, m32, m33]],
         }
     }
+
+    pub fn translation(x: f64, y: f64, z: f64) -> Self {
+        let mut res = Self::ID;
+        res[(0, 3)] = x;
+        res[(1, 3)] = y;
+        res[(2, 3)] = z;
+        res
+    }
+
+    fn multiply(&self, x: f64, y: f64, z: f64, w: f64) -> (f64, f64, f64, f64) {
+        (
+            self[(0, 0)] * x + self[(0, 1)] * y + self[(0, 2)] * z + self[(0, 3)] * w,
+            self[(1, 0)] * x + self[(1, 1)] * y + self[(1, 2)] * z + self[(1, 3)] * w,
+            self[(2, 0)] * x + self[(2, 1)] * y + self[(2, 2)] * z + self[(2, 3)] * w,
+            self[(3, 0)] * x + self[(3, 1)] * y + self[(3, 2)] * z + self[(3, 3)] * w,
+        )
+    }
 }
 
 impl IndexMut<(usize, usize)> for Matrix4x4 {
@@ -92,18 +109,52 @@ impl Mul<Vector> for Matrix4x4 {
     type Output = Vector;
 
     fn mul(self, rhs: Vector) -> Self::Output {
-        Vector {
-            x: self.m[0][0] * rhs.x + self.m[0][1] * rhs.y + self.m[0][2] * rhs.z + self.m[0][3] * rhs.w,
-            y: self.m[1][0] * rhs.x + self.m[1][1] * rhs.y + self.m[1][2] * rhs.z + self.m[1][3] * rhs.w,
-            z: self.m[2][0] * rhs.x + self.m[2][1] * rhs.y + self.m[2][2] * rhs.z + self.m[2][3] * rhs.w,
-            w: self.m[3][0] * rhs.x + self.m[3][1] * rhs.y + self.m[3][2] * rhs.z + self.m[3][3] * rhs.w,
-        }
+        let (x, y, z, w) = self.multiply(rhs.x, rhs.y, rhs.z, rhs.w);
+        Vector { x, y, z, w }
+    }
+}
+
+impl Mul<Point> for Matrix4x4 {
+    type Output = Point;
+
+    fn mul(self, rhs: Point) -> Self::Output {
+        let (x, y, z, w) = self.multiply(rhs.x, rhs.y, rhs.z, rhs.w);
+        Point { x, y, z, w }
     }
 }
 
 #[cfg(test)]
 mod tests4x4 {
+    use crate::math::{matrix_invert::MatrixInvert, point::Point};
+
     use super::*;
+
+    #[test]
+    fn translation_vec() -> () {
+        let t = Matrix4x4::translation(5., -3., 2.);
+        let v = Vector::new(-3., 4., 5.);
+        let res = t * v;
+        assert_eq!(res, v);
+    }
+
+    #[test]
+    fn translation_point_inv() -> () {
+        let t = Matrix4x4::translation(5., -3., 2.);
+        let ti = t.invert();
+        assert!(ti.is_some());
+        let tip = ti.unwrap();
+        let p = Point::new(-3., 4., 5.);
+        let res = tip * p;
+        assert_eq!(res, Point::new(-8., 7., 3.));
+    }
+
+    #[test]
+    fn translation_point() -> () {
+        let t = Matrix4x4::translation(5., -3., 2.);
+        let p = Point::new(-3., 4., 5.);
+        let res = t * p;
+        assert_eq!(res, Point::new(2., 1., 7.));
+    }
 
     #[test]
     fn index() -> () {
