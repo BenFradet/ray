@@ -45,20 +45,10 @@ impl<
 mod tests {
     use crate::math::{
         matrix::{Matrix, Matrix4x4},
-        matrix_transpose::MatrixTranspose,
+        matrix_transpose::MatrixTranspose, round::Round,
     };
 
     use super::*;
-
-    fn round(f: f64, d: u32) -> f64 {
-        let p = 10u32.pow(d) as f64;
-        (f * p).round() / p
-    }
-
-    fn rounded(m: Matrix4x4, d: u32) -> Vec<f64> {
-        let mm = Matrix { m };
-        mm.into_iter().map(|f| round(f, d)).collect()
-    }
 
     #[test]
     fn transpose_invert() -> () {
@@ -79,7 +69,7 @@ mod tests {
         );
         let b = a.invert();
         assert!(b.is_some());
-        assert_eq!(rounded(b.unwrap() * a, 5), rounded(Matrix4x4::ID, 5));
+        assert_eq!(Matrix { m: (b.unwrap() * a) }.rounded(5), Matrix { m: Matrix4x4::ID }.rounded(5));
     }
 
     #[test]
@@ -104,7 +94,7 @@ mod tests {
         let biw = bi.unwrap();
         // round needed due to f64 repr
         let res = c * biw;
-        assert_eq!(rounded(res, 1), rounded(a, 1));
+        assert_eq!(Matrix { m: res }.rounded(1), Matrix { m: a }.rounded(1));
     }
 
     #[test]
@@ -119,7 +109,7 @@ mod tests {
             -0.04074, -0.07778, 0.14444, -0.22222, -0.07778, 0.03333, 0.36667, -0.33333, -0.02901,
             -0.14630, -0.10926, 0.12963, 0.17778, 0.06667, -0.26667, 0.33333,
         ];
-        assert_eq!(rounded(bp, 5), exp);
+        assert_eq!(Matrix { m: bp }.rounded(5), exp);
     }
 
     #[test]
@@ -134,7 +124,7 @@ mod tests {
             -0.15385, -0.15385, -0.28205, -0.53846, -0.07692, 0.12308, 0.02564, 0.03077, 0.35897,
             0.35897, 0.43590, 0.92308, -0.69231, -0.69231, -0.76923, -1.92308,
         ];
-        assert_eq!(rounded(bp, 5), exp);
+        assert_eq!(Matrix { m: bp }.rounded(5), exp);
     }
 
     #[test]
@@ -152,6 +142,6 @@ mod tests {
             0.21805, 0.45113, 0.24060, -0.04511, -0.80827, -1.45677, -0.44361, 0.52068, -0.07895,
             -0.22368, -0.05263, 0.19737, -0.52256, -0.81391, -0.30075, 0.30639,
         ];
-        assert_eq!(rounded(bp, 5), exp);
+        assert_eq!(Matrix { m: bp }.rounded(5), exp);
     }
 }

@@ -75,9 +75,24 @@ impl Mul<f64> for Point {
     }
 }
 
+impl IntoIterator for Point {
+    type Item = f64;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter {
+        vec![self.x, self.y, self.z, self.w].into_iter()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn into_iter() -> () {
+        let p = Point::new(1., -2., 3.);
+        let exp = vec![1., -2., 3., 1.];
+        assert!(p.into_iter().eq(exp));
+    }
 
     #[test]
     fn mul_for_point() -> () {

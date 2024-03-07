@@ -91,9 +91,24 @@ impl Mul<f64> for Vector {
     }
 }
 
+impl IntoIterator for Vector {
+    type Item = f64;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter {
+        vec![self.x, self.y, self.z, self.w].into_iter()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn into_iter() -> () {
+        let v = Vector::new(1., -2., 3.);
+        let exp = vec![1., -2., 3., 0.];
+        assert!(v.into_iter().eq(exp));
+    }
 
     #[test]
     fn vec_cross() -> () {

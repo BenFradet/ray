@@ -79,6 +79,36 @@ impl Matrix4x4 {
         res
     }
 
+    pub fn rotation_x(r: f64) -> Self {
+        let mut res = Self::ID;
+        let (s, c) = r.sin_cos();
+        res[(1, 1)] = c;
+        res[(1, 2)] = -s;
+        res[(2, 1)] = s;
+        res[(2, 2)] = c;
+        res
+    }
+
+    pub fn rotation_y(r: f64) -> Self {
+        let mut res = Self::ID;
+        let (s, c) = r.sin_cos();
+        res[(0, 0)] = c;
+        res[(0, 2)] = s;
+        res[(2, 0)] = -s;
+        res[(2, 2)] = c;
+        res
+    }
+
+    pub fn rotation_z(r: f64) -> Self {
+        let mut res = Self::ID;
+        let (s, c) = r.sin_cos();
+        res[(0, 0)] = c;
+        res[(0, 1)] = -s;
+        res[(1, 0)] = s;
+        res[(1, 1)] = c;
+        res
+    }
+
     fn multiply(&self, x: f64, y: f64, z: f64, w: f64) -> (f64, f64, f64, f64) {
         (
             self[(0, 0)] * x + self[(0, 1)] * y + self[(0, 2)] * z + self[(0, 3)] * w,
@@ -140,9 +170,51 @@ impl Mul<Point> for Matrix4x4 {
 
 #[cfg(test)]
 mod tests4x4 {
-    use crate::math::{matrix_invert::MatrixInvert, point::Point};
+    use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
+
+    use crate::math::{matrix_invert::MatrixInvert, point::Point, round::Round};
 
     use super::*;
+
+    #[test]
+    fn rotation_z() -> () {
+        let p = Point::new(0., 1., 0.);
+        let eighth = Matrix4x4::rotation_z(FRAC_PI_4);
+        let quarter = Matrix4x4::rotation_z(FRAC_PI_2);
+        let sqrt = 2f64.sqrt() / 2.;
+        assert_eq!((eighth * p).rounded(5), Point::new(-sqrt, sqrt, 0.).rounded(5));
+        assert_eq!((quarter * p).rounded(5), Point::new(-1., 0., 0.).rounded(5));
+    }
+
+    #[test]
+    fn rotation_y() -> () {
+        let p = Point::new(0., 0., 1.);
+        let eighth = Matrix4x4::rotation_y(FRAC_PI_4);
+        let quarter = Matrix4x4::rotation_y(FRAC_PI_2);
+        let sqrt = 2f64.sqrt() / 2.;
+        assert_eq!((eighth * p).rounded(5), Point::new(sqrt, 0., sqrt).rounded(5));
+        assert_eq!((quarter * p).rounded(5), Point::new(1., 0., 0.).rounded(5));
+    }
+
+    #[test]
+    fn rotation_x_inv() -> () {
+        let p = Point::new(0., 1., 0.);
+        let eighth = Matrix4x4::rotation_x(FRAC_PI_4);
+        let eighthi = eighth.invert();
+        assert!(eighthi.is_some());
+        let sqrt = 2f64.sqrt() / 2.;
+        assert_eq!((eighthi.unwrap() * p).rounded(5), Point::new(0., sqrt, -sqrt).rounded(5));
+    }
+
+    #[test]
+    fn rotation_x() -> () {
+        let p = Point::new(0., 1., 0.);
+        let eighth = Matrix4x4::rotation_x(FRAC_PI_4);
+        let quarter = Matrix4x4::rotation_x(FRAC_PI_2);
+        let sqrt = 2f64.sqrt() / 2.;
+        assert_eq!((eighth * p).rounded(5), Point::new(0., sqrt, sqrt).rounded(5));
+        assert_eq!((quarter * p).rounded(5), Point::new(0., 0., 1.).rounded(5));
+    }
 
     #[test]
     fn reflection() -> () {
