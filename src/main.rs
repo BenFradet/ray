@@ -1,4 +1,6 @@
-use math::{colour::Colour, point::Point};
+use std::f64::consts::FRAC_PI_4;
+
+use math::{colour::Colour, matrix::{Matrix, Matrix4x4}, point::Point};
 use model::{intersection::IntersectionHit, ray::Ray, sphere::Sphere};
 use pixels::{Error, Pixels, SurfaceTexture};
 use viewer::canvas::Canvas;
@@ -20,7 +22,7 @@ mod viewer;
 mod world;
 
 fn main() -> Result<(), Error> {
-    let width = 500;
+    let width = 1000;
     let height = 500;
     let width_usize = width as usize;
     let height_usize = height as usize;
@@ -49,7 +51,8 @@ fn main() -> Result<(), Error> {
     let wall_size = 7.;
     let pixel_size = wall_size / width as f64;
     let half_wall_size = wall_size / 2.;
-    let sphere = Sphere::new();
+    let sphere1 = Sphere::new().t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(FRAC_PI_4));
+    let sphere2 = Sphere::new().t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(-FRAC_PI_4));
 
     let mut canvas = Canvas::black(width_usize, height_usize);
     canvas.update(
@@ -92,9 +95,10 @@ fn main() -> Result<(), Error> {
 
                 let position = Point::new(world_x, world_y, wall_z);
                 let r = Ray::new(ray_origin, (position - ray_origin).norm());
-                let is = r.intersections(sphere);
+                let is1 = r.intersections(sphere1);
+                let is2 = r.intersections(sphere2);
 
-                if is.hit().is_some() {
+                if is1.hit().is_some() || is2.hit().is_some() {
                     canvas.update(
                         x as usize,
                         y as usize,
