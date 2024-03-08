@@ -1,2 +1,3 @@
-pub mod environment;
-pub mod projectile;
+pub mod intersection;
+pub mod ray;
+pub mod sphere;
