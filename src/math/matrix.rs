@@ -71,9 +71,9 @@ impl Matrix4x4 {
         res
     }
 
-    pub fn translate(self, x: f64, y: f64, z: f64) -> Self {
-        Self::translation(x, y, z) * self
-    }
+    //pub fn translate(self, x: f64, y: f64, z: f64) -> Self {
+    //    Self::translation(x, y, z) * self
+    //}
 
     pub fn scaling(x: f64, y: f64, z: f64) -> Self {
         let mut res = Self::ID;
@@ -83,9 +83,9 @@ impl Matrix4x4 {
         res
     }
 
-    pub fn scale(self, x: f64, y: f64, z: f64) -> Self {
-        Self::scaling(x, y, z) * self
-    }
+    //pub fn scale(self, x: f64, y: f64, z: f64) -> Self {
+    //    Self::scaling(x, y, z) * self
+    //}
 
     pub fn rotation_x(r: f64) -> Self {
         let mut res = Self::ID;
@@ -97,9 +97,9 @@ impl Matrix4x4 {
         res
     }
 
-    pub fn rotate_x(self, r: f64) -> Self {
-        Self::rotation_x(r) * self
-    }
+    //pub fn rotate_x(self, r: f64) -> Self {
+    //    Self::rotation_x(r) * self
+    //}
 
     pub fn rotation_y(r: f64) -> Self {
         let mut res = Self::ID;
@@ -111,9 +111,9 @@ impl Matrix4x4 {
         res
     }
 
-    pub fn rotate_y(self, r: f64) -> Self {
-        Self::rotation_y(r) * self
-    }
+    //pub fn rotate_y(self, r: f64) -> Self {
+    //    Self::rotation_y(r) * self
+    //}
 
     pub fn rotation_z(r: f64) -> Self {
         let mut res = Self::ID;
@@ -125,9 +125,9 @@ impl Matrix4x4 {
         res
     }
 
-    pub fn rotate_z(self, r: f64) -> Self {
-        Self::rotation_z(r) * self
-    }
+    //pub fn rotate_z(self, r: f64) -> Self {
+    //    Self::rotation_z(r) * self
+    //}
 
     pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         let mut res = Self::ID;
@@ -140,9 +140,9 @@ impl Matrix4x4 {
         res
     }
 
-    pub fn shear(self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
-        Self::shearing(xy, xz, yx, yz, zx, zy) * self
-    }
+    //pub fn shear(self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
+    //    Self::shearing(xy, xz, yx, yz, zx, zy) * self
+    //}
 
     fn multiply(&self, x: f64, y: f64, z: f64, w: f64) -> (f64, f64, f64, f64) {
         (
