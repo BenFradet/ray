@@ -104,9 +104,9 @@ fn main() -> Result<(), Error> {
                         y as usize,
                         Colour::RED,
                     );
-                    window.request_redraw();
                 }
             }
+            window.request_redraw();
         }
     });
 }
