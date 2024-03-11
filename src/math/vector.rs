@@ -41,6 +41,11 @@ impl Vector {
             self.x * o.y - self.y * o.x,
         )
     }
+
+    pub fn w(mut self, w: f64) -> Self {
+        self.w = w;
+        self
+    }
 }
 
 impl Display for Vector {

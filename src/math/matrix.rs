@@ -83,9 +83,9 @@ impl Matrix4x4 {
         res
     }
 
-    //pub fn scale(self, x: f64, y: f64, z: f64) -> Self {
-    //    Self::scaling(x, y, z) * self
-    //}
+    pub fn scale(self, x: f64, y: f64, z: f64) -> Self {
+        Self::scaling(x, y, z) * self
+    }
 
     pub fn rotation_x(r: f64) -> Self {
         let mut res = Self::ID;
@@ -214,12 +214,30 @@ mod tests4x4 {
     #[test]
     fn shearing() -> () {
         let p = Point::new(2., 3., 4.);
-        assert_eq!(Matrix4x4::shearing(1., 0., 0., 0., 0., 0.) * p, Point::new(5., 3., 4.));
-        assert_eq!(Matrix4x4::shearing(0., 1., 0., 0., 0., 0.) * p, Point::new(6., 3., 4.));
-        assert_eq!(Matrix4x4::shearing(0., 0., 1., 0., 0., 0.) * p, Point::new(2., 5., 4.));
-        assert_eq!(Matrix4x4::shearing(0., 0., 0., 1., 0., 0.) * p, Point::new(2., 7., 4.));
-        assert_eq!(Matrix4x4::shearing(0., 0., 0., 0., 1., 0.) * p, Point::new(2., 3., 6.));
-        assert_eq!(Matrix4x4::shearing(0., 0., 0., 0., 0., 1.) * p, Point::new(2., 3., 7.));
+        assert_eq!(
+            Matrix4x4::shearing(1., 0., 0., 0., 0., 0.) * p,
+            Point::new(5., 3., 4.)
+        );
+        assert_eq!(
+            Matrix4x4::shearing(0., 1., 0., 0., 0., 0.) * p,
+            Point::new(6., 3., 4.)
+        );
+        assert_eq!(
+            Matrix4x4::shearing(0., 0., 1., 0., 0., 0.) * p,
+            Point::new(2., 5., 4.)
+        );
+        assert_eq!(
+            Matrix4x4::shearing(0., 0., 0., 1., 0., 0.) * p,
+            Point::new(2., 7., 4.)
+        );
+        assert_eq!(
+            Matrix4x4::shearing(0., 0., 0., 0., 1., 0.) * p,
+            Point::new(2., 3., 6.)
+        );
+        assert_eq!(
+            Matrix4x4::shearing(0., 0., 0., 0., 0., 1.) * p,
+            Point::new(2., 3., 7.)
+        );
     }
 
     #[test]
@@ -228,7 +246,10 @@ mod tests4x4 {
         let eighth = Matrix4x4::rotation_z(FRAC_PI_4);
         let quarter = Matrix4x4::rotation_z(FRAC_PI_2);
         let sqrt = 2f64.sqrt() / 2.;
-        assert_eq!((eighth * p).rounded(5), Point::new(-sqrt, sqrt, 0.).rounded(5));
+        assert_eq!(
+            (eighth * p).rounded(5),
+            Point::new(-sqrt, sqrt, 0.).rounded(5)
+        );
         assert_eq!((quarter * p).rounded(5), Point::new(-1., 0., 0.).rounded(5));
     }
 
@@ -238,7 +259,10 @@ mod tests4x4 {
         let eighth = Matrix4x4::rotation_y(FRAC_PI_4);
         let quarter = Matrix4x4::rotation_y(FRAC_PI_2);
         let sqrt = 2f64.sqrt() / 2.;
-        assert_eq!((eighth * p).rounded(5), Point::new(sqrt, 0., sqrt).rounded(5));
+        assert_eq!(
+            (eighth * p).rounded(5),
+            Point::new(sqrt, 0., sqrt).rounded(5)
+        );
         assert_eq!((quarter * p).rounded(5), Point::new(1., 0., 0.).rounded(5));
     }
 
@@ -249,7 +273,10 @@ mod tests4x4 {
         let eighthi = eighth.invert();
         assert!(eighthi.is_some());
         let sqrt = 2f64.sqrt() / 2.;
-        assert_eq!((eighthi.unwrap() * p).rounded(5), Point::new(0., sqrt, -sqrt).rounded(5));
+        assert_eq!(
+            (eighthi.unwrap() * p).rounded(5),
+            Point::new(0., sqrt, -sqrt).rounded(5)
+        );
     }
 
     #[test]
@@ -258,7 +285,10 @@ mod tests4x4 {
         let eighth = Matrix4x4::rotation_x(FRAC_PI_4);
         let quarter = Matrix4x4::rotation_x(FRAC_PI_2);
         let sqrt = 2f64.sqrt() / 2.;
-        assert_eq!((eighth * p).rounded(5), Point::new(0., sqrt, sqrt).rounded(5));
+        assert_eq!(
+            (eighth * p).rounded(5),
+            Point::new(0., sqrt, sqrt).rounded(5)
+        );
         assert_eq!((quarter * p).rounded(5), Point::new(0., 0., 1.).rounded(5));
     }
 

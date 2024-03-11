@@ -1,6 +1,6 @@
 use std::f64::consts::FRAC_PI_4;
 
-use math::{colour::Colour, matrix::{Matrix, Matrix4x4}, point::Point};
+use math::{colour::Colour, matrix::Matrix4x4, point::Point};
 use model::{intersection::IntersectionHit, ray::Ray, sphere::Sphere};
 use pixels::{Error, Pixels, SurfaceTexture};
 use viewer::canvas::Canvas;
@@ -11,7 +11,6 @@ use winit::{
     window::WindowBuilder,
 };
 use winit_input_helper::WinitInputHelper;
-use world::Clock;
 
 use crate::viewer::drawable::Drawable;
 use crate::viewer::to_file::ToFile;
@@ -51,15 +50,15 @@ fn main() -> Result<(), Error> {
     let wall_size = 7.;
     let pixel_size = wall_size / width as f64;
     let half_wall_size = wall_size / 2.;
-    let sphere1 = Sphere::new().t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(FRAC_PI_4));
-    let sphere2 = Sphere::new().t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(-FRAC_PI_4));
+    let sphere1 = Sphere::id()
+        .t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(FRAC_PI_4))
+        .unwrap();
+    let sphere2 = Sphere::id()
+        .t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(-FRAC_PI_4))
+        .unwrap();
 
     let mut canvas = Canvas::black(width_usize, height_usize);
-    canvas.update(
-        ray_origin.x as usize,
-        ray_origin.y as usize,
-        Colour::RED,
-    );
+    canvas.update(ray_origin.x as usize, ray_origin.y as usize, Colour::RED);
 
     let mut x = 0;
 
@@ -99,11 +98,7 @@ fn main() -> Result<(), Error> {
                 let is2 = r.intersections(sphere2);
 
                 if is1.hit().is_some() || is2.hit().is_some() {
-                    canvas.update(
-                        x as usize,
-                        y as usize,
-                        Colour::RED,
-                    );
+                    canvas.update(x as usize, y as usize, Colour::RED);
                 }
             }
             window.request_redraw();

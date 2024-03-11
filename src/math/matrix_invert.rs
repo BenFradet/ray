@@ -45,7 +45,8 @@ impl<
 mod tests {
     use crate::math::{
         matrix::{Matrix, Matrix4x4},
-        matrix_transpose::MatrixTranspose, round::Round,
+        matrix_transpose::MatrixTranspose,
+        round::Round,
     };
 
     use super::*;
@@ -69,7 +70,13 @@ mod tests {
         );
         let b = a.invert();
         assert!(b.is_some());
-        assert_eq!(Matrix { m: (b.unwrap() * a) }.rounded(5), Matrix { m: Matrix4x4::ID }.rounded(5));
+        assert_eq!(
+            Matrix {
+                m: (b.unwrap() * a)
+            }
+            .rounded(5),
+            Matrix { m: Matrix4x4::ID }.rounded(5)
+        );
     }
 
     #[test]
