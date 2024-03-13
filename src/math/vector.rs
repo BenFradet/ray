@@ -16,11 +16,11 @@ impl Vector {
         Vector { x, y, z, w: 0. }
     }
 
-    pub fn len(self) -> f64 {
+    pub fn len(&self) -> f64 {
         f64::sqrt(self.x.powf(2.) + self.y.powf(2.) + self.z.powf(2.))
     }
 
-    pub fn norm(self) -> Vector {
+    pub fn norm(&self) -> Vector {
         let l = self.len();
         Vector {
             x: self.x / l,
@@ -30,16 +30,20 @@ impl Vector {
         }
     }
 
-    pub fn dot(self, o: Vector) -> f64 {
+    pub fn dot(&self, o: Vector) -> f64 {
         self.x * o.x + self.y * o.y + self.z * o.z + self.w * o.w
     }
 
-    pub fn cross(self, o: Vector) -> Vector {
+    pub fn cross(&self, o: Vector) -> Vector {
         Vector::new(
             self.y * o.z - self.z * o.y,
             self.z * o.x - self.x * o.z,
             self.x * o.y - self.y * o.x,
         )
+    }
+
+    pub fn reflect(&self, normal: Vector) -> Vector {
+        *self - normal * 2. * self.dot(normal)
     }
 
     pub fn w(mut self, w: f64) -> Self {
@@ -106,7 +110,20 @@ impl IntoIterator for Vector {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
+    use crate::math::round::Round;
+
     use super::*;
+
+    #[test]
+    fn reflect() -> () {
+        let res = Vector::new(1., -1., 0.).reflect(Vector::new(0., 1., 0.));
+        assert_eq!(res, Vector::new(1., 1., 0.));
+        let s2 = SQRT_2 / 2.;
+        let res2 = Vector::new(0., -1., 0.).reflect(Vector::new(s2, s2, 0.));
+        assert_eq!(res2.rounded(5), vec![1., 0., 0., 0.]);
+    }
 
     #[test]
     fn into_iter() -> () {
