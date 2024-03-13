@@ -15,6 +15,7 @@ impl Colour {
     }
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
+    pub const WHITE: Colour = Colour::new(1.0, 1.0, 1.0);
     pub const RED: Colour = Colour::new(1.0, 0.0, 0.0);
 
     pub fn scale<T: Num + FromPrimitive + NumCast + Copy>(&self, scale: T) -> (T, T, T) {
@@ -61,6 +62,14 @@ impl Mul<f64> for Colour {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Colour::new(self.r * rhs, self.g * rhs, self.b * rhs)
+    }
+}
+
+impl IntoIterator for Colour {
+    type Item = f64;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter {
+        vec![self.r, self.g, self.b].into_iter()
     }
 }
 

@@ -3,34 +3,35 @@ use crate::math::{
     matrix_transpose::MatrixTranspose, point::Point, vector::Vector,
 };
 
+use super::material::Material;
+
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Sphere {
-    pub center: Point,
-    pub radius: f64,
-    pub t: Matrix4x4,
-    inv_t: Matrix4x4,
+    t: Matrix4x4,
+    pub inv_t: Matrix4x4,
     t_inv_t: Matrix4x4,
+    pub material: Material,
 }
 
 impl Sphere {
+    pub const RADIUS: f64 = 1.;
+
     pub fn new(t: Matrix4x4) -> Option<Self> {
         let inv = t.invert();
         inv.map(|inv_t| Sphere {
-            center: Point::new(0., 0., 0.),
-            radius: 1.,
             t,
             inv_t,
             t_inv_t: inv_t.transpose(),
+            material: Material::new(),
         })
     }
 
     pub fn id() -> Self {
         Sphere {
-            center: Point::new(0., 0., 0.),
-            radius: 1.,
             t: Matrix4x4::ID,
             inv_t: Matrix4x4::ID,
             t_inv_t: Matrix4x4::ID,
+            material: Material::new(),
         }
     }
 
@@ -43,9 +44,14 @@ impl Sphere {
         })
     }
 
+    pub fn material(mut self, m: Material) -> Self {
+        self.material = m;
+        self
+    }
+
     pub fn normal_at(&self, world_point: Point) -> Vector {
         let object_point = self.inv_t * world_point;
-        let object_normal = object_point - self.center;
+        let object_normal = object_point - Point::ORIGIN;
         let world_normal = self.t_inv_t * object_normal;
         world_normal.w(0.0).norm()
     }
@@ -58,6 +64,15 @@ mod tests {
     use crate::math::round::Round;
 
     use super::*;
+
+    #[test]
+    fn material() -> () {
+        let s = Sphere::id();
+        assert_eq!(s.material, Material::new());
+        let m = Material::new().ambient(1.);
+        let new_s = s.material(m);
+        assert_eq!(new_s.material, m);
+    }
 
     #[test]
     fn normal_at_scale_rz_sphere() -> () {

@@ -71,9 +71,9 @@ impl Matrix4x4 {
         res
     }
 
-    //pub fn translate(self, x: f64, y: f64, z: f64) -> Self {
-    //    Self::translation(x, y, z) * self
-    //}
+    pub fn translate(self, x: f64, y: f64, z: f64) -> Self {
+        Self::translation(x, y, z) * self
+    }
 
     pub fn scaling(x: f64, y: f64, z: f64) -> Self {
         let mut res = Self::ID;
@@ -97,9 +97,9 @@ impl Matrix4x4 {
         res
     }
 
-    //pub fn rotate_x(self, r: f64) -> Self {
-    //    Self::rotation_x(r) * self
-    //}
+    pub fn rotate_x(self, r: f64) -> Self {
+        Self::rotation_x(r) * self
+    }
 
     pub fn rotation_y(r: f64) -> Self {
         let mut res = Self::ID;
@@ -111,9 +111,9 @@ impl Matrix4x4 {
         res
     }
 
-    //pub fn rotate_y(self, r: f64) -> Self {
-    //    Self::rotation_y(r) * self
-    //}
+    pub fn rotate_y(self, r: f64) -> Self {
+        Self::rotation_y(r) * self
+    }
 
     pub fn rotation_z(r: f64) -> Self {
         let mut res = Self::ID;
@@ -238,6 +238,10 @@ mod tests4x4 {
             Matrix4x4::shearing(0., 0., 0., 0., 0., 1.) * p,
             Point::new(2., 3., 7.)
         );
+        assert_eq!(
+            Matrix4x4::ID.shear(0., 0., 0., 0., 0., 1.) * p,
+            Point::new(2., 3., 7.)
+        );
     }
 
     #[test]
@@ -251,6 +255,7 @@ mod tests4x4 {
             Point::new(-sqrt, sqrt, 0.).rounded(5)
         );
         assert_eq!((quarter * p).rounded(5), Point::new(-1., 0., 0.).rounded(5));
+        assert_eq!((Matrix4x4::ID.rotate_z(FRAC_PI_2) * p).rounded(5), Point::new(-1., 0., 0.).rounded(5));
     }
 
     #[test]
@@ -264,6 +269,7 @@ mod tests4x4 {
             Point::new(sqrt, 0., sqrt).rounded(5)
         );
         assert_eq!((quarter * p).rounded(5), Point::new(1., 0., 0.).rounded(5));
+        assert_eq!((Matrix4x4::ID.rotate_y(FRAC_PI_2) * p).rounded(5), Point::new(1., 0., 0.).rounded(5));
     }
 
     #[test]
@@ -290,6 +296,7 @@ mod tests4x4 {
             Point::new(0., sqrt, sqrt).rounded(5)
         );
         assert_eq!((quarter * p).rounded(5), Point::new(0., 0., 1.).rounded(5));
+        assert_eq!((Matrix4x4::ID.rotate_x(FRAC_PI_2) * p).rounded(5), Point::new(0., 0., 1.).rounded(5));
     }
 
     #[test]
@@ -333,6 +340,7 @@ mod tests4x4 {
         let v = Vector::new(-3., 4., 5.);
         let res = t * v;
         assert_eq!(res, v);
+        assert_eq!(Matrix4x4::ID.translate(-5., -3., 2.) * v, v);
     }
 
     #[test]

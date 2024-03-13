@@ -1,7 +1,7 @@
 use std::f64::consts::FRAC_PI_4;
 
 use math::{colour::Colour, matrix::Matrix4x4, point::Point};
-use model::{intersection::IntersectionHit, ray::Ray, sphere::Sphere};
+use model::{intersection::{Intersection, IntersectionHit}, material::Material, point_light::{self, PointLight}, ray::Ray, sphere::Sphere};
 use pixels::{Error, Pixels, SurfaceTexture};
 use viewer::canvas::Canvas;
 use winit::{
@@ -50,12 +50,14 @@ fn main() -> Result<(), Error> {
     let wall_size = 7.;
     let pixel_size = wall_size / width as f64;
     let half_wall_size = wall_size / 2.;
-    let sphere1 = Sphere::id()
-        .t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(FRAC_PI_4))
-        .unwrap();
-    let sphere2 = Sphere::id()
-        .t(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(-FRAC_PI_4))
-        .unwrap();
+    let material = Material::new().colour(Colour::new(1., 0.5, 0.92));
+    let sphere1 = Sphere::new(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(FRAC_PI_4))
+        .unwrap()
+        .material(material);
+    let sphere2 = Sphere::new(Matrix4x4::scaling(0.5, 1., 1.).rotate_z(-FRAC_PI_4))
+        .unwrap()
+        .material(material);
+    let point_light = PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE);
 
     let mut canvas = Canvas::black(width_usize, height_usize);
     canvas.update(ray_origin.x as usize, ray_origin.y as usize, Colour::RED);
@@ -74,7 +76,7 @@ fn main() -> Result<(), Error> {
         if input.update(&event) {
             // Close events
             if input.key_pressed(VirtualKeyCode::Escape) || input.close_requested() {
-                let path = "result_circle.ppm";
+                let path = "result_circle_3d.ppm";
                 match canvas.to_file(path) {
                     Ok(()) => println!("successfully written {}", path),
                     Err(err) => println!("error writing {}", err),
@@ -93,15 +95,28 @@ fn main() -> Result<(), Error> {
                 let world_y = half_wall_size - pixel_size * y as f64;
 
                 let position = Point::new(world_x, world_y, wall_z);
-                let r = Ray::new(ray_origin, (position - ray_origin).norm());
-                let is1 = r.intersections(sphere1);
-                let is2 = r.intersections(sphere2);
+                let ray = Ray::new(ray_origin, (position - ray_origin).norm());
+                let is1 = ray.intersections(sphere1);
+                let is2 = ray.intersections(sphere2);
 
-                if is1.hit().is_some() || is2.hit().is_some() {
-                    canvas.update(x as usize, y as usize, Colour::RED);
+                if let Some(hit1) = is1.hit() {
+                    let colour = lightning_colour(hit1, ray, point_light);
+                    canvas.update(x as usize, y as usize, colour);
+                }
+
+                if let Some(hit2) = is2.hit() {
+                    let colour = lightning_colour(hit2, ray, point_light);
+                    canvas.update(x as usize, y as usize, colour);
                 }
             }
             window.request_redraw();
         }
     });
+}
+
+fn lightning_colour(i: Intersection, ray: Ray, light: PointLight) -> Colour {
+    let point = ray.position(i.t);
+    let normal = i.object.normal_at(point);
+    let eye = -ray.direction;
+    i.object.material.lightning(light, point, eye, normal)
 }

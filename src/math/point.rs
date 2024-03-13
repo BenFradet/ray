@@ -14,9 +14,11 @@ pub struct Point {
 }
 
 impl Point {
-    pub fn new(x: f64, y: f64, z: f64) -> Point {
+    pub const fn new(x: f64, y: f64, z: f64) -> Point {
         Point { x, y, z, w: 1. }
     }
+
+    pub const ORIGIN: Point = Point::new(0., 0., 0.);
 }
 
 impl Display for Point {

@@ -1,11 +1,11 @@
-use crate::math::{matrix::Matrix4x4, matrix_invert::MatrixInvert, point::Point, vector::Vector};
+use crate::math::{matrix::Matrix4x4, point::Point, vector::Vector};
 
 use super::{intersection::Intersection, sphere::Sphere};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Ray {
     origin: Point,
-    direction: Vector,
+    pub direction: Vector,
 }
 
 impl Ray {
@@ -19,14 +19,11 @@ impl Ray {
 
     // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
     pub fn intersections(&self, s: Sphere) -> Vec<Intersection> {
-        let t_ray = match s.t.invert() {
-            None => *self,
-            Some(inv) => self.transform(inv),
-        };
-        let sphere_to_ray = t_ray.origin - s.center;
+        let t_ray = self.transform(s.inv_t);
+        let sphere_to_ray = t_ray.origin - Point::ORIGIN;
         let a = t_ray.direction.dot(t_ray.direction);
         let b = 2. * t_ray.direction.dot(sphere_to_ray);
-        let c = sphere_to_ray.dot(sphere_to_ray) - s.radius.powf(2.);
+        let c = sphere_to_ray.dot(sphere_to_ray) - Sphere::RADIUS.powf(2.);
         let discriminant = b.powf(2.) - 4. * a * c;
 
         if discriminant < 0. {

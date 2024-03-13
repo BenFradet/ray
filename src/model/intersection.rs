@@ -2,8 +2,8 @@ use super::sphere::Sphere;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Intersection {
-    t: f64,
-    object: Sphere,
+    pub t: f64,
+    pub object: Sphere,
 }
 
 impl Intersection {
