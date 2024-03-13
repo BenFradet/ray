@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install lld
+      run: apt-get install lld
     - name: Install cargo-expand
       run: cargo install cargo-expand
     - name: Build
