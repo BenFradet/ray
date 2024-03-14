@@ -63,6 +63,21 @@ impl Matrix4x4 {
         }
     }
 
+    pub fn view_transform(eye: Point, to: Point, up: Vector) -> Self {
+        let forward = (to - eye).norm();
+        let left = forward.cross(up.norm());
+        let true_up = left.cross(forward);
+        let orientation = Self {
+            m: [
+                [left.x, left.y, left.z, 0.],
+                [true_up.x, true_up.y, true_up.z, 0.],
+                [-forward.x, -forward.y, -forward.z, 0.],
+                [0., 0., 0., 1.],
+            ],
+        };
+        orientation * Matrix4x4::translation(-eye.x, -eye.y, -eye.z)
+    }
+
     pub fn translation(x: f64, y: f64, z: f64) -> Self {
         let mut res = Self::ID;
         res[(0, 3)] = x;
@@ -210,6 +225,50 @@ mod tests4x4 {
     use crate::math::{matrix_invert::MatrixInvert, point::Point, round::Round};
 
     use super::*;
+
+    #[test]
+    fn view_transform_arb() -> () {
+        let eye = Point::new(1., 3., 2.);
+        let looking_at = Point::new(4., -2., 8.);
+        let up = Vector::new(1., 1., 0.);
+        let res = Matrix4x4::view_transform(eye, looking_at, up);
+        assert_eq!(
+            Matrix { m: res }.rounded(5),
+            vec![
+                -0.50709, 0.50709, 0.67612, -2.36643,
+                0.76772, 0.60609, 0.12122, -2.82843,
+                -0.35857, 0.59761, -0.71714, 0.,
+                0., 0., 0., 1.
+            ]
+        );
+    }
+
+    #[test]
+    fn view_transform_moves_world() -> () {
+        let eye = Point::new(0., 0., 8.);
+        let looking_at = Point::ORIGIN;
+        let up = Vector::new(0., 1., 0.);
+        let res = Matrix4x4::view_transform(eye, looking_at, up);
+        assert_eq!(res, Matrix4x4::translation(0., 0., -8.));
+    }
+
+    #[test]
+    fn view_transform_mirror() -> () {
+        let eye = Point::ORIGIN;
+        let looking_at = Point::new(0., 0., 1.);
+        let up = Vector::new(0., 1., 0.);
+        let res = Matrix4x4::view_transform(eye, looking_at, up);
+        assert_eq!(res, Matrix4x4::scaling(-1., 1., -1.));
+    }
+
+    #[test]
+    fn view_transform_id() -> () {
+        let eye = Point::ORIGIN;
+        let looking_at = Point::new(0., 0., -1.);
+        let up = Vector::new(0., 1., 0.);
+        let res = Matrix4x4::view_transform(eye, looking_at, up);
+        assert_eq!(res, Matrix4x4::ID);
+    }
 
     #[test]
     fn shearing() -> () {
