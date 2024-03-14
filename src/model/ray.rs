@@ -1,6 +1,6 @@
 use crate::math::{matrix::Matrix4x4, point::Point, vector::Vector};
 
-use super::{intersection::Intersection, sphere::Sphere};
+use super::{camera::Camera, intersection::Intersection, sphere::Sphere};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Ray {
@@ -11,6 +11,21 @@ pub struct Ray {
 impl Ray {
     pub fn new(origin: Point, direction: Vector) -> Self {
         Self { origin, direction }
+    }
+
+    pub fn for_pixel(camera: &Camera, px: usize, py: usize) -> Self {
+        let pxf = px as f64;
+        let pyf = py as f64;
+        let x_offset = (pxf + 0.5) * camera.pixel_size;
+        let y_offset = (pyf + 0.5) * camera.pixel_size;
+
+        let world_x = camera.half_width - x_offset;
+        let world_y = camera.half_height - y_offset;
+
+        let pixel = camera.inv_t * Point::new(world_x, world_y, -1.);
+        let origin = camera.inv_t * Point::ORIGIN;
+        let direction = (pixel - origin).norm();
+        Self::new(origin, direction)
     }
 
     pub fn position(&self, t: f64) -> Point {
@@ -46,7 +61,37 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::{FRAC_PI_2, FRAC_PI_4, SQRT_2};
+
+    use crate::math::round::Round;
+
     use super::*;
+
+    #[test]
+    fn for_pixel_camera_transformed() -> () {
+        let t = Matrix4x4::translation(0., -2., 5.).rotate_y(FRAC_PI_4);
+        let c = Camera::new(201, 101, FRAC_PI_2).transform(t).unwrap();
+        let res = Ray::for_pixel(&c, 100, 50);
+        assert_eq!(res.origin, Point::new(0., 2., -5.));
+        let s2 = SQRT_2 / 2.;
+        assert_eq!(res.direction.rounded(5), vec![s2, 0., -s2, 0.].rounded(5));
+    }
+
+    #[test]
+    fn for_pixel_corner() -> () {
+        let c = Camera::new(201, 101, FRAC_PI_2);
+        let res = Ray::for_pixel(&c, 0, 0);
+        assert_eq!(res.origin, Point::ORIGIN);
+        assert_eq!(res.direction.rounded(5), vec![0.66519, 0.33259, -0.66851, 0.]);
+    }
+
+    #[test]
+    fn for_pixel_center() -> () {
+        let c = Camera::new(201, 101, FRAC_PI_2);
+        let res = Ray::for_pixel(&c, 100, 50);
+        assert_eq!(res.origin, Point::ORIGIN);
+        assert_eq!(res.direction.rounded(5), vec![0., 0., -1., 0.]);
+    }
 
     #[test]
     fn intersect_translated_sphere() -> () {
