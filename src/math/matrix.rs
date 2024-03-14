@@ -255,7 +255,10 @@ mod tests4x4 {
             Point::new(-sqrt, sqrt, 0.).rounded(5)
         );
         assert_eq!((quarter * p).rounded(5), Point::new(-1., 0., 0.).rounded(5));
-        assert_eq!((Matrix4x4::ID.rotate_z(FRAC_PI_2) * p).rounded(5), Point::new(-1., 0., 0.).rounded(5));
+        assert_eq!(
+            (Matrix4x4::ID.rotate_z(FRAC_PI_2) * p).rounded(5),
+            Point::new(-1., 0., 0.).rounded(5)
+        );
     }
 
     #[test]
@@ -269,7 +272,10 @@ mod tests4x4 {
             Point::new(sqrt, 0., sqrt).rounded(5)
         );
         assert_eq!((quarter * p).rounded(5), Point::new(1., 0., 0.).rounded(5));
-        assert_eq!((Matrix4x4::ID.rotate_y(FRAC_PI_2) * p).rounded(5), Point::new(1., 0., 0.).rounded(5));
+        assert_eq!(
+            (Matrix4x4::ID.rotate_y(FRAC_PI_2) * p).rounded(5),
+            Point::new(1., 0., 0.).rounded(5)
+        );
     }
 
     #[test]
@@ -296,7 +302,10 @@ mod tests4x4 {
             Point::new(0., sqrt, sqrt).rounded(5)
         );
         assert_eq!((quarter * p).rounded(5), Point::new(0., 0., 1.).rounded(5));
-        assert_eq!((Matrix4x4::ID.rotate_x(FRAC_PI_2) * p).rounded(5), Point::new(0., 0., 1.).rounded(5));
+        assert_eq!(
+            (Matrix4x4::ID.rotate_x(FRAC_PI_2) * p).rounded(5),
+            Point::new(0., 0., 1.).rounded(5)
+        );
     }
 
     #[test]

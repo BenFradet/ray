@@ -1,7 +1,13 @@
 use std::f64::consts::FRAC_PI_4;
 
 use math::{colour::Colour, matrix::Matrix4x4, point::Point};
-use model::{intersection::{Intersection, IntersectionHit}, material::Material, point_light::PointLight, ray::Ray, sphere::Sphere};
+use model::{
+    intersection::{Intersection, IntersectionHit},
+    material::Material,
+    point_light::PointLight,
+    ray::Ray,
+    sphere::Sphere,
+};
 use pixels::{Error, Pixels, SurfaceTexture};
 use viewer::canvas::Canvas;
 use winit::{

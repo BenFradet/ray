@@ -4,7 +4,7 @@ use super::point_light::PointLight;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Material {
-    colour: Colour,
+    pub colour: Colour,
     ambient: f64,
     diffuse: f64,
     specular: f64,
@@ -27,19 +27,42 @@ impl Material {
         let effective_colour = self.colour * light.intensity;
 
         let ambient = effective_colour * self.ambient;
+        let mut diffuse = Colour::BLACK;
+        let mut specular = Colour::BLACK;
 
-        let light_v_norm = (light.position - p).norm();
+        let light_norm = (light.position - p).norm();
+        let light_normal_cos = light_norm.dot(normal);
 
-        // specular
-        let light_reflected_v = (-light_v_norm).reflect(normal);
-        let eye_reflected_cos = light_reflected_v.dot(eye);
-        let specular = effective_colour * self.specular * eye_reflected_cos.powf(self.shininess);
+        // light and normal are on the same side
+        if light_normal_cos >= 0. {
+            diffuse = effective_colour * self.diffuse * light_normal_cos;
 
-        // diffuse
-        let normal_light_cos = light_v_norm.dot(normal);
-        let diffuse = effective_colour * self.diffuse * normal_light_cos;
+            let light_normal_reflected = (-light_norm).reflect(normal);
+            let reflect_eye_cos = light_normal_reflected.dot(eye);
+
+            // light reflects away from the eye means specular is null
+            if reflect_eye_cos <= 0. {
+                specular = Colour::BLACK;
+            } else {
+                let factor = reflect_eye_cos.powf(self.shininess);
+                specular = light.intensity * self.specular * factor;
+            }
+        }
 
         ambient + diffuse + specular
+
+        // specular
+        //let light_reflected_v = (-light_norm).reflect(normal);
+        //let reflected_eye_cos = light_reflected_v.dot(eye);
+        //let specular = if reflected_eye_cos <= 0. {
+        //    Colour::BLACK
+        //} else {
+        //    effective_colour * self.specular * reflected_eye_cos.powf(self.shininess)
+        //};
+
+        //// diffuse
+        //let light_normal_cos = light_norm.dot(normal);
+        //let diffuse = effective_colour * self.diffuse * light_normal_cos;
     }
 
     pub fn colour(mut self, c: Colour) -> Self {
