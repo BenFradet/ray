@@ -1,7 +1,7 @@
 use std::f64::consts::FRAC_PI_4;
 
 use math::{colour::Colour, matrix::Matrix4x4, point::Point};
-use model::{intersection::{Intersection, IntersectionHit}, material::Material, point_light::{self, PointLight}, ray::Ray, sphere::Sphere};
+use model::{intersection::{Intersection, IntersectionHit}, material::Material, point_light::PointLight, ray::Ray, sphere::Sphere};
 use pixels::{Error, Pixels, SurfaceTexture};
 use viewer::canvas::Canvas;
 use winit::{
@@ -18,7 +18,6 @@ use crate::viewer::to_file::ToFile;
 mod math;
 mod model;
 mod viewer;
-mod world;
 
 fn main() -> Result<(), Error> {
     let width = 1000;
@@ -96,8 +95,8 @@ fn main() -> Result<(), Error> {
 
                 let position = Point::new(world_x, world_y, wall_z);
                 let ray = Ray::new(ray_origin, (position - ray_origin).norm());
-                let is1 = ray.intersections(sphere1);
-                let is2 = ray.intersections(sphere2);
+                let is1 = ray.intersections(&sphere1);
+                let is2 = ray.intersections(&sphere2);
 
                 if let Some(hit1) = is1.hit() {
                     let colour = lightning_colour(hit1, ray, point_light);

@@ -18,7 +18,7 @@ impl Ray {
     }
 
     // https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-    pub fn intersections(&self, s: Sphere) -> Vec<Intersection> {
+    pub fn intersections(&self, s: &Sphere) -> Vec<Intersection> {
         let t_ray = self.transform(s.inv_t);
         let sphere_to_ray = t_ray.origin - Point::ORIGIN;
         let a = t_ray.direction.dot(t_ray.direction);
@@ -32,7 +32,7 @@ impl Ray {
             // discriminant = 0 is one solution but we still output two
             let t1 = (-b - discriminant.sqrt()) / (2. * a);
             let t2 = (-b + discriminant.sqrt()) / (2. * a);
-            vec![Intersection::new(t1, s), Intersection::new(t2, s)]
+            vec![Intersection::new(t1, *s), Intersection::new(t2, *s)]
         }
     }
 
@@ -52,7 +52,7 @@ mod tests {
     fn intersect_translated_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Sphere::id().t(Matrix4x4::translation(5., 0., 0.)).unwrap();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 0);
     }
 
@@ -60,7 +60,7 @@ mod tests {
     fn intersect_scaled_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Sphere::id().t(Matrix4x4::scaling(2., 2., 2.)).unwrap();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 2);
         assert_eq!(res[0], Intersection::new(3., s));
         assert_eq!(res[1], Intersection::new(7., s));
@@ -89,7 +89,7 @@ mod tests {
     fn intersect_after_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., 5.), Vector::new(0., 0., 1.));
         let s = Sphere::id();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 2);
         assert_eq!(res[0], Intersection::new(-6., s));
         assert_eq!(res[1], Intersection::new(-4., s));
@@ -99,7 +99,7 @@ mod tests {
     fn intersect_inside_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., 0.), Vector::new(0., 0., 1.));
         let s = Sphere::id();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 2);
         assert_eq!(res[0], Intersection::new(-1., s));
         assert_eq!(res[1], Intersection::new(1., s));
@@ -109,7 +109,7 @@ mod tests {
     fn intersect_no_points() -> () {
         let r = Ray::new(Point::new(0., 2., -5.), Vector::new(0., 0., 1.));
         let s = Sphere::id();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 0);
     }
 
@@ -117,7 +117,7 @@ mod tests {
     fn intersect_same_point() -> () {
         let r = Ray::new(Point::new(0., 1., -5.), Vector::new(0., 0., 1.));
         let s = Sphere::id();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 2);
         assert_eq!(res[0], Intersection::new(5., s));
         assert_eq!(res[1], Intersection::new(5., s));
@@ -127,7 +127,7 @@ mod tests {
     fn intersect_2_points() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Sphere::id();
-        let res = r.intersections(s);
+        let res = r.intersections(&s);
         assert_eq!(res.len(), 2);
         assert_eq!(res[0], Intersection::new(4., s));
         assert_eq!(res[1], Intersection::new(6., s));
