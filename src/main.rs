@@ -80,12 +80,13 @@ fn main() -> Result<(), Error> {
         vec![PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE)],
     );
 
-    let camera = Camera::new(width_usize, height_usize, FRAC_PI_3)
-        .transform(Matrix4x4::view_transform(
-            Point::new(0., 1.5, -5.),
-            Point::new(0., 1., 0.),
-            Vector::new(0., 1., 0.)),
-        )
+    let to = Point::new(0., 1., 0.);
+    let up = Vector::new(0., 1., 0.);
+    let vt = move |eye: Point| -> Matrix4x4 { Matrix4x4::view_transform(eye, to, up) };
+
+    let mut eye = Point::new(0., 1.5, -5.);
+    let mut camera = Camera::new(width_usize, height_usize, FRAC_PI_3)
+        .transform(vt(eye))
         .unwrap();
 
     let mut canvas = Canvas::black(camera.hsize, camera.vsize);
@@ -111,10 +112,23 @@ fn main() -> Result<(), Error> {
 
                 *control_flow = ControlFlow::Exit;
                 return;
+            } else if input.key_pressed(VirtualKeyCode::W) {
+                eye = Point::new(eye.x, eye.y + 0.5, eye.z);
+            } else if input.key_pressed(VirtualKeyCode::S) {
+                eye = Point::new(eye.x, eye.y - 0.5, eye.z);
+            } else if input.key_pressed(VirtualKeyCode::A) {
+                eye = Point::new(eye.x - 0.5, eye.y, eye.z);
+            } else if input.key_pressed(VirtualKeyCode::D) {
+                eye = Point::new(eye.x + 0.5, eye.y, eye.z);
+            } else if input.key_pressed(VirtualKeyCode::Q) {
+                eye = Point::new(eye.x, eye.y, eye.z - 0.5);
+            } else if input.key_pressed(VirtualKeyCode::E) {
+                eye = Point::new(eye.x, eye.y, eye.z + 0.5);
             }
+            camera = camera.transform(vt(eye)).unwrap();
+            canvas.render(&camera, &world);
+            window.request_redraw();
         }
-
-        window.request_redraw();
     });
 }
 
