@@ -15,9 +15,16 @@ pub struct World {
 }
 
 impl World {
+    pub fn new(objects: Vec<Sphere>, lights: Vec<PointLight>) -> Self {
+        Self {
+            objects,
+            lights,
+        }
+    }
+
     pub fn default() -> World {
         let light = PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE);
-        let material = Material::new()
+        let material = Material::default()
             .colour(Colour::new(0.8, 1., 0.6))
             .diffuse(0.7)
             .specular(0.2);
@@ -152,7 +159,7 @@ mod tests {
     #[test]
     fn default() -> () {
         let light = PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE);
-        let material = Material::new()
+        let material = Material::default()
             .colour(Colour::new(0.8, 1., 0.6))
             .diffuse(0.7)
             .specular(0.2);

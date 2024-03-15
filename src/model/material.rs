@@ -12,7 +12,17 @@ pub struct Material {
 }
 
 impl Material {
-    pub fn new() -> Self {
+    pub fn new(c: Colour, ambient: f64, diffuse: f64, specular: f64) -> Self {
+        Self {
+            colour: c,
+            ambient,
+            diffuse,
+            specular,
+            shininess: 200.,
+        }
+    }
+
+    pub fn default() -> Self {
         Self {
             colour: Colour::WHITE,
             ambient: 0.1,
@@ -101,7 +111,7 @@ mod tests {
 
     #[test]
     fn lightning_eye_light_normal_aligned() -> () {
-        let m = Material::new();
+        let m = Material::default();
         let p = Point::ORIGIN;
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
@@ -112,7 +122,7 @@ mod tests {
 
     #[test]
     fn lightning_eye_between_light_surface() -> () {
-        let m = Material::new();
+        let m = Material::default();
         let p = Point::ORIGIN;
         let s2 = SQRT_2 / 2.;
         let eye = Vector::new(0., s2, -s2);
@@ -124,7 +134,7 @@ mod tests {
 
     #[test]
     fn lightning_eye_in_normal() -> () {
-        let m = Material::new();
+        let m = Material::default();
         let p = Point::ORIGIN;
         let eye = Vector::new(0., 0., -1.);
         let normal = eye;
@@ -135,7 +145,7 @@ mod tests {
 
     #[test]
     fn lightning_eye_in_reflect() -> () {
-        let m = Material::new();
+        let m = Material::default();
         let p = Point::ORIGIN;
         let s2 = SQRT_2 / 2.;
         let eye = Vector::new(0., -s2, -s2);
@@ -147,7 +157,7 @@ mod tests {
 
     #[test]
     fn lightning_behind() -> () {
-        let m = Material::new();
+        let m = Material::default();
         let p = Point::ORIGIN;
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
@@ -158,7 +168,7 @@ mod tests {
 
     #[test]
     fn shininess() -> () {
-        let m = Material::new();
+        let m = Material::default();
         assert_eq!(m.shininess, 200.);
         let s = 100.;
         let new_m = m.shininess(-s);
@@ -167,7 +177,7 @@ mod tests {
 
     #[test]
     fn specular() -> () {
-        let m = Material::new();
+        let m = Material::default();
         assert_eq!(m.specular, 0.9);
         let s = 1.;
         let new_m = m.specular(-s);
@@ -176,7 +186,7 @@ mod tests {
 
     #[test]
     fn diffuse() -> () {
-        let m = Material::new();
+        let m = Material::default();
         assert_eq!(m.diffuse, 0.9);
         let d = 1.;
         let new_m = m.diffuse(-d);
@@ -185,7 +195,7 @@ mod tests {
 
     #[test]
     fn ambient() -> () {
-        let m = Material::new();
+        let m = Material::default();
         assert_eq!(m.ambient, 0.1);
         let a = 0.2;
         let new_m = m.ambient(-a);
@@ -194,7 +204,7 @@ mod tests {
 
     #[test]
     fn colour() -> () {
-        let m = Material::new();
+        let m = Material::default();
         assert_eq!(m.colour, Colour::WHITE);
         let c = Colour::BLACK;
         let new_m = m.colour(c);
@@ -203,7 +213,7 @@ mod tests {
 
     #[test]
     fn new() -> () {
-        let m = Material::new();
+        let m = Material::default();
         assert_eq!(m.colour, Colour::WHITE);
         assert_eq!(m.ambient, 0.1);
         assert_eq!(m.diffuse, 0.9);

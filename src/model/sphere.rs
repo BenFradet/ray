@@ -22,7 +22,7 @@ impl Sphere {
             t,
             inv_t,
             t_inv_t: inv_t.transpose(),
-            material: Material::new(),
+            material: Material::default(),
         })
     }
 
@@ -31,7 +31,7 @@ impl Sphere {
             t: Matrix4x4::ID,
             inv_t: Matrix4x4::ID,
             t_inv_t: Matrix4x4::ID,
-            material: Material::new(),
+            material: Material::default(),
         }
     }
 
@@ -68,8 +68,8 @@ mod tests {
     #[test]
     fn material() -> () {
         let s = Sphere::id();
-        assert_eq!(s.material, Material::new());
-        let m = Material::new().ambient(1.);
+        assert_eq!(s.material, Material::default());
+        let m = Material::default().ambient(1.);
         let new_s = s.material(m);
         assert_eq!(new_s.material, m);
     }
