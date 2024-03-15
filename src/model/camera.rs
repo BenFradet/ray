@@ -2,8 +2,8 @@ use crate::math::{matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::M
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Camera {
-    hsize: usize,
-    vsize: usize,
+    pub hsize: usize,
+    pub vsize: usize,
     fov: f64,
     transform: Matrix4x4,
     pub inv_t: Matrix4x4,

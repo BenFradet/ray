@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-use crate::math::colour::Colour;
+use crate::{math::colour::Colour, model::{camera::Camera, ray::Ray, world::World}};
 
 use super::drawable::Drawable;
 
@@ -24,6 +24,16 @@ impl Canvas {
 
     pub fn black(width: usize, height: usize) -> Canvas {
         Canvas::new(width, height, Colour::BLACK)
+    }
+
+    pub fn render(&mut self, c: &Camera, w: &World) -> () {
+        for y in 0..c.vsize {
+            for x in 0..c.hsize {
+                let ray = Ray::for_pixel(c, x, y);
+                let colour = w.colour_at(&ray);
+                self.update(x, y, colour);
+            }
+        }
     }
 
     // no new canvas to avoid re-allocating storage
@@ -89,7 +99,28 @@ impl Display for Canvas {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::FRAC_PI_2;
+
+    use crate::math::{matrix::Matrix4x4, point::Point, round::Round, vector::Vector};
+
     use super::*;
+
+    #[test]
+    fn render() -> () {
+        let w = World::default();
+        let eye = Point::new(0., 0., -5.);
+        let to = Point::ORIGIN;
+        let up = Vector::new(0., 1., 0.);
+        let c = Camera::new(11, 11, FRAC_PI_2)
+            .transform(Matrix4x4::view_transform(eye, to, up))
+            .unwrap();
+        let mut canvas = Canvas::new(c.hsize, c.vsize, Colour::BLACK);
+        canvas.render(&c, &w);
+        let res = canvas.at(5, 5);
+        assert!(res.is_some());
+        let resp = res.unwrap();
+        assert_eq!(resp.rounded(5), vec![0.38066, 0.47583, 0.2855])
+    }
 
     #[test]
     fn draw() -> () {
