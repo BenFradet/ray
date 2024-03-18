@@ -33,33 +33,44 @@ impl Material {
     }
 
     // https://en.wikipedia.org/wiki/Phong_reflection_model
-    pub fn lightning(&self, light: PointLight, p: Point, eye: Vector, normal: Vector) -> Colour {
+    pub fn lightning(
+        &self,
+        light: PointLight,
+        p: Point,
+        eye: Vector,
+        normal: Vector,
+        in_shadow: bool,
+    ) -> Colour {
         let effective_colour = self.colour * light.intensity;
 
         let ambient = effective_colour * self.ambient;
-        let mut diffuse = Colour::BLACK;
-        let mut specular = Colour::BLACK;
+        if in_shadow {
+            ambient
+        } else {
+            let mut diffuse = Colour::BLACK;
+            let mut specular = Colour::BLACK;
 
-        let light_norm = (light.position - p).norm();
-        let light_normal_cos = light_norm.dot(normal);
+            let light_norm = (light.position - p).norm();
+            let light_normal_cos = light_norm.dot(normal);
 
-        // light and normal are on the same side
-        if light_normal_cos >= 0. {
-            diffuse = effective_colour * self.diffuse * light_normal_cos;
+            // light and normal are on the same side
+            if light_normal_cos >= 0. {
+                diffuse = effective_colour * self.diffuse * light_normal_cos;
 
-            let light_normal_reflected = (-light_norm).reflect(normal);
-            let reflect_eye_cos = light_normal_reflected.dot(eye);
+                let light_normal_reflected = (-light_norm).reflect(normal);
+                let reflect_eye_cos = light_normal_reflected.dot(eye);
 
-            // light reflects away from the eye means specular is null
-            if reflect_eye_cos <= 0. {
-                specular = Colour::BLACK;
-            } else {
-                let factor = reflect_eye_cos.powf(self.shininess);
-                specular = light.intensity * self.specular * factor;
+                // light reflects away from the eye means specular is null
+                if reflect_eye_cos <= 0. {
+                    specular = Colour::BLACK;
+                } else {
+                    let factor = reflect_eye_cos.powf(self.shininess);
+                    specular = light.intensity * self.specular * factor;
+                }
             }
-        }
 
-        ambient + diffuse + specular
+            ambient + diffuse + specular
+        }
 
         // specular
         //let light_reflected_v = (-light_norm).reflect(normal);
@@ -110,13 +121,24 @@ mod tests {
     use super::*;
 
     #[test]
+    fn lighting_in_shadow() -> () {
+        let m = Material::default();
+        let p = Point::ORIGIN;
+        let eye = Vector::new(0., 0., -1.);
+        let normal = Vector::new(0., 0., -1.);
+        let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
+        let res = m.lightning(light, p, eye, normal, true);
+        assert_eq!(res, Colour::new(0.1, 0.1, 0.1));
+    }
+
+    #[test]
     fn lightning_eye_light_normal_aligned() -> () {
         let m = Material::default();
         let p = Point::ORIGIN;
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
-        let res = m.lightning(light, p, eye, normal);
+        let res = m.lightning(light, p, eye, normal, false);
         assert_eq!(res.rounded(5), vec![1.9, 1.9, 1.9]);
     }
 
@@ -128,7 +150,7 @@ mod tests {
         let eye = Vector::new(0., s2, -s2);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
-        let res = m.lightning(light, p, eye, normal);
+        let res = m.lightning(light, p, eye, normal, false);
         assert_eq!(res, Colour::WHITE);
     }
 
@@ -139,7 +161,7 @@ mod tests {
         let eye = Vector::new(0., 0., -1.);
         let normal = eye;
         let light = PointLight::new(Point::new(0., 10., -10.), Colour::WHITE);
-        let res = m.lightning(light, p, eye, normal);
+        let res = m.lightning(light, p, eye, normal, false);
         assert_eq!(res.rounded(4), vec![0.7364, 0.7364, 0.7364]);
     }
 
@@ -151,7 +173,7 @@ mod tests {
         let eye = Vector::new(0., -s2, -s2);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 10., -10.), Colour::WHITE);
-        let res = m.lightning(light, p, eye, normal);
+        let res = m.lightning(light, p, eye, normal, false);
         assert_eq!(res.rounded(4), vec![1.6364, 1.6364, 1.6364]);
     }
 
@@ -162,7 +184,7 @@ mod tests {
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., 10.), Colour::WHITE);
-        let res = m.lightning(light, p, eye, normal);
+        let res = m.lightning(light, p, eye, normal, false);
         assert_eq!(res.rounded(5), vec![0.1, 0.1, 0.1]);
     }
 

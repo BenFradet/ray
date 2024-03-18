@@ -137,5 +137,5 @@ fn lightning_colour(i: Intersection, ray: Ray, light: PointLight) -> Colour {
     let point = ray.position(i.t);
     let normal = i.object.normal_at(point);
     let eye = -ray.direction;
-    i.object.material.lightning(light, point, eye, normal)
+    i.object.material.lightning(light, point, eye, normal, false)
 }

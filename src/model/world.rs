@@ -52,6 +52,24 @@ impl World {
         }
     }
 
+    pub fn is_shadowed(&self, p: Point) -> bool {
+        // TODO: short circuit
+        self.lights.iter().fold(false, |in_shadow, light| {
+            if in_shadow {
+                in_shadow
+            } else {
+                let point_to_light = light.position - p;
+                let dist = point_to_light.len();
+                let direction = point_to_light.norm();
+                let ray = Ray::new(p, direction);
+                match self.intersect(&ray).hit() {
+                    Some(hit) if hit.t < dist => true,
+                    _ => in_shadow,
+                }
+            }
+        })
+    }
+
     fn intersect(&self, r: &Ray) -> Vec<Intersection> {
         let mut is: Vec<Intersection> = Vec::new();
         for sphere in self.objects.as_slice() {
@@ -75,7 +93,7 @@ impl World {
                 .intersection
                 .object
                 .material
-                .lightning(*light, c.point, c.eye, c.normal)
+                .lightning(*light, c.point, c.eye, c.normal, false)
         })
     }
 }
@@ -85,6 +103,34 @@ mod tests {
     use crate::math::{round::Round, vector::Vector};
 
     use super::*;
+
+    #[test]
+    fn is_shadowed_object_behind_point() -> () {
+        let w = World::default();
+        let p = Point::new(-2., 2., 2.);
+        assert!(!w.is_shadowed(p));
+    }
+
+    #[test]
+    fn is_shadowed_behind_light() -> () {
+        let w = World::default();
+        let p = Point::new(-20., 20., 20.);
+        assert!(!w.is_shadowed(p));
+    }
+
+    #[test]
+    fn is_shadowed_point_behind_object() -> () {
+        let w = World::default();
+        let p = Point::new(10., -10., 10.);
+        assert!(w.is_shadowed(p));
+    }
+
+    #[test]
+    fn is_shadowed_nothing_colinear() -> () {
+        let w = World::default();
+        let p = Point::new(0., 10., 0.);
+        assert!(!w.is_shadowed(p));
+    }
 
     #[test]
     fn colour_at_inter_behind_ray() -> () {
