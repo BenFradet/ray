@@ -1,10 +1,13 @@
-use crate::math::{point::Point, vector::Vector};
+use crate::{
+    math::{point::Point, vector::Vector},
+    shape::{intersect::Intersect, normal::Normal},
+};
 
 use super::{intersection::Intersection, ray::Ray};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Comp {
-    pub intersection: Intersection,
+pub struct Comp<S: Intersect + Normal + Copy> {
+    pub intersection: Intersection<S>,
     pub point: Point,
     pub over_point: Point,
     pub eye: Vector,
@@ -12,10 +15,10 @@ pub struct Comp {
     pub inside: bool,
 }
 
-impl Comp {
+impl<S: Intersect + Normal + Copy> Comp<S> {
     const EPS: f64 = 0.00001;
 
-    pub fn new(intersection: Intersection, ray: Ray) -> Self {
+    pub fn new(intersection: Intersection<S>, ray: Ray) -> Self {
         let point = ray.position(intersection.t);
         let eye = -ray.direction;
         let mut normal = intersection.object.normal_at(point);
@@ -39,24 +42,28 @@ impl Comp {
 
 #[cfg(test)]
 mod tests {
-    use crate::{math::matrix::Matrix4x4, model::sphere::Sphere};
+    use crate::{
+        math::matrix::Matrix4x4,
+        shape::{shape::Shape, sphere::Sphere},
+    };
 
     use super::*;
 
     #[test]
     fn over_point() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Sphere::new(Matrix4x4::translation(0., 0., 1.)).unwrap_or(Sphere::id());
+        let s = Shape::new(Sphere {}, Matrix4x4::translation(0., 0., 1.))
+            .unwrap_or(Shape::id(Sphere {}));
         let i = Intersection::new(5., s);
         let c = Comp::new(i, r);
-        assert!(c.over_point.z < -Comp::EPS / 2.);
+        assert!(c.over_point.z < -Comp::<Sphere>::EPS / 2.);
         assert!(c.point.z > c.over_point.z);
     }
 
     #[test]
     fn inside() -> () {
         let r = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
-        let s = Sphere::id();
+        let s = Shape::id(Sphere {});
         let i = Intersection::new(1., s);
         let c = Comp::new(i, r);
         assert_eq!(c.point, Point::new(0., 0., 1.));
@@ -68,7 +75,7 @@ mod tests {
     #[test]
     fn not_inside() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Sphere::id();
+        let s = Shape::id(Sphere {});
         let i = Intersection::new(4., s);
         let c = Comp::new(i, r);
         assert!(!c.inside);
@@ -77,7 +84,7 @@ mod tests {
     #[test]
     fn new() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Sphere::id();
+        let s = Shape::id(Sphere {});
         let i = Intersection::new(4., s);
         let c = Comp::new(i, r);
         assert_eq!(c.intersection.t, i.t);

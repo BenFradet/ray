@@ -64,7 +64,7 @@ mod tests {
     }
 
     #[test]
-    fn new () -> () {
+    fn new() -> () {
         let w = 160;
         let h = 120;
         let fov = FRAC_PI_2;
