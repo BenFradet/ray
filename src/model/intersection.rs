@@ -1,27 +1,27 @@
-use crate::shape::{intersect::Intersect, normal::Normal, shape::Shape};
+use crate::shape::shape::Shape;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Intersection<S: Intersect + Normal + Copy> {
+pub struct Intersection {
     pub t: f64,
-    pub object: Shape<S>,
+    pub object: Shape,
 }
 
-impl<S: Intersect + Normal + Copy> Intersection<S> {
+impl Intersection {
     // the intersection takes ownership of the object
     // might need to revisit later
-    pub fn new(t: f64, shape: Shape<S>) -> Self {
+    pub fn new(t: f64, shape: Shape) -> Self {
         Self { t, object: shape }
     }
 }
 
-pub trait IntersectionHit<S: Intersect + Normal + Copy> {
-    fn hit(self) -> Option<Intersection<S>>;
+pub trait IntersectionHit {
+    fn hit(self) -> Option<Intersection>;
 }
 
-impl<S: Normal + Intersect + Copy, I: IntoIterator<Item = Intersection<S>>> IntersectionHit<S>
+impl<I: IntoIterator<Item = Intersection>> IntersectionHit
     for I
 {
-    fn hit(self) -> Option<Intersection<S>> {
+    fn hit(self) -> Option<Intersection> {
         self.into_iter().fold(None, |acc, incoming| {
             if incoming.t < 0. {
                 acc
@@ -43,13 +43,11 @@ impl<S: Normal + Intersect + Copy, I: IntoIterator<Item = Intersection<S>>> Inte
 
 #[cfg(test)]
 mod tests {
-    use crate::shape::sphere::Sphere;
-
     use super::*;
 
     #[test]
     fn hit_smallest_non_neg() -> () {
-        let s = Shape::id(Sphere {});
+        let s = Shape::id_sphere();
         let i1 = Intersection::new(5., s);
         let i2 = Intersection::new(7., s);
         let i3 = Intersection::new(-3., s);
@@ -60,7 +58,7 @@ mod tests {
 
     #[test]
     fn hit_all_neg() -> () {
-        let s = Shape::id(Sphere {});
+        let s = Shape::id_sphere();
         let i1 = Intersection::new(-1., s);
         let i2 = Intersection::new(-2., s);
         let is = vec![i1, i2];
@@ -69,7 +67,7 @@ mod tests {
 
     #[test]
     fn hit_some_neg() -> () {
-        let s = Shape::id(Sphere {});
+        let s = Shape::id_sphere();
         let i1 = Intersection::new(-1., s);
         let i2 = Intersection::new(1., s);
         let is = vec![i1, i2];
@@ -78,7 +76,7 @@ mod tests {
 
     #[test]
     fn hit_all_pos() -> () {
-        let s = Shape::id(Sphere {});
+        let s = Shape::id_sphere();
         let i1 = Intersection::new(1., s);
         let i2 = Intersection::new(2., s);
         let is = vec![i1, i2];
@@ -87,7 +85,7 @@ mod tests {
 
     #[test]
     fn new() -> () {
-        let s = Shape::id(Sphere {});
+        let s = Shape::id_sphere();
         let i = Intersection::new(0., s);
         assert_eq!(i.t, 0.);
         assert_eq!(i.object, s);

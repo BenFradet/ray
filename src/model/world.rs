@@ -1,4 +1,4 @@
-use crate::{math::{colour::Colour, matrix::Matrix4x4, point::Point}, shape::{shape::Shape, sphere::Sphere}};
+use crate::{math::{colour::Colour, matrix::Matrix4x4, point::Point}, shape::{shape::Shape, shape_kind::ShapeKind, sphere::Sphere}};
 
 use super::{
     comp::Comp,
@@ -9,12 +9,12 @@ use super::{
 };
 
 pub struct World {
-    objects: Vec<Shape<Sphere>>,
+    objects: Vec<Shape>,
     lights: Vec<PointLight>,
 }
 
 impl World {
-    pub fn new(objects: Vec<Shape<Sphere>>, lights: Vec<PointLight>) -> Self {
+    pub fn new(objects: Vec<Shape>, lights: Vec<PointLight>) -> Self {
         Self {
             objects,
             lights,
@@ -27,9 +27,9 @@ impl World {
             .colour(Colour::new(0.8, 1., 0.6))
             .diffuse(0.7)
             .specular(0.2);
-        let sphere1 = Shape::id(Sphere {}).material(material);
-        let sphere2 = Shape::new(Sphere {}, Matrix4x4::scaling(0.5, 0.5, 0.5))
-            .unwrap_or(Shape::id(Sphere {}));
+        let sphere1 = Shape::id_sphere().material(material);
+        let sphere2 = Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5))
+            .unwrap_or(Shape::id_sphere());
 
         Self {
             objects: vec![sphere1, sphere2],
@@ -37,7 +37,7 @@ impl World {
         }
     }
 
-    pub fn objects(mut self, objects: Vec<Shape<Sphere>>) -> Self {
+    pub fn objects(mut self, objects: Vec<Shape>) -> Self {
         self.objects = objects;
         self
     }
@@ -57,8 +57,8 @@ impl World {
         }
     }
 
-    fn intersect(&self, r: &Ray) -> Vec<Intersection<Sphere>> {
-        let mut is: Vec<Intersection<Sphere>> = Vec::new();
+    fn intersect(&self, r: &Ray) -> Vec<Intersection> {
+        let mut is: Vec<Intersection> = Vec::new();
         for shape in self.objects.as_slice() {
             let mut inners = shape.intersections(&r);
             is.append(&mut inners);
@@ -74,7 +74,7 @@ impl World {
         //filtered
     }
 
-    fn shade_hit(&self, c: &Comp<Sphere>) -> Colour {
+    fn shade_hit(&self, c: &Comp) -> Colour {
         self.lights.iter().fold(Colour::BLACK, |acc, light| {
             let is_shadowed = self.is_shadowed(c.over_point, light);
             acc + c
@@ -105,9 +105,9 @@ mod tests {
 
     #[test]
     fn shade_hit_in_shadow() -> () {
-        let s1 = Shape::id(Sphere {});
-        let s2 = Shape::new(Sphere {}, Matrix4x4::translation(0., 0., 10.))
-            .unwrap_or(Shape::id(Sphere {}));
+        let s1 = Shape::id_sphere();
+        let s2 = Shape::new_sphere(Matrix4x4::translation(0., 0., 10.))
+            .unwrap_or(Shape::id_sphere());
         let w = World::default()
             .lights(vec![PointLight::new(Point::new(0., 0., -10.), Colour::WHITE)])
             .objects(vec![s1, s2]);
@@ -223,9 +223,9 @@ mod tests {
             .colour(Colour::new(0.8, 1., 0.6))
             .diffuse(0.7)
             .specular(0.2);
-        let sphere1 = Shape::id(Sphere {}).material(material);
-        let sphere2 = Shape::new(Sphere {}, Matrix4x4::scaling(0.5, 0.5, 0.5))
-            .unwrap_or(Shape::id(Sphere {}));
+        let sphere1 = Shape::id_sphere().material(material);
+        let sphere2 = Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5))
+            .unwrap_or(Shape::id_sphere());
         let w = World::default();
         assert!(w.objects.contains(&sphere1));
         assert!(w.objects.contains(&sphere2));

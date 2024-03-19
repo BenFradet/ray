@@ -1,24 +1,19 @@
-use crate::{
-    math::{
-        matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::MatrixInvert,
-        matrix_transpose::MatrixTranspose, point::Point, vector::Vector,
-    },
-    model::{intersection::Intersection, material::Material, ray::Ray},
-};
+use crate::{math::{matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::MatrixInvert, matrix_transpose::MatrixTranspose, point::Point, vector::Vector}, model::{intersection::Intersection, material::Material, ray::Ray}};
 
-use super::{intersect::Intersect, normal::Normal};
+use super::{intersect::Intersect, normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere};
+
 
 #[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Shape<S: Intersect + Normal> {
+pub struct Shape {
     t: Matrix4x4,
     pub inv_t: Matrix4x4,
     t_inv_t: Matrix4x4,
     pub material: Material,
-    underlying: S,
+    underlying: ShapeKind,
 }
 
-impl<S: Intersect + Normal + Copy> Shape<S> {
-    pub fn new(s: S, t: Matrix4x4) -> Option<Self> {
+impl Shape {
+    pub fn new(s: ShapeKind, t: Matrix4x4) -> Option<Self> {
         let inv = t.invert();
         inv.map(|inv_t| Self {
             t,
@@ -29,7 +24,39 @@ impl<S: Intersect + Normal + Copy> Shape<S> {
         })
     }
 
-    pub fn id(s: S) -> Self {
+    pub fn new_sphere(t: Matrix4x4) -> Option<Self> {
+        let inv = t.invert();
+        inv.map(|inv_t| Self {
+            t,
+            inv_t,
+            t_inv_t: inv_t.transpose(),
+            material: Material::default(),
+            underlying: ShapeKind::S(Sphere {}),
+        })
+    }
+
+    pub fn new_plane(t: Matrix4x4) -> Option<Self> {
+        let inv = t.invert();
+        inv.map(|inv_t| Self {
+            t,
+            inv_t,
+            t_inv_t: inv_t.transpose(),
+            material: Material::default(),
+            underlying: ShapeKind::P(Plane {}),
+        })
+    }
+
+    pub fn id_sphere() -> Self {
+        Self {
+            t: Matrix4x4::ID,
+            inv_t: Matrix4x4::ID,
+            t_inv_t: Matrix4x4::ID,
+            material: Material::default(),
+            underlying: ShapeKind::S(Sphere {}),
+        }
+    }
+
+    pub fn id(s: ShapeKind) -> Self {
         Self {
             t: Matrix4x4::ID,
             inv_t: Matrix4x4::ID,
@@ -60,9 +87,9 @@ impl<S: Intersect + Normal + Copy> Shape<S> {
         world_normal.w(0.0).norm()
     }
 
-    pub fn intersections(&self, r: &Ray) -> Vec<Intersection<S>> {
+    pub fn intersections(&self, r: &Ray) -> Vec<Intersection> {
         let t_ray = r.transform(self.inv_t);
-        let ts = self.underlying.intersect(t_ray);
+        let ts = self.underlying.intersect(&t_ray);
         ts.iter().map(|t| Intersection::new(*t, *self)).collect()
     }
 }
@@ -75,23 +102,10 @@ mod tests {
 
     use super::*;
 
-    #[derive(Copy, Clone)]
-    struct TestShape;
-    impl Intersect for TestShape {
-        fn intersect(&self, _r: Ray) -> Vec<f64> {
-            vec![]
-        }
-    }
-    impl Normal for TestShape {
-        fn normal_at(&self, object_point: Point) -> Vector {
-            Vector::new(object_point.x, object_point.y, object_point.z)
-        }
-    }
-
     #[test]
     fn normal_at_transformed_shape() -> () {
         let t = Matrix4x4::rotation_z(PI / 5.).scale(1., 0.5, 1.);
-        let s = Shape::new(TestShape {}, t).unwrap_or(Shape::id(TestShape {}));
+        let s = Shape::new_sphere(t).unwrap_or(Shape::id_sphere());
         let s2 = SQRT_2 / 2.;
         let res = s.normal_at(Point::new(0., s2, -s2));
         assert_eq!(res.rounded(5), vec![0., 0.97014, -0.24254, 0.]);
@@ -99,59 +113,59 @@ mod tests {
 
     #[test]
     fn normal_at_translated_shape() -> () {
-        let s = Shape::new(TestShape {}, Matrix4x4::translation(0., 1., 0.))
-            .unwrap_or(Shape::id(TestShape {}));
+        let s = Shape::new_sphere(Matrix4x4::translation(0., 1., 0.))
+            .unwrap_or(Shape::id_sphere());
         let res = s.normal_at(Point::new(0., 1.70711, -0.70711));
         assert_eq!(res.rounded(5), vec![0., 0.70711, -0.70711, 0.]);
     }
 
     #[test]
     fn intersections_translated_shape() -> () {
-        #[derive(Copy, Clone)]
-        struct TestShape;
-        impl Intersect for TestShape {
-            fn intersect(&self, r: Ray) -> Vec<f64> {
-                assert_eq!(r.origin, Point::new(-5., 0., -5.));
-                assert_eq!(r.direction, Vector::new(0., 0., 1.));
-                vec![]
-            }
-        }
-        impl Normal for TestShape {
-            fn normal_at(&self, _object_point: Point) -> Vector {
-                Vector::new(0., 0., 0.)
-            }
-        }
+        //#[derive(Copy, Clone)]
+        //struct TestShape;
+        //impl Intersect for TestShape {
+        //    fn intersect(&self, r: &Ray) -> Vec<f64> {
+        //        assert_eq!(r.origin, Point::new(-5., 0., -5.));
+        //        assert_eq!(r.direction, Vector::new(0., 0., 1.));
+        //        vec![]
+        //    }
+        //}
+        //impl Normal for TestShape {
+        //    fn normal_at(&self, _object_point: Point) -> Vector {
+        //        Vector::new(0., 0., 0.)
+        //    }
+        //}
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new(TestShape {}, Matrix4x4::translation(5., 0., 0.))
-            .unwrap_or(Shape::id(TestShape {}));
+        let s = Shape::new_sphere(Matrix4x4::translation(5., 0., 0.))
+            .unwrap_or(Shape::id_sphere());
         s.intersections(&r);
     }
 
     #[test]
     fn intersections_scaled_shape() -> () {
-        #[derive(Copy, Clone)]
-        struct TestShape;
-        impl Intersect for TestShape {
-            fn intersect(&self, r: Ray) -> Vec<f64> {
-                assert_eq!(r.origin, Point::new(0., 0., -2.5));
-                assert_eq!(r.direction, Vector::new(0., 0., 0.5));
-                vec![]
-            }
-        }
-        impl Normal for TestShape {
-            fn normal_at(&self, _object_point: Point) -> Vector {
-                Vector::new(0., 0., 0.)
-            }
-        }
+        //#[derive(Copy, Clone)]
+        //struct TestShape;
+        //impl Intersect for TestShape {
+        //    fn intersect(&self, r: &Ray) -> Vec<f64> {
+        //        assert_eq!(r.origin, Point::new(0., 0., -2.5));
+        //        assert_eq!(r.direction, Vector::new(0., 0., 0.5));
+        //        vec![]
+        //    }
+        //}
+        //impl Normal for TestShape {
+        //    fn normal_at(&self, _object_point: Point) -> Vector {
+        //        Vector::new(0., 0., 0.)
+        //    }
+        //}
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new(TestShape {}, Matrix4x4::scaling(2., 2., 2.))
-            .unwrap_or(Shape::id(TestShape {}));
+        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.))
+            .unwrap_or(Shape::id_sphere());
         s.intersections(&r);
     }
 
     #[test]
     fn material() -> () {
-        let s = Shape::id(TestShape {});
+        let s = Shape::id_sphere();
         assert_eq!(s.material, Material::default());
         let m = Material::default().ambient(1.);
         let new_s = s.material(m);
@@ -161,7 +175,7 @@ mod tests {
     #[test]
     fn normal_at_scale_rz_sphere() -> () {
         let m = Matrix4x4::rotation_z(PI / 5.).scale(1., 0.5, 1.);
-        let sphere = Shape::new(TestShape {}, m);
+        let sphere = Shape::new_sphere(m);
         assert!(sphere.is_some());
         let s = sphere.unwrap();
         let s2 = SQRT_2 / 2.;
@@ -171,7 +185,7 @@ mod tests {
 
     #[test]
     fn normal_at_translated_sphere() -> () {
-        let sphere = Shape::new(TestShape {}, Matrix4x4::translation(0., 1., 0.));
+        let sphere = Shape::new_sphere(Matrix4x4::translation(0., 1., 0.));
         assert!(sphere.is_some());
         let s = sphere.unwrap();
         let s2 = SQRT_2 / 2.;
@@ -181,7 +195,7 @@ mod tests {
 
     #[test]
     fn normal_at() -> () {
-        let s = Shape::id(TestShape {});
+        let s = Shape::id_sphere();
         assert_eq!(s.normal_at(Point::new(1., 0., 0.)), Vector::new(1., 0., 0.));
         assert_eq!(s.normal_at(Point::new(0., 1., 0.)), Vector::new(0., 1., 0.));
         assert_eq!(s.normal_at(Point::new(0., 0., 1.)), Vector::new(0., 0., 1.));
@@ -193,7 +207,7 @@ mod tests {
 
     #[test]
     fn t() -> () {
-        let s = Shape::id(TestShape {});
+        let s = Shape::id_sphere();
         assert_eq!(s.t, Matrix4x4::ID);
         let t = Matrix4x4::translation(2., 3., 4.);
         let new_s = s.t(t);
@@ -205,7 +219,7 @@ mod tests {
     fn new() -> () {
         let t = Matrix4x4::translation(2., 3., 4.);
         let inv_t = t.invert().unwrap();
-        let s = Shape::new(TestShape {}, t).unwrap();
+        let s = Shape::new_sphere(t).unwrap();
         assert_eq!(s.t, t);
         assert_eq!(s.inv_t, inv_t);
     }

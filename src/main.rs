@@ -3,7 +3,7 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 use math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector};
 use model::{camera::Camera, material::Material, point_light::PointLight, world::World};
 use pixels::{Error, Pixels, SurfaceTexture};
-use shape::{shape::Shape, sphere::Sphere};
+use shape::{plane::Plane, shape::Shape, shape_kind::ShapeKind, sphere::Sphere};
 use viewer::canvas::Canvas;
 use winit::{
     dpi::LogicalSize,
@@ -50,9 +50,8 @@ fn main() -> Result<(), Error> {
         .colour(Colour::new(1., 0.9, 0.9))
         .specular(0.);
     let wall_t = Matrix4x4::scaling(10., 0.01, 10.);
-    let floor = Shape::new(Sphere {}, wall_t).unwrap().material(wall_mat);
-    let left_wall = Shape::new(
-        Sphere {},
+    let floor = Shape::new_plane(wall_t).unwrap().material(wall_mat);
+    let left_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)
             .rotate_y(-FRAC_PI_4)
@@ -60,8 +59,7 @@ fn main() -> Result<(), Error> {
     )
     .unwrap()
     .material(wall_mat);
-    let right_wall = Shape::new(
-        Sphere {},
+    let right_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)
             .rotate_y(FRAC_PI_4)
@@ -71,21 +69,19 @@ fn main() -> Result<(), Error> {
     .material(wall_mat);
 
     let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3);
-    let middle = Shape::new(Sphere {}, Matrix4x4::translation(-0.5, 1., 0.5))
+    let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5))
         .unwrap()
         .material(middle_mat);
 
     let right_mat = Material::new(Colour::new(0.5, 1., 0.1), 0.1, 0.7, 0.3);
-    let right = Shape::new(
-        Sphere {},
+    let right = Shape::new_sphere(
         Matrix4x4::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5),
     )
     .unwrap()
     .material(right_mat);
 
     let left_mat = Material::new(Colour::new(1., 0.8, 0.1), 0.1, 0.7, 0.3);
-    let left = Shape::new(
-        Sphere {},
+    let left = Shape::new_sphere(
         Matrix4x4::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75),
     )
     .unwrap()
