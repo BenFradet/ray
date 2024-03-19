@@ -121,46 +121,21 @@ mod tests {
 
     #[test]
     fn intersections_translated_shape() -> () {
-        //#[derive(Copy, Clone)]
-        //struct TestShape;
-        //impl Intersect for TestShape {
-        //    fn intersect(&self, r: &Ray) -> Vec<f64> {
-        //        assert_eq!(r.origin, Point::new(-5., 0., -5.));
-        //        assert_eq!(r.direction, Vector::new(0., 0., 1.));
-        //        vec![]
-        //    }
-        //}
-        //impl Normal for TestShape {
-        //    fn normal_at(&self, _object_point: Point) -> Vector {
-        //        Vector::new(0., 0., 0.)
-        //    }
-        //}
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Shape::new_sphere(Matrix4x4::translation(5., 0., 0.))
             .unwrap_or(Shape::id_sphere());
-        s.intersections(&r);
+        let res = s.intersections(&r);
+        assert_eq!(res, vec![]);
     }
 
     #[test]
     fn intersections_scaled_shape() -> () {
-        //#[derive(Copy, Clone)]
-        //struct TestShape;
-        //impl Intersect for TestShape {
-        //    fn intersect(&self, r: &Ray) -> Vec<f64> {
-        //        assert_eq!(r.origin, Point::new(0., 0., -2.5));
-        //        assert_eq!(r.direction, Vector::new(0., 0., 0.5));
-        //        vec![]
-        //    }
-        //}
-        //impl Normal for TestShape {
-        //    fn normal_at(&self, _object_point: Point) -> Vector {
-        //        Vector::new(0., 0., 0.)
-        //    }
-        //}
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.))
             .unwrap_or(Shape::id_sphere());
-        s.intersections(&r);
+        let res = s.intersections(&r);
+        assert_eq!(res[0].t, 3.);
+        assert_eq!(res[1].t, 7.);
     }
 
     #[test]
