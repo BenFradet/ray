@@ -2,7 +2,7 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 
 use math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector};
 use model::{camera::Camera, material::Material, point_light::PointLight, world::World};
-use pattern::{pattern::Pattern, stripe::Stripe};
+use pattern::{pattern_kind::PatternKind, stripe::Stripe};
 use pixels::{Error, Pixels, SurfaceTexture};
 use shape::shape::Shape;
 use viewer::canvas::Canvas;
@@ -50,7 +50,7 @@ fn main() -> Result<(), Error> {
 
     let wall_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
-        .pattern(Pattern::S(Stripe::new(Colour::WHITE, Colour::BLACK)))
+        .pattern(PatternKind::S(Stripe::new(Colour::WHITE, Colour::BLACK)))
         .specular(0.);
     let wall_t = Matrix4x4::scaling(10., 0.01, 10.);
     let floor = Shape::new_plane(wall_t).unwrap().material(wall_mat);

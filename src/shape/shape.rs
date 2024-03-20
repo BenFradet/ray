@@ -20,26 +20,23 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn new_sphere(t: Matrix4x4) -> Option<Self> {
+    fn new(s: ShapeKind, t: Matrix4x4) -> Option<Self> {
         let inv = t.invert();
         inv.map(|inv_t| Self {
             t,
             inv_t,
             t_inv_t: inv_t.transpose(),
             material: Material::default(),
-            underlying: ShapeKind::S(Sphere {}),
+            underlying: s,
         })
     }
 
+    pub fn new_sphere(t: Matrix4x4) -> Option<Self> {
+        Self::new(ShapeKind::S(Sphere {}), t)
+    }
+
     pub fn new_plane(t: Matrix4x4) -> Option<Self> {
-        let inv = t.invert();
-        inv.map(|inv_t| Self {
-            t,
-            inv_t,
-            t_inv_t: inv_t.transpose(),
-            material: Material::default(),
-            underlying: ShapeKind::P(Plane {}),
-        })
+        Self::new(ShapeKind::P(Plane {}), t)
     }
 
     pub fn id_sphere() -> Self {

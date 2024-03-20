@@ -1,6 +1,6 @@
 use crate::{
     math::{colour::Colour, point::Point, vector::Vector},
-    pattern::{pattern::Pattern, pattern_at::PatternAt},
+    pattern::{pattern_at::PatternAt, pattern_kind::PatternKind},
 };
 
 use super::point_light::PointLight;
@@ -12,7 +12,7 @@ pub struct Material {
     diffuse: f64,
     specular: f64,
     shininess: f64,
-    pattern: Option<Pattern>,
+    pattern: Option<PatternKind>,
 }
 
 impl Material {
@@ -49,7 +49,7 @@ impl Material {
     ) -> Colour {
         let colour = match self.pattern {
             Some(pat) => pat.pattern_at(p),
-            None => self.colour
+            None => self.colour,
         };
 
         let effective_colour = colour * light.intensity;
@@ -122,7 +122,7 @@ impl Material {
         self
     }
 
-    pub fn pattern(mut self, p: Pattern) -> Self {
+    pub fn pattern(mut self, p: PatternKind) -> Self {
         self.pattern = Some(p);
         self
     }
@@ -142,7 +142,7 @@ mod tests {
             .ambient(1.)
             .diffuse(0.)
             .specular(0.)
-            .pattern(Pattern::S(Stripe::new(Colour::WHITE, Colour::BLACK)));
+            .pattern(PatternKind::S(Stripe::new(Colour::WHITE, Colour::BLACK)));
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
