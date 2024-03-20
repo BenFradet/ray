@@ -1,7 +1,14 @@
-use crate::{math::{matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::MatrixInvert, matrix_transpose::MatrixTranspose, point::Point, vector::Vector}, model::{intersection::Intersection, material::Material, ray::Ray}};
+use crate::{
+    math::{
+        matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::MatrixInvert,
+        matrix_transpose::MatrixTranspose, point::Point, vector::Vector,
+    },
+    model::{intersection::Intersection, material::Material, ray::Ray},
+};
 
-use super::{intersect::Intersect, normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere};
-
+use super::{
+    intersect::Intersect, normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere,
+};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Shape {
@@ -113,8 +120,7 @@ mod tests {
 
     #[test]
     fn normal_at_translated_shape() -> () {
-        let s = Shape::new_sphere(Matrix4x4::translation(0., 1., 0.))
-            .unwrap_or(Shape::id_sphere());
+        let s = Shape::new_sphere(Matrix4x4::translation(0., 1., 0.)).unwrap_or(Shape::id_sphere());
         let res = s.normal_at(Point::new(0., 1.70711, -0.70711));
         assert_eq!(res.rounded(5), vec![0., 0.70711, -0.70711, 0.]);
     }
@@ -122,8 +128,7 @@ mod tests {
     #[test]
     fn intersections_translated_shape() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new_sphere(Matrix4x4::translation(5., 0., 0.))
-            .unwrap_or(Shape::id_sphere());
+        let s = Shape::new_sphere(Matrix4x4::translation(5., 0., 0.)).unwrap_or(Shape::id_sphere());
         let res = s.intersections(&r);
         assert_eq!(res, vec![]);
     }
@@ -131,8 +136,7 @@ mod tests {
     #[test]
     fn intersections_scaled_shape() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.))
-            .unwrap_or(Shape::id_sphere());
+        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap_or(Shape::id_sphere());
         let res = s.intersections(&r);
         assert_eq!(res[0].t, 3.);
         assert_eq!(res[1].t, 7.);

@@ -18,9 +18,7 @@ pub trait IntersectionHit {
     fn hit(self) -> Option<Intersection>;
 }
 
-impl<I: IntoIterator<Item = Intersection>> IntersectionHit
-    for I
-{
+impl<I: IntoIterator<Item = Intersection>> IntersectionHit for I {
     fn hit(self) -> Option<Intersection> {
         self.into_iter().fold(None, |acc, incoming| {
             if incoming.t < 0. {

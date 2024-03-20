@@ -39,18 +39,14 @@ impl Comp {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        math::matrix::Matrix4x4,
-        shape::shape::Shape,
-    };
+    use crate::{math::matrix::Matrix4x4, shape::shape::Shape};
 
     use super::*;
 
     #[test]
     fn over_point() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new_sphere(Matrix4x4::translation(0., 0., 1.))
-            .unwrap_or(Shape::id_sphere());
+        let s = Shape::new_sphere(Matrix4x4::translation(0., 0., 1.)).unwrap_or(Shape::id_sphere());
         let i = Intersection::new(5., s);
         let c = Comp::new(i, r);
         assert!(c.over_point.z < -Comp::EPS / 2.);

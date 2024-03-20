@@ -1,4 +1,7 @@
-use crate::{math::{point::Point, vector::Vector}, model::ray::Ray};
+use crate::{
+    math::{point::Point, vector::Vector},
+    model::ray::Ray,
+};
 
 use super::{intersect::Intersect, normal::Normal, plane::Plane, sphere::Sphere};
 

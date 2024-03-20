@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 
 use crate::{
     math::colour::Colour,
-    model::{camera::Camera, ray::Ray, world::World}, shape::{intersect::Intersect, normal::Normal},
+    model::{camera::Camera, ray::Ray, world::World},
 };
 
 use super::drawable::Drawable;

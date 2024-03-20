@@ -18,6 +18,7 @@ use crate::viewer::to_file::ToFile;
 
 mod math;
 mod model;
+mod pattern;
 mod shape;
 mod viewer;
 
@@ -74,18 +75,14 @@ fn main() -> Result<(), Error> {
         .material(middle_mat);
 
     let right_mat = Material::new(Colour::new(0.5, 1., 0.1), 0.1, 0.7, 0.3);
-    let right = Shape::new_sphere(
-        Matrix4x4::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5),
-    )
-    .unwrap()
-    .material(right_mat);
+    let right = Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5))
+        .unwrap()
+        .material(right_mat);
 
     let left_mat = Material::new(Colour::new(1., 0.8, 0.1), 0.1, 0.7, 0.3);
-    let left = Shape::new_sphere(
-        Matrix4x4::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75),
-    )
-    .unwrap()
-    .material(left_mat);
+    let left = Shape::new_sphere(Matrix4x4::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75))
+        .unwrap()
+        .material(left_mat);
 
     let world = World::new(
         vec![floor, left_wall, right_wall, left, middle, right],

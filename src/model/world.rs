@@ -1,4 +1,7 @@
-use crate::{math::{colour::Colour, matrix::Matrix4x4, point::Point}, shape::{shape::Shape, shape_kind::ShapeKind, sphere::Sphere}};
+use crate::{
+    math::{colour::Colour, matrix::Matrix4x4, point::Point},
+    shape::{shape::Shape, shape_kind::ShapeKind, sphere::Sphere},
+};
 
 use super::{
     comp::Comp,
@@ -15,10 +18,7 @@ pub struct World {
 
 impl World {
     pub fn new(objects: Vec<Shape>, lights: Vec<PointLight>) -> Self {
-        Self {
-            objects,
-            lights,
-        }
+        Self { objects, lights }
     }
 
     pub fn default() -> Self {
@@ -28,8 +28,8 @@ impl World {
             .diffuse(0.7)
             .specular(0.2);
         let sphere1 = Shape::id_sphere().material(material);
-        let sphere2 = Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5))
-            .unwrap_or(Shape::id_sphere());
+        let sphere2 =
+            Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5)).unwrap_or(Shape::id_sphere());
 
         Self {
             objects: vec![sphere1, sphere2],
@@ -77,11 +77,13 @@ impl World {
     fn shade_hit(&self, c: &Comp) -> Colour {
         self.lights.iter().fold(Colour::BLACK, |acc, light| {
             let is_shadowed = self.is_shadowed(c.over_point, light);
-            acc + c
-                .intersection
-                .object
-                .material
-                .lightning(*light, c.over_point, c.eye, c.normal, is_shadowed)
+            acc + c.intersection.object.material.lightning(
+                *light,
+                c.over_point,
+                c.eye,
+                c.normal,
+                is_shadowed,
+            )
         })
     }
 
@@ -106,10 +108,13 @@ mod tests {
     #[test]
     fn shade_hit_in_shadow() -> () {
         let s1 = Shape::id_sphere();
-        let s2 = Shape::new_sphere(Matrix4x4::translation(0., 0., 10.))
-            .unwrap_or(Shape::id_sphere());
+        let s2 =
+            Shape::new_sphere(Matrix4x4::translation(0., 0., 10.)).unwrap_or(Shape::id_sphere());
         let w = World::default()
-            .lights(vec![PointLight::new(Point::new(0., 0., -10.), Colour::WHITE)])
+            .lights(vec![PointLight::new(
+                Point::new(0., 0., -10.),
+                Colour::WHITE,
+            )])
             .objects(vec![s1, s2]);
         let r = Ray::new(Point::new(0., 0., 5.), Vector::new(0., 0., 1.));
         let i = Intersection::new(4., s2);
@@ -224,8 +229,8 @@ mod tests {
             .diffuse(0.7)
             .specular(0.2);
         let sphere1 = Shape::id_sphere().material(material);
-        let sphere2 = Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5))
-            .unwrap_or(Shape::id_sphere());
+        let sphere2 =
+            Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5)).unwrap_or(Shape::id_sphere());
         let w = World::default();
         assert!(w.objects.contains(&sphere1));
         assert!(w.objects.contains(&sphere2));

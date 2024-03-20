@@ -1,4 +1,7 @@
-use crate::{math::{point::Point, vector::Vector}, model::ray::Ray};
+use crate::{
+    math::{point::Point, vector::Vector},
+    model::ray::Ray,
+};
 
 use super::{intersect::Intersect, normal::Normal};
 
@@ -48,7 +51,7 @@ mod tests {
     fn intersect_coplanar() -> () {
         let p = Plane {};
         let r = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
-        assert_eq!(p.intersect(&r), Vec::<f64>::new()); 
+        assert_eq!(p.intersect(&r), Vec::<f64>::new());
     }
 
     #[test]

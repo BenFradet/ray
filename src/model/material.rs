@@ -1,4 +1,7 @@
-use crate::math::{colour::Colour, point::Point, vector::Vector};
+use crate::{
+    math::{colour::Colour, point::Point, vector::Vector},
+    pattern::pattern::Pattern,
+};
 
 use super::point_light::PointLight;
 
@@ -9,6 +12,7 @@ pub struct Material {
     diffuse: f64,
     specular: f64,
     shininess: f64,
+    pattern: Option<Pattern>,
 }
 
 impl Material {
@@ -19,6 +23,7 @@ impl Material {
             diffuse,
             specular,
             shininess: 200.,
+            pattern: None,
         }
     }
 
@@ -29,6 +34,7 @@ impl Material {
             diffuse: 0.9,
             specular: 0.9,
             shininess: 200.,
+            pattern: None,
         }
     }
 
