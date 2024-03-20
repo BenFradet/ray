@@ -18,7 +18,7 @@ impl Comp {
     pub fn new(intersection: Intersection, ray: Ray) -> Self {
         let point = ray.position(intersection.t);
         let eye = -ray.direction;
-        let mut normal = intersection.object.normal_at(point);
+        let mut normal = intersection.shape.normal_at(point);
         let inside = if normal.dot(eye) < 0. {
             normal = -normal;
             true
@@ -81,7 +81,7 @@ mod tests {
         let i = Intersection::new(4., s);
         let c = Comp::new(i, r);
         assert_eq!(c.intersection.t, i.t);
-        assert_eq!(c.intersection.object, i.object);
+        assert_eq!(c.intersection.shape, i.shape);
         assert_eq!(c.point, Point::new(0., 0., -1.));
         assert_eq!(c.eye, Vector::new(0., 0., -1.));
         assert_eq!(c.normal, Vector::new(0., 0., -1.));

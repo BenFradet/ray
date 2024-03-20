@@ -48,8 +48,12 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
-    let pattern = Pattern::new_stripe(Colour::WHITE, Colour::BLACK, Matrix4x4::rotation_z(FRAC_PI_2))
-        .unwrap_or(Pattern::id_stripe(Colour::WHITE, Colour::BLACK));
+    let pattern = Pattern::new_stripe(
+        Colour::WHITE,
+        Colour::BLACK,
+        Matrix4x4::rotation_z(FRAC_PI_2),
+    )
+    .unwrap_or(Pattern::id_stripe(Colour::WHITE, Colour::BLACK));
     let wall_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
         .specular(0.);

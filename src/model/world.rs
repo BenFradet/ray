@@ -12,13 +12,13 @@ use super::{
 };
 
 pub struct World {
-    objects: Vec<Shape>,
+    shapes: Vec<Shape>,
     lights: Vec<PointLight>,
 }
 
 impl World {
-    pub fn new(objects: Vec<Shape>, lights: Vec<PointLight>) -> Self {
-        Self { objects, lights }
+    pub fn new(shapes: Vec<Shape>, lights: Vec<PointLight>) -> Self {
+        Self { shapes, lights }
     }
 
     pub fn default() -> Self {
@@ -32,13 +32,13 @@ impl World {
             Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5)).unwrap_or(Shape::id_sphere());
 
         Self {
-            objects: vec![sphere1, sphere2],
+            shapes: vec![sphere1, sphere2],
             lights: vec![light],
         }
     }
 
-    pub fn objects(mut self, objects: Vec<Shape>) -> Self {
-        self.objects = objects;
+    pub fn shapes(mut self, shapes: Vec<Shape>) -> Self {
+        self.shapes = shapes;
         self
     }
 
@@ -59,7 +59,7 @@ impl World {
 
     fn intersect(&self, r: &Ray) -> Vec<Intersection> {
         let mut is: Vec<Intersection> = Vec::new();
-        for shape in self.objects.as_slice() {
+        for shape in self.shapes.as_slice() {
             let mut inners = shape.intersections(&r);
             is.append(&mut inners);
         }
@@ -77,8 +77,8 @@ impl World {
     fn shade_hit(&self, c: &Comp) -> Colour {
         self.lights.iter().fold(Colour::BLACK, |acc, light| {
             let is_shadowed = self.is_shadowed(c.over_point, light);
-            acc + c.intersection.object.material.lightning(
-                c.intersection.object,
+            acc + c.intersection.shape.material.lightning(
+                c.intersection.shape,
                 *light,
                 c.over_point,
                 c.eye,
@@ -116,7 +116,7 @@ mod tests {
                 Point::new(0., 0., -10.),
                 Colour::WHITE,
             )])
-            .objects(vec![s1, s2]);
+            .shapes(vec![s1, s2]);
         let r = Ray::new(Point::new(0., 0., 5.), Vector::new(0., 0., 1.));
         let i = Intersection::new(4., s2);
         let c = Comp::new(i, r);
@@ -125,7 +125,7 @@ mod tests {
     }
 
     #[test]
-    fn is_shadowed_object_behind_point() -> () {
+    fn is_shadowed_shape_behind_point() -> () {
         let w = World::default();
         let p = Point::new(-2., 2., 2.);
         assert!(!w.is_shadowed(p, &w.lights[0]));
@@ -139,7 +139,7 @@ mod tests {
     }
 
     #[test]
-    fn is_shadowed_point_behind_object() -> () {
+    fn is_shadowed_point_behind_shape() -> () {
         let w = World::default();
         let p = Point::new(10., -10., 10.);
         assert!(w.is_shadowed(p, &w.lights[0]));
@@ -156,15 +156,15 @@ mod tests {
     fn colour_at_inter_behind_ray() -> () {
         let w = World::default();
 
-        let outer = w.objects[0];
+        let outer = w.shapes[0];
         let new_outer_m = outer.material.ambient(1.);
         let new_outer = outer.material(new_outer_m);
 
-        let inner = w.objects[1];
+        let inner = w.shapes[1];
         let new_inner_m = inner.material.ambient(1.);
         let new_inner = inner.material(new_inner_m);
 
-        let new_world = w.objects(vec![new_outer, new_inner]);
+        let new_world = w.shapes(vec![new_outer, new_inner]);
 
         let ray = Ray::new(Point::new(0., 0., 0.75), Vector::new(0., 0., -1.));
         let c = new_world.colour_at(&ray);
@@ -192,7 +192,7 @@ mod tests {
         let mut w = World::default();
         w.lights = vec![PointLight::new(Point::new(0., 0.25, 0.), Colour::WHITE)];
         let ray = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
-        let s = w.objects[1];
+        let s = w.shapes[1];
         let i = Intersection::new(0.5, s);
         let c = Comp::new(i, ray);
         let res = w.shade_hit(&c);
@@ -203,7 +203,7 @@ mod tests {
     fn shade() -> () {
         let w = World::default();
         let ray = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = w.objects[0];
+        let s = w.shapes[0];
         let i = Intersection::new(4., s);
         let c = Comp::new(i, ray);
         let res = w.shade_hit(&c);
@@ -233,8 +233,8 @@ mod tests {
         let sphere2 =
             Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5)).unwrap_or(Shape::id_sphere());
         let w = World::default();
-        assert!(w.objects.contains(&sphere1));
-        assert!(w.objects.contains(&sphere2));
+        assert!(w.shapes.contains(&sphere1));
+        assert!(w.shapes.contains(&sphere2));
         assert_eq!(w.lights[0], light);
     }
 }

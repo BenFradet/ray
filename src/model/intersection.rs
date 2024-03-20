@@ -3,14 +3,14 @@ use crate::shape::shape::Shape;
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Intersection {
     pub t: f64,
-    pub object: Shape,
+    pub shape: Shape,
 }
 
 impl Intersection {
-    // the intersection takes ownership of the object
+    // the intersection takes ownership of the shape
     // might need to revisit later
     pub fn new(t: f64, shape: Shape) -> Self {
-        Self { t, object: shape }
+        Self { t, shape }
     }
 }
 
@@ -86,6 +86,6 @@ mod tests {
         let s = Shape::id_sphere();
         let i = Intersection::new(0., s);
         assert_eq!(i.t, 0.);
-        assert_eq!(i.object, s);
+        assert_eq!(i.shape, s);
     }
 }

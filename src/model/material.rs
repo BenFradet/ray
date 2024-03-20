@@ -50,7 +50,7 @@ impl Material {
         in_shadow: bool,
     ) -> Colour {
         let colour = match self.pattern {
-            Some(pat) => pat.at_object(&shape, p),
+            Some(pat) => pat.at_shape(&shape, p),
             None => self.colour,
         };
 
