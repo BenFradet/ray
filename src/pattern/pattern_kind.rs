@@ -1,12 +1,15 @@
 use crate::math::{colour::Colour, point::Point};
 
-use super::{gradient::Gradient, pattern_at::PatternAt, ring::Ring, stripe::Stripe};
+use super::{
+    checker::Checker, gradient::Gradient, pattern_at::PatternAt, ring::Ring, stripe::Stripe,
+};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum PatternKind {
     S(Stripe),
     G(Gradient),
     R(Ring),
+    C(Checker),
 }
 
 impl PatternAt for PatternKind {
@@ -15,6 +18,7 @@ impl PatternAt for PatternKind {
             PatternKind::S(stripe) => stripe.pattern_at(p),
             PatternKind::G(gradient) => gradient.pattern_at(p),
             PatternKind::R(ring) => ring.pattern_at(p),
+            PatternKind::C(checker) => checker.pattern_at(p),
         }
     }
 }

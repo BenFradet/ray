@@ -1,3 +1,4 @@
+pub mod checker;
 pub mod gradient;
 pub mod pattern;
 pub mod pattern_at;

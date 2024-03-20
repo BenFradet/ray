@@ -28,9 +28,18 @@ mod tests {
     fn pattern_at() -> () {
         let g = Gradient::new(Colour::WHITE, Colour::BLACK);
         assert_eq!(g.pattern_at(Point::ORIGIN), Colour::WHITE);
-        assert_eq!(g.pattern_at(Point::new(0.25, 0., 0.)), Colour::new(0.75, 0.75, 0.75));
-        assert_eq!(g.pattern_at(Point::new(0.5, 0., 0.)), Colour::new(0.5, 0.5, 0.5));
-        assert_eq!(g.pattern_at(Point::new(0.75, 0.75, 0.75)), Colour::new(0.25, 0.25, 0.25));
+        assert_eq!(
+            g.pattern_at(Point::new(0.25, 0., 0.)),
+            Colour::new(0.75, 0.75, 0.75)
+        );
+        assert_eq!(
+            g.pattern_at(Point::new(0.5, 0., 0.)),
+            Colour::new(0.5, 0.5, 0.5)
+        );
+        assert_eq!(
+            g.pattern_at(Point::new(0.75, 0.75, 0.75)),
+            Colour::new(0.25, 0.25, 0.25)
+        );
     }
 
     #[test]

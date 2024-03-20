@@ -6,7 +6,10 @@ use crate::{
     shape::shape::Shape,
 };
 
-use super::{gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind, ring::Ring, stripe::Stripe};
+use super::{
+    checker::Checker, gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind,
+    ring::Ring, stripe::Stripe,
+};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Pattern {
@@ -37,6 +40,10 @@ impl Pattern {
         Self::new(PatternKind::R(Ring::new(a, b)), t)
     }
 
+    pub fn new_checker(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
+        Self::new(PatternKind::C(Checker::new(a, b)), t)
+    }
+
     pub fn id(p: PatternKind) -> Self {
         Self {
             t: Matrix4x4::ID,
@@ -55,6 +62,10 @@ impl Pattern {
 
     pub fn id_ring(a: Colour, b: Colour) -> Self {
         Self::id(PatternKind::R(Ring::new(a, b)))
+    }
+
+    pub fn id_checker(a: Colour, b: Colour) -> Self {
+        Self::id(PatternKind::C(Checker::new(a, b)))
     }
 
     pub fn at_shape(&self, s: &Shape, world_p: Point) -> Colour {
