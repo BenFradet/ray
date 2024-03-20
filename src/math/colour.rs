@@ -16,7 +16,6 @@ impl Colour {
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);
     pub const WHITE: Colour = Colour::new(1.0, 1.0, 1.0);
-    pub const RED: Colour = Colour::new(1.0, 0.0, 0.0);
 
     pub fn scale<T: Num + FromPrimitive + NumCast + Copy>(&self, scale: T) -> (T, T, T) {
         let f = |c: f64, s: f64| -> T {

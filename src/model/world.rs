@@ -1,6 +1,6 @@
 use crate::{
     math::{colour::Colour, matrix::Matrix4x4, point::Point},
-    shape::{shape::Shape, shape_kind::ShapeKind, sphere::Sphere},
+    shape::shape::Shape,
 };
 
 use super::{

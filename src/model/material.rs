@@ -1,6 +1,6 @@
 use crate::{
     math::{colour::Colour, point::Point, vector::Vector},
-    pattern::pattern::Pattern,
+    pattern::{pattern::Pattern, pattern_at::PatternAt},
 };
 
 use super::point_light::PointLight;
@@ -47,7 +47,12 @@ impl Material {
         normal: Vector,
         in_shadow: bool,
     ) -> Colour {
-        let effective_colour = self.colour * light.intensity;
+        let colour = match self.pattern {
+            Some(pat) => pat.pattern_at(p),
+            None => self.colour
+        };
+
+        let effective_colour = colour * light.intensity;
 
         let ambient = effective_colour * self.ambient;
         if in_shadow {
@@ -116,15 +121,36 @@ impl Material {
         self.shininess = s.abs();
         self
     }
+
+    pub fn pattern(mut self, p: Pattern) -> Self {
+        self.pattern = Some(p);
+        self
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
 
-    use crate::math::round::Round;
+    use crate::{math::round::Round, pattern::stripe::Stripe};
 
     use super::*;
+
+    #[test]
+    fn lightning_with_pattern() -> () {
+        let m = Material::default()
+            .ambient(1.)
+            .diffuse(0.)
+            .specular(0.)
+            .pattern(Pattern::S(Stripe::new(Colour::WHITE, Colour::BLACK)));
+        let eye = Vector::new(0., 0., -1.);
+        let normal = Vector::new(0., 0., -1.);
+        let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
+        let c1 = m.lightning(light, Point::new(0.9, 0., 0.), eye, normal, false);
+        assert_eq!(c1, Colour::WHITE);
+        let c2 = m.lightning(light, Point::new(1.1, 0., 0.), eye, normal, false);
+        assert_eq!(c2, Colour::BLACK);
+    }
 
     #[test]
     fn lighting_in_shadow() -> () {
