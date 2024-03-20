@@ -48,19 +48,7 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
-    let stripe_pattern = Pattern::new_stripe(
-        Colour::WHITE,
-        Colour::BLACK,
-        Matrix4x4::rotation_z(FRAC_PI_4),
-    )
-    .unwrap_or(Pattern::id_stripe(Colour::WHITE, Colour::BLACK));
-    let gradient_pattern = Pattern::new_gradient(
-        Colour::WHITE,
-        Colour::BLACK,
-        Matrix4x4::rotation_x(FRAC_PI_2),
-    )
-    .unwrap_or(Pattern::id_gradient(Colour::WHITE, Colour::BLACK));
-    let ring_pattern = Pattern::id_ring(Colour::WHITE, Colour::BLACK);
+    let radial_gradient_pattern = Pattern::id_radial_gradient(Colour::WHITE, Colour::BLACK);
     let checker_pattern = Pattern::id_checker(Colour::WHITE, Colour::BLACK);
 
     let wall_mat = Material::default()
@@ -75,7 +63,7 @@ fn main() -> Result<(), Error> {
             .translate(0., 0., 5.),
     )
     .unwrap()
-    .material(wall_mat.pattern(gradient_pattern));
+    .material(wall_mat);
     let right_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)
@@ -83,7 +71,7 @@ fn main() -> Result<(), Error> {
             .translate(0., 0., 5.),
     )
     .unwrap()
-    .material(wall_mat.pattern(ring_pattern));
+    .material(wall_mat.pattern(radial_gradient_pattern));
 
     let middle_mat =
         Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3).pattern(checker_pattern);

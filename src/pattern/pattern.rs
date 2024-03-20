@@ -7,8 +7,7 @@ use crate::{
 };
 
 use super::{
-    checker::Checker, gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind,
-    ring::Ring, stripe::Stripe,
+    checker::Checker, gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind, radial_gradient::RadialGradient, ring::Ring, stripe::Stripe
 };
 
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -36,6 +35,10 @@ impl Pattern {
         Self::new(PatternKind::G(Gradient::new(a, b)), t)
     }
 
+    pub fn new_radial_gradient(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
+        Self::new(PatternKind::RG(RadialGradient::new(a, b)), t)
+    }
+
     pub fn new_ring(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
         Self::new(PatternKind::R(Ring::new(a, b)), t)
     }
@@ -58,6 +61,10 @@ impl Pattern {
 
     pub fn id_gradient(a: Colour, b: Colour) -> Self {
         Self::id(PatternKind::G(Gradient::new(a, b)))
+    }
+
+    pub fn id_radial_gradient(a: Colour, b: Colour) -> Self {
+        Self::id(PatternKind::RG(RadialGradient::new(a, b)))
     }
 
     pub fn id_ring(a: Colour, b: Colour) -> Self {
