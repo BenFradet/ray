@@ -51,10 +51,15 @@ fn main() -> Result<(), Error> {
     let stripe_pattern = Pattern::new_stripe(
         Colour::WHITE,
         Colour::BLACK,
-        Matrix4x4::rotation_z(FRAC_PI_2),
+        Matrix4x4::rotation_z(FRAC_PI_4),
     )
     .unwrap_or(Pattern::id_stripe(Colour::WHITE, Colour::BLACK));
-    let gradient_pattern = Pattern::id_gradient(Colour::WHITE, Colour::BLACK);
+    let gradient_pattern = Pattern::new_gradient(
+        Colour::WHITE,
+        Colour::BLACK,
+        Matrix4x4::rotation_x(FRAC_PI_2),
+    ).unwrap_or(Pattern::id_gradient(Colour::WHITE, Colour::BLACK));
+    let ring_pattern = Pattern::id_ring(Colour::WHITE, Colour::BLACK);
 
     let wall_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
@@ -76,9 +81,9 @@ fn main() -> Result<(), Error> {
             .translate(0., 0., 5.),
     )
     .unwrap()
-    .material(wall_mat);
+    .material(wall_mat.pattern(ring_pattern));
 
-    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3).pattern(stripe_pattern);
+    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3);
     let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5))
         .unwrap()
         .material(middle_mat);
