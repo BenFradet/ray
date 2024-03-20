@@ -78,6 +78,7 @@ impl World {
         self.lights.iter().fold(Colour::BLACK, |acc, light| {
             let is_shadowed = self.is_shadowed(c.over_point, light);
             acc + c.intersection.object.material.lightning(
+                c.intersection.object,
                 *light,
                 c.over_point,
                 c.eye,

@@ -2,7 +2,7 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 
 use math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector};
 use model::{camera::Camera, material::Material, point_light::PointLight, world::World};
-use pattern::{pattern_kind::PatternKind, stripe::Stripe};
+use pattern::pattern::Pattern;
 use pixels::{Error, Pixels, SurfaceTexture};
 use shape::shape::Shape;
 use viewer::canvas::Canvas;
@@ -48,9 +48,10 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
+    let pattern = Pattern::new_stripe(Colour::WHITE, Colour::BLACK, Matrix4x4::rotation_z(FRAC_PI_2))
+        .unwrap_or(Pattern::id_stripe(Colour::WHITE, Colour::BLACK));
     let wall_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
-        .pattern(PatternKind::S(Stripe::new(Colour::WHITE, Colour::BLACK)))
         .specular(0.);
     let wall_t = Matrix4x4::scaling(10., 0.01, 10.);
     let floor = Shape::new_plane(wall_t).unwrap().material(wall_mat);
@@ -71,7 +72,7 @@ fn main() -> Result<(), Error> {
     .unwrap()
     .material(wall_mat);
 
-    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3);
+    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3).pattern(pattern);
     let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5))
         .unwrap()
         .material(middle_mat);
