@@ -6,7 +6,7 @@ use crate::{
     shape::shape::Shape,
 };
 
-use super::{pattern_at::PatternAt, pattern_kind::PatternKind, stripe::Stripe};
+use super::{gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind, stripe::Stripe};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Pattern {
@@ -29,6 +29,10 @@ impl Pattern {
         Self::new(PatternKind::S(Stripe::new(a, b)), t)
     }
 
+    pub fn new_gradient(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
+        Self::new(PatternKind::G(Gradient::new(a, b)), t)
+    }
+
     pub fn id(p: PatternKind) -> Self {
         Self {
             t: Matrix4x4::ID,
@@ -39,6 +43,10 @@ impl Pattern {
 
     pub fn id_stripe(a: Colour, b: Colour) -> Self {
         Self::id(PatternKind::S(Stripe::new(a, b)))
+    }
+
+    pub fn id_gradient(a: Colour, b: Colour) -> Self {
+        Self::id(PatternKind::G(Gradient::new(a, b)))
     }
 
     pub fn at_shape(&self, s: &Shape, world_p: Point) -> Colour {
