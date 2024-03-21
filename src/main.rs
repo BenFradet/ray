@@ -4,7 +4,11 @@ use pixels::{Error, Pixels, SurfaceTexture};
 use ray::{
     math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector},
     model::{camera::Camera, material::Material, point_light::PointLight, world::World},
-    pattern::pattern::Pattern,
+    pattern::{
+        nested::Nested,
+        pattern::Pattern,
+        pattern_kind::PatternKind,
+    },
     shape::shape::Shape,
     viewer::{canvas::Canvas, drawable::Drawable, to_file::ToFile},
 };
@@ -41,14 +45,29 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
-    let radial_gradient_pattern = Pattern::id_radial_gradient(Colour::WHITE, Colour::BLACK);
+    let radial_gradient_pattern = Pattern::new_radial_gradient(
+        Colour::WHITE,
+        Colour::BLACK,
+        Matrix4x4::scaling(0.1, 0.1, 0.1),
+    )
+    .unwrap();
     let checker_pattern = Pattern::id_checker(Colour::WHITE, Colour::BLACK);
+    let nested_pattern = Pattern::new(
+        PatternKind::Nested(Box::new(Nested::with_child(
+            radial_gradient_pattern.clone().underlying,
+            Nested::new(checker_pattern.clone().underlying),
+        ))),
+        Matrix4x4::scaling(0.1, 0.1, 0.1),
+    )
+    .unwrap();
 
     let wall_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
         .specular(0.);
     let wall_t = Matrix4x4::scaling(10., 0.01, 10.);
-    let floor = Shape::new_plane(wall_t).unwrap().material(wall_mat.clone());
+    let floor = Shape::new_plane(wall_t)
+        .unwrap()
+        .material(wall_mat.clone().pattern(nested_pattern));
     let left_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)
@@ -56,7 +75,7 @@ fn main() -> Result<(), Error> {
             .translate(0., 0., 5.),
     )
     .unwrap()
-    .material(wall_mat.clone());
+    .material(wall_mat.clone().pattern(radial_gradient_pattern.clone()));
     let right_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)

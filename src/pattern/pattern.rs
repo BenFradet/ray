@@ -15,7 +15,7 @@ use super::{
 pub struct Pattern {
     t: Matrix4x4,
     pub inv_t: Matrix4x4,
-    underlying: PatternKind,
+    pub underlying: PatternKind,
 }
 
 impl Pattern {
