@@ -116,9 +116,9 @@ mod tests {
                 Point::new(0., 0., -10.),
                 Colour::WHITE,
             )])
-            .shapes(vec![s1, s2]);
+            .shapes(vec![s1, s2.clone()]);
         let r = Ray::new(Point::new(0., 0., 5.), Vector::new(0., 0., 1.));
-        let i = Intersection::new(4., s2);
+        let i = Intersection::new(&s2, 4.);
         let c = Comp::new(i, r);
         let res = w.shade_hit(&c);
         assert_eq!(res, Colour::new(0.1, 0.1, 0.1));
@@ -156,19 +156,19 @@ mod tests {
     fn colour_at_inter_behind_ray() -> () {
         let w = World::default();
 
-        let outer = w.shapes[0];
-        let new_outer_m = outer.material.ambient(1.);
-        let new_outer = outer.material(new_outer_m);
+        let outer_m = w.shapes[0].clone().material;
+        let new_outer_m = outer_m.ambient(1.);
+        let new_outer = w.shapes[0].clone().material(new_outer_m);
 
-        let inner = w.shapes[1];
-        let new_inner_m = inner.material.ambient(1.);
-        let new_inner = inner.material(new_inner_m);
+        let inner_m = w.shapes[1].clone().material;
+        let new_inner_m = inner_m.ambient(1.);
+        let new_inner = w.shapes[1].clone().material(new_inner_m.clone());
 
         let new_world = w.shapes(vec![new_outer, new_inner]);
 
         let ray = Ray::new(Point::new(0., 0., 0.75), Vector::new(0., 0., -1.));
         let c = new_world.colour_at(&ray);
-        assert_eq!(c, new_inner.material.colour);
+        assert_eq!(c, new_inner_m.colour);
     }
 
     #[test]
@@ -192,8 +192,8 @@ mod tests {
         let mut w = World::default();
         w.lights = vec![PointLight::new(Point::new(0., 0.25, 0.), Colour::WHITE)];
         let ray = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
-        let s = w.shapes[1];
-        let i = Intersection::new(0.5, s);
+        let s = &w.shapes[1];
+        let i = Intersection::new(s, 0.5);
         let c = Comp::new(i, ray);
         let res = w.shade_hit(&c);
         assert_eq!(res.rounded(5), vec![0.90498, 0.90498, 0.90498]);
@@ -203,8 +203,8 @@ mod tests {
     fn shade() -> () {
         let w = World::default();
         let ray = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = w.shapes[0];
-        let i = Intersection::new(4., s);
+        let s = &w.shapes[0];
+        let i = Intersection::new(s, 4.);
         let c = Comp::new(i, ray);
         let res = w.shade_hit(&c);
         assert_eq!(res.rounded(5), vec![0.38066, 0.47583, 0.2855]);

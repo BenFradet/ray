@@ -71,7 +71,7 @@ mod tests {
     fn with_child() -> () {
         let p1 = PatternKind::Gradient(Gradient::new(Colour::WHITE, Colour::BLACK));
         let p2 = PatternKind::Solid(Solid::new(Colour::WHITE));
-        let top = Nested::with_child(p1, Nested::new(p2));
+        let top = Nested::with_child(p1.clone(), Nested::new(p2.clone()));
         assert_eq!(top.p, p1);
         assert_eq!(top.child, Some(Box::new(Nested::new(p2))));
     }
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn new() -> () {
         let p = PatternKind::Solid(Solid::new(Colour::WHITE));
-        let n = Nested::new(p);
+        let n = Nested::new(p.clone());
         assert_eq!(n.p, p);
         assert_eq!(n.child, None);
     }

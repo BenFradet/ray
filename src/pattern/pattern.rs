@@ -11,7 +11,7 @@ use super::{
     radial_gradient::RadialGradient, ring::Ring, stripe::Stripe,
 };
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Pattern {
     t: Matrix4x4,
     pub inv_t: Matrix4x4,
@@ -122,7 +122,7 @@ mod tests {
     #[test]
     fn id() -> () {
         let pk = PatternKind::Stripe(Stripe::new(Colour::WHITE, Colour::BLACK));
-        let p = Pattern::id(pk);
+        let p = Pattern::id(pk.clone());
         assert_eq!(p.t, Matrix4x4::ID);
         assert_eq!(p.inv_t, Matrix4x4::ID);
         assert_eq!(p.underlying, pk);
@@ -131,7 +131,7 @@ mod tests {
     #[test]
     fn new() -> () {
         let pk = PatternKind::Stripe(Stripe::new(Colour::WHITE, Colour::BLACK));
-        let p = Pattern::new(pk, Matrix4x4::translation(1., 0., 0.));
+        let p = Pattern::new(pk.clone(), Matrix4x4::translation(1., 0., 0.));
         assert!(p.is_some());
         let pp = p.unwrap();
         assert_eq!(pp.t, Matrix4x4::translation(1., 0., 0.));

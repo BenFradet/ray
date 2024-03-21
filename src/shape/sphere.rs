@@ -63,8 +63,8 @@ mod tests {
         let s = Shape::id_sphere();
         let res = s.intersections(&r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(-6., s));
-        assert_eq!(res[1], Intersection::new(-4., s));
+        assert_eq!(res[0], Intersection::new(&s, -6.));
+        assert_eq!(res[1], Intersection::new(&s, -4.));
     }
 
     #[test]
@@ -73,8 +73,8 @@ mod tests {
         let s = Shape::id_sphere();
         let res = s.intersections(&r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(-1., s));
-        assert_eq!(res[1], Intersection::new(1., s));
+        assert_eq!(res[0], Intersection::new(&s, -1.));
+        assert_eq!(res[1], Intersection::new(&s, 1.));
     }
 
     #[test]
@@ -91,8 +91,8 @@ mod tests {
         let s = Shape::id_sphere();
         let res = s.intersections(&r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(5., s));
-        assert_eq!(res[1], Intersection::new(5., s));
+        assert_eq!(res[0], Intersection::new(&s, 5.));
+        assert_eq!(res[1], Intersection::new(&s, 5.));
     }
 
     #[test]
@@ -101,8 +101,8 @@ mod tests {
         let s = Shape::id_sphere();
         let res = s.intersections(&r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(4., s));
-        assert_eq!(res[1], Intersection::new(6., s));
+        assert_eq!(res[0], Intersection::new(&s, 4.));
+        assert_eq!(res[1], Intersection::new(&s, 6.));
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod tests {
         let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap();
         let res = s.intersections(&r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(3., s));
-        assert_eq!(res[1], Intersection::new(7., s));
+        assert_eq!(res[0], Intersection::new(&s, 3.));
+        assert_eq!(res[1], Intersection::new(&s, 7.));
     }
 }

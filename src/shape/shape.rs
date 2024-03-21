@@ -10,7 +10,7 @@ use super::{
     intersect::Intersect, normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere,
 };
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Shape {
     t: Matrix4x4,
     pub inv_t: Matrix4x4,
@@ -73,7 +73,7 @@ impl Shape {
     pub fn intersections(&self, r: &Ray) -> Vec<Intersection> {
         let t_ray = r.transform(self.inv_t);
         let ts = self.underlying.intersect(&t_ray);
-        ts.iter().map(|t| Intersection::new(*t, *self)).collect()
+        ts.iter().map(|t| Intersection::new(self, *t)).collect()
     }
 }
 
@@ -123,7 +123,7 @@ mod tests {
         let s = Shape::id_sphere();
         assert_eq!(s.material, Material::default());
         let m = Material::default().ambient(1.);
-        let new_s = s.material(m);
+        let new_s = s.material(m.clone());
         assert_eq!(new_s.material, m);
     }
 

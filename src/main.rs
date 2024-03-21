@@ -48,7 +48,7 @@ fn main() -> Result<(), Error> {
         .colour(Colour::new(1., 0.9, 0.9))
         .specular(0.);
     let wall_t = Matrix4x4::scaling(10., 0.01, 10.);
-    let floor = Shape::new_plane(wall_t).unwrap().material(wall_mat);
+    let floor = Shape::new_plane(wall_t).unwrap().material(wall_mat.clone());
     let left_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)
@@ -56,7 +56,7 @@ fn main() -> Result<(), Error> {
             .translate(0., 0., 5.),
     )
     .unwrap()
-    .material(wall_mat);
+    .material(wall_mat.clone());
     let right_wall = Shape::new_plane(
         wall_t
             .rotate_x(FRAC_PI_2)
