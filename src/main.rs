@@ -1,11 +1,13 @@
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
 
-use math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector};
-use model::{camera::Camera, material::Material, point_light::PointLight, world::World};
-use pattern::pattern::Pattern;
 use pixels::{Error, Pixels, SurfaceTexture};
-use shape::shape::Shape;
-use viewer::canvas::Canvas;
+use ray::{
+    math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector},
+    model::{camera::Camera, material::Material, point_light::PointLight, world::World},
+    pattern::pattern::Pattern,
+    shape::shape::Shape,
+    viewer::{canvas::Canvas, drawable::Drawable, to_file::ToFile},
+};
 use winit::{
     dpi::LogicalSize,
     event::{Event, VirtualKeyCode},
@@ -13,15 +15,6 @@ use winit::{
     window::WindowBuilder,
 };
 use winit_input_helper::WinitInputHelper;
-
-use crate::viewer::drawable::Drawable;
-use crate::viewer::to_file::ToFile;
-
-mod math;
-mod model;
-mod pattern;
-mod shape;
-mod viewer;
 
 fn main() -> Result<(), Error> {
     let width = 500;
@@ -145,10 +138,3 @@ fn main() -> Result<(), Error> {
         }
     });
 }
-
-//fn lightning_colour(i: Intersection, ray: Ray, light: PointLight) -> Colour {
-//    let point = ray.position(i.t);
-//    let normal = i.object.normal_at(point);
-//    let eye = -ray.direction;
-//    i.object.material.lightning(light, point, eye, normal, false)
-//}

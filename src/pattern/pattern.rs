@@ -7,7 +7,8 @@ use crate::{
 };
 
 use super::{
-    checker::Checker, gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind, radial_gradient::RadialGradient, ring::Ring, stripe::Stripe
+    checker::Checker, gradient::Gradient, pattern_at::PatternAt, pattern_kind::PatternKind,
+    radial_gradient::RadialGradient, ring::Ring, stripe::Stripe,
 };
 
 #[derive(PartialEq, Debug, Copy, Clone)]
@@ -28,23 +29,23 @@ impl Pattern {
     }
 
     pub fn new_stripe(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
-        Self::new(PatternKind::S(Stripe::new(a, b)), t)
+        Self::new(PatternKind::Stripe(Stripe::new(a, b)), t)
     }
 
     pub fn new_gradient(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
-        Self::new(PatternKind::G(Gradient::new(a, b)), t)
+        Self::new(PatternKind::Gradient(Gradient::new(a, b)), t)
     }
 
     pub fn new_radial_gradient(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
-        Self::new(PatternKind::RG(RadialGradient::new(a, b)), t)
+        Self::new(PatternKind::RadialGradient(RadialGradient::new(a, b)), t)
     }
 
     pub fn new_ring(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
-        Self::new(PatternKind::R(Ring::new(a, b)), t)
+        Self::new(PatternKind::Ring(Ring::new(a, b)), t)
     }
 
     pub fn new_checker(a: Colour, b: Colour, t: Matrix4x4) -> Option<Self> {
-        Self::new(PatternKind::C(Checker::new(a, b)), t)
+        Self::new(PatternKind::Checker(Checker::new(a, b)), t)
     }
 
     pub fn id(p: PatternKind) -> Self {
@@ -56,23 +57,23 @@ impl Pattern {
     }
 
     pub fn id_stripe(a: Colour, b: Colour) -> Self {
-        Self::id(PatternKind::S(Stripe::new(a, b)))
+        Self::id(PatternKind::Stripe(Stripe::new(a, b)))
     }
 
     pub fn id_gradient(a: Colour, b: Colour) -> Self {
-        Self::id(PatternKind::G(Gradient::new(a, b)))
+        Self::id(PatternKind::Gradient(Gradient::new(a, b)))
     }
 
     pub fn id_radial_gradient(a: Colour, b: Colour) -> Self {
-        Self::id(PatternKind::RG(RadialGradient::new(a, b)))
+        Self::id(PatternKind::RadialGradient(RadialGradient::new(a, b)))
     }
 
     pub fn id_ring(a: Colour, b: Colour) -> Self {
-        Self::id(PatternKind::R(Ring::new(a, b)))
+        Self::id(PatternKind::Ring(Ring::new(a, b)))
     }
 
     pub fn id_checker(a: Colour, b: Colour) -> Self {
-        Self::id(PatternKind::C(Checker::new(a, b)))
+        Self::id(PatternKind::Checker(Checker::new(a, b)))
     }
 
     pub fn at_shape(&self, s: &Shape, world_p: Point) -> Colour {
@@ -120,7 +121,7 @@ mod tests {
 
     #[test]
     fn id() -> () {
-        let pk = PatternKind::S(Stripe::new(Colour::WHITE, Colour::BLACK));
+        let pk = PatternKind::Stripe(Stripe::new(Colour::WHITE, Colour::BLACK));
         let p = Pattern::id(pk);
         assert_eq!(p.t, Matrix4x4::ID);
         assert_eq!(p.inv_t, Matrix4x4::ID);
@@ -129,7 +130,7 @@ mod tests {
 
     #[test]
     fn new() -> () {
-        let pk = PatternKind::S(Stripe::new(Colour::WHITE, Colour::BLACK));
+        let pk = PatternKind::Stripe(Stripe::new(Colour::WHITE, Colour::BLACK));
         let p = Pattern::new(pk, Matrix4x4::translation(1., 0., 0.));
         assert!(p.is_some());
         let pp = p.unwrap();

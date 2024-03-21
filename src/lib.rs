@@ -1,3 +1,9 @@
+pub mod math;
+pub mod model;
+pub mod pattern;
+pub mod shape;
+pub mod viewer;
+
 #[macro_export]
 macro_rules! enum_variants_as_structs {
     (
