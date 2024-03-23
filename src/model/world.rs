@@ -42,16 +42,21 @@ impl World {
         self
     }
 
+    pub fn add_shape(mut self, shape: Shape) -> Self {
+        self.shapes.push(shape);
+        self
+    }
+
     pub fn lights(mut self, lights: Vec<PointLight>) -> Self {
         self.lights = lights;
         self
     }
 
-    pub fn colour_at(&self, r: &Ray) -> Colour {
+    pub fn colour_at(&self, r: &Ray, remaining: u8) -> Colour {
         let is = self.intersect(r);
         if let Some(hit) = is.hit() {
             let c = Comp::new(hit, *r);
-            self.shade_hit(&c)
+            self.shade_hit(&c, remaining)
         } else {
             Colour::BLACK
         }
@@ -74,8 +79,8 @@ impl World {
         //filtered
     }
 
-    fn shade_hit(&self, c: &Comp) -> Colour {
-        self.lights.iter().fold(Colour::BLACK, |acc, light| {
+    fn shade_hit(&self, c: &Comp, remaining: u8) -> Colour {
+        let surface = self.lights.iter().fold(Colour::BLACK, |acc, light| {
             let is_shadowed = self.is_shadowed(c.over_point, light);
             acc + c.intersection.shape.material.lightning(
                 c.intersection.shape,
@@ -85,7 +90,24 @@ impl World {
                 c.normal,
                 is_shadowed,
             )
-        })
+        });
+        let reflected = self.reflected_colour(&c, remaining);
+        surface + reflected
+    }
+
+    fn reflected_colour(&self, c: &Comp, remaining: u8) -> Colour {
+        if remaining < 1 {
+            Colour::BLACK
+        } else {
+            let reflective = c.intersection.shape.material.reflective;
+            if reflective == 0. {
+                Colour::BLACK
+            } else {
+                let reflect_ray = Ray::new(c.over_point, c.reflect);
+                let c = self.colour_at(&reflect_ray, remaining - 1);
+                c * reflective
+            }
+        }
     }
 
     fn is_shadowed(&self, p: Point, light: &PointLight) -> bool {
@@ -102,9 +124,67 @@ impl World {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
     use crate::math::{round::Round, vector::Vector};
 
     use super::*;
+
+    #[test]
+    fn shade_hit_reflective() -> () {
+        let m = Material::default().reflective(0.5);
+        let s = Shape::new_plane(Matrix4x4::translation(0., -1., 0.))
+            .unwrap()
+            .material(m);
+        let w = World::default().add_shape(s.clone());
+        let s2 = SQRT_2 / 2.;
+        let r = Ray::new(Point::new(0., 0., -3.), Vector::new(0., -s2, s2));
+        let i = Intersection::new(&s, s2 * 2.);
+        let c = Comp::new(i, r);
+        let res = w.shade_hit(&c, 1);
+        assert_eq!(res.rounded(5), vec![0.87676, 0.92434, 0.82917]);
+    }
+
+    #[test]
+    fn reflected_colour_exhausted() -> () {
+        let w = World::default();
+        let r = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
+        let i = Intersection::new(&w.shapes[0], 1.);
+        let c = Comp::new(i, r);
+        let res = w.reflected_colour(&c, 0);
+        assert_eq!(res, Colour::BLACK);
+    }
+
+    #[test]
+    fn reflected_colour_reflective_mat() -> () {
+        let m = Material::default().reflective(0.5);
+        let s = Shape::new_plane(Matrix4x4::translation(0., -1., 0.))
+            .unwrap()
+            .material(m);
+        let w = World::default().add_shape(s.clone());
+        let s2 = SQRT_2 / 2.;
+        let r = Ray::new(Point::new(0., 0., -3.), Vector::new(0., -s2, s2));
+        let i = Intersection::new(&s, s2 * 2.);
+        let c = Comp::new(i, r);
+        let res = w.reflected_colour(&c, 1);
+        assert_eq!(res.rounded(5), vec![0.19033, 0.23792, 0.14275]);
+    }
+
+    #[test]
+    fn reflected_colour_nonreflective_mat() -> () {
+        let w = World::default();
+        let shapes = w.shapes.clone();
+        let s1 = &shapes[0];
+        let s2 = shapes[1].clone();
+        let new_mat = s2.material.clone().ambient(1.);
+        let new_s2 = s2.material(new_mat);
+        let new_w = w.shapes(vec![s1.clone(), new_s2.clone()]);
+        let r = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
+        let i = Intersection::new(&new_s2, 1.);
+        let c = Comp::new(i, r);
+        let res = new_w.reflected_colour(&c, 1);
+        assert_eq!(res, Colour::BLACK);
+    }
 
     #[test]
     fn shade_hit_in_shadow() -> () {
@@ -120,7 +200,7 @@ mod tests {
         let r = Ray::new(Point::new(0., 0., 5.), Vector::new(0., 0., 1.));
         let i = Intersection::new(&s2, 4.);
         let c = Comp::new(i, r);
-        let res = w.shade_hit(&c);
+        let res = w.shade_hit(&c, 1);
         assert_eq!(res, Colour::new(0.1, 0.1, 0.1));
     }
 
@@ -167,7 +247,7 @@ mod tests {
         let new_world = w.shapes(vec![new_outer, new_inner]);
 
         let ray = Ray::new(Point::new(0., 0., 0.75), Vector::new(0., 0., -1.));
-        let c = new_world.colour_at(&ray);
+        let c = new_world.colour_at(&ray, 1);
         assert_eq!(c, new_inner_m.colour);
     }
 
@@ -175,7 +255,7 @@ mod tests {
     fn colour_at_hit() -> () {
         let w = World::default();
         let ray = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let c = w.colour_at(&ray);
+        let c = w.colour_at(&ray, 1);
         assert_eq!(c.rounded(5), vec![0.38066, 0.47583, 0.2855]);
     }
 
@@ -183,7 +263,7 @@ mod tests {
     fn colour_at_miss() -> () {
         let w = World::default();
         let ray = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 1., 0.));
-        let c = w.colour_at(&ray);
+        let c = w.colour_at(&ray, 1);
         assert_eq!(c, Colour::BLACK);
     }
 
@@ -195,7 +275,7 @@ mod tests {
         let s = &w.shapes[1];
         let i = Intersection::new(s, 0.5);
         let c = Comp::new(i, ray);
-        let res = w.shade_hit(&c);
+        let res = w.shade_hit(&c, 1);
         assert_eq!(res.rounded(5), vec![0.90498, 0.90498, 0.90498]);
     }
 
@@ -206,7 +286,7 @@ mod tests {
         let s = &w.shapes[0];
         let i = Intersection::new(s, 4.);
         let c = Comp::new(i, ray);
-        let res = w.shade_hit(&c);
+        let res = w.shade_hit(&c, 1);
         assert_eq!(res.rounded(5), vec![0.38066, 0.47583, 0.2855]);
     }
 

@@ -9,6 +9,7 @@ pub struct Comp<'a> {
     pub over_point: Point,
     pub eye: Vector,
     pub normal: Vector,
+    pub reflect: Vector,
     pub inside: bool,
 }
 
@@ -26,12 +27,14 @@ impl<'a> Comp<'a> {
             false
         };
         let over_point = point + normal * Self::EPS;
+        let reflect = ray.direction.reflect(normal);
         Self {
             intersection,
             point,
             over_point,
             eye,
             normal,
+            reflect,
             inside,
         }
     }
@@ -39,9 +42,21 @@ impl<'a> Comp<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::f64::consts::SQRT_2;
+
     use crate::{math::matrix::Matrix4x4, shape::shape::Shape};
 
     use super::*;
+
+    #[test]
+    fn reflect() -> () {
+        let s = Shape::id_plane();
+        let s2 = SQRT_2 / 2.;
+        let r = Ray::new(Point::new(0., 1., -1.), Vector::new(0., -s2, s2));
+        let i = Intersection::new(&s, s2 * 2.);
+        let c = Comp::new(i, r);
+        assert_eq!(c.reflect, Vector::new(0., s2, s2));
+    }
 
     #[test]
     fn over_point() -> () {

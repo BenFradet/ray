@@ -4,7 +4,10 @@ use pixels::{Error, Pixels, SurfaceTexture};
 use ray::{
     math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector},
     model::{camera::Camera, material::Material, point_light::PointLight, world::World},
-    pattern::{gradient::Gradient, nested::Nested, pattern::Pattern, pattern_kind::PatternKind, perlin::Perlin, ring::Ring},
+    pattern::{
+        gradient::Gradient, nested::Nested, pattern::Pattern, pattern_kind::PatternKind,
+        perlin::Perlin, ring::Ring,
+    },
     shape::shape::Shape,
     viewer::{canvas::Canvas, drawable::Drawable, to_file::ToFile},
 };
@@ -81,32 +84,40 @@ fn main() -> Result<(), Error> {
     .unwrap()
     .material(wall_mat.pattern(radial_gradient_pattern));
 
-    let middle_mat =
-        Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3).pattern(checker_pattern);
+    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3)
+        .reflective(0.5)
+        .pattern(checker_pattern);
     let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5))
         .unwrap()
         .material(middle_mat);
 
-    let inner_pat = PatternKind::Ring(Ring::new(Colour::new(0., 0.5, 0.), Colour::new(0., 0.7 ,0.)));
+    let inner_pat = PatternKind::Ring(Ring::new(
+        Colour::new(0., 0.5, 0.),
+        Colour::new(0., 0.7, 0.),
+    ));
     let perlin_pat = Pattern::new(
         PatternKind::Perlin(Box::new(Perlin::new(inner_pat, 0.8))),
         Matrix4x4::scaling(0.1, 0.1, 0.1).rotate_x(-FRAC_PI_4),
-    ).unwrap();
-    let right_mat = Material::new(Colour::new(0.5, 1., 0.1), 0.1, 0.7, 0.3)
-        .pattern(perlin_pat);
-    let right = Shape::new_sphere(Matrix4x4::scaling(0.8, 0.8, 0.8).translate(1.5, 1., -0.5))
+    )
+    .unwrap();
+    let right_mat = Material::new(Colour::new(0.5, 1., 0.1), 0.1, 0.7, 0.3).pattern(perlin_pat);
+    let right = Shape::new_sphere(Matrix4x4::scaling(1.1, 0.8, 0.8).translate(1.5, 1., -0.5))
         .unwrap()
         .material(right_mat);
 
-    let gradient_pat = PatternKind::Gradient(Gradient::new(Colour::new(0., 1., 0.), Colour::new(1., 0., 0.)));
+    let gradient_pat = PatternKind::Gradient(Gradient::new(
+        Colour::new(0., 1., 0.),
+        Colour::new(1., 0., 0.),
+    ));
     let gradient_perlin_pat = Pattern::new(
         PatternKind::Perlin(Box::new(Perlin::new(gradient_pat, 0.8))),
         Matrix4x4::scaling(3., 1., 1.).translate(1., 0., 0.),
         //Matrix4x4::scaling(0.1, 0.1, 0.1).rotate_x(-FRAC_PI_4),
-    ).unwrap();
-    let left_mat = Material::new(Colour::new(1., 0.8, 0.1), 0.1, 0.7, 0.3)
-        .pattern(gradient_perlin_pat);
-    let left = Shape::new_sphere(Matrix4x4::scaling(0.8, 0.8, 0.8).translate(-2., 1., -0.75))
+    )
+    .unwrap();
+    let left_mat =
+        Material::new(Colour::new(1., 0.8, 0.1), 0.1, 0.7, 0.3).pattern(gradient_perlin_pat);
+    let left = Shape::new_sphere(Matrix4x4::scaling(0.8, 0.9, 0.8).translate(-2., 1., -0.75))
         .unwrap()
         .material(left_mat);
 

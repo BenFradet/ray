@@ -1,7 +1,8 @@
 use crate::math::{colour::Colour, point::Point};
 
 use super::{
-    checker::Checker, gradient::Gradient, nested::Nested, pattern_at::PatternAt, perlin::Perlin, radial_gradient::RadialGradient, ring::Ring, solid::Solid, stripe::Stripe
+    checker::Checker, gradient::Gradient, nested::Nested, pattern_at::PatternAt, perlin::Perlin,
+    radial_gradient::RadialGradient, ring::Ring, solid::Solid, stripe::Stripe,
 };
 
 #[derive(PartialEq, Debug, Clone)]

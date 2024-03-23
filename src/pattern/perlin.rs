@@ -203,7 +203,10 @@ mod tests {
 
     #[test]
     fn pattern_at() -> () {
-        let p = Perlin::new(PatternKind::Gradient(Gradient::new(Colour::WHITE, Colour::BLACK)), 0.2);
+        let p = Perlin::new(
+            PatternKind::Gradient(Gradient::new(Colour::WHITE, Colour::BLACK)),
+            0.2,
+        );
         let res1 = p.pattern_at(Point::new(1.1, 2.1, 1.1));
         assert_eq!(res1, Colour::WHITE);
         let res2 = p.pattern_at(Point::new(1.1, 1.1, 2.1));

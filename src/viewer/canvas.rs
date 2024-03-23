@@ -33,7 +33,7 @@ impl Canvas {
         for y in 0..c.vsize {
             for x in 0..c.hsize {
                 let ray = Ray::for_pixel(c, x, y);
-                let colour = w.colour_at(&ray);
+                let colour = w.colour_at(&ray, 3);
                 self.update(x, y, colour);
             }
         }

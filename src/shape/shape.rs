@@ -39,14 +39,22 @@ impl Shape {
         Self::new(ShapeKind::P(Plane {}), t)
     }
 
-    pub fn id_sphere() -> Self {
+    pub fn id(s: ShapeKind) -> Self {
         Self {
             t: Matrix4x4::ID,
             inv_t: Matrix4x4::ID,
             t_inv_t: Matrix4x4::ID,
             material: Material::default(),
-            underlying: ShapeKind::S(Sphere {}),
+            underlying: s,
         }
+    }
+
+    pub fn id_sphere() -> Self {
+        Self::id(ShapeKind::S(Sphere {}))
+    }
+
+    pub fn id_plane() -> Self {
+        Self::id(ShapeKind::P(Plane {}))
     }
 
     pub fn t(mut self, t: Matrix4x4) -> Option<Self> {
