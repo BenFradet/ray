@@ -4,11 +4,7 @@ use pixels::{Error, Pixels, SurfaceTexture};
 use ray::{
     math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector},
     model::{camera::Camera, material::Material, point_light::PointLight, world::World},
-    pattern::{
-        nested::Nested,
-        pattern::Pattern,
-        pattern_kind::PatternKind,
-    },
+    pattern::{gradient::Gradient, nested::Nested, pattern::Pattern, pattern_kind::PatternKind, perlin::Perlin, ring::Ring},
     shape::shape::Shape,
     viewer::{canvas::Canvas, drawable::Drawable, to_file::ToFile},
 };
@@ -91,13 +87,26 @@ fn main() -> Result<(), Error> {
         .unwrap()
         .material(middle_mat);
 
-    let right_mat = Material::new(Colour::new(0.5, 1., 0.1), 0.1, 0.7, 0.3);
-    let right = Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5).translate(1.5, 0.5, -0.5))
+    let inner_pat = PatternKind::Ring(Ring::new(Colour::new(0., 0.5, 0.), Colour::new(0., 0.7 ,0.)));
+    let perlin_pat = Pattern::new(
+        PatternKind::Perlin(Box::new(Perlin::new(inner_pat, 0.8))),
+        Matrix4x4::scaling(0.1, 0.1, 0.1).rotate_x(-FRAC_PI_4),
+    ).unwrap();
+    let right_mat = Material::new(Colour::new(0.5, 1., 0.1), 0.1, 0.7, 0.3)
+        .pattern(perlin_pat);
+    let right = Shape::new_sphere(Matrix4x4::scaling(0.8, 0.8, 0.8).translate(1.5, 1., -0.5))
         .unwrap()
         .material(right_mat);
 
-    let left_mat = Material::new(Colour::new(1., 0.8, 0.1), 0.1, 0.7, 0.3);
-    let left = Shape::new_sphere(Matrix4x4::scaling(0.33, 0.33, 0.33).translate(-1.5, 0.33, -0.75))
+    let gradient_pat = PatternKind::Gradient(Gradient::new(Colour::new(0., 1., 0.), Colour::new(1., 0., 0.)));
+    let gradient_perlin_pat = Pattern::new(
+        PatternKind::Perlin(Box::new(Perlin::new(gradient_pat, 0.8))),
+        Matrix4x4::scaling(3., 1., 1.).translate(1., 0., 0.),
+        //Matrix4x4::scaling(0.1, 0.1, 0.1).rotate_x(-FRAC_PI_4),
+    ).unwrap();
+    let left_mat = Material::new(Colour::new(1., 0.8, 0.1), 0.1, 0.7, 0.3)
+        .pattern(gradient_perlin_pat);
+    let left = Shape::new_sphere(Matrix4x4::scaling(0.8, 0.8, 0.8).translate(-2., 1., -0.75))
         .unwrap()
         .material(left_mat);
 
@@ -110,7 +119,7 @@ fn main() -> Result<(), Error> {
     let up = Vector::new(0., 1., 0.);
     let vt = move |eye: Point| -> Matrix4x4 { Matrix4x4::view_transform(eye, to, up) };
 
-    let mut eye = Point::new(0., 1.5, -5.);
+    let mut eye = Point::new(0., 1.5, -7.);
     let mut camera = Camera::new(width_usize, height_usize, FRAC_PI_3)
         .transform(vt(eye))
         .unwrap();
