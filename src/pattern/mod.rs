@@ -9,3 +9,4 @@ pub mod radial_gradient;
 pub mod ring;
 pub mod solid;
 pub mod stripe;
+pub mod test_pattern;

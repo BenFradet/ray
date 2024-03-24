@@ -7,28 +7,28 @@ pub struct Intersection<'a> {
 }
 
 impl<'a> Intersection<'a> {
-    // the intersection takes ownership of the shape
-    // might need to revisit later
     pub fn new(shape: &'a Shape, t: f64) -> Self {
         Self { shape, t }
     }
 }
 
 pub trait IntersectionHit<'a> {
-    fn hit(self) -> Option<Intersection<'a>>;
+    fn hit(&self) -> Option<Intersection<'a>>;
 }
 
-impl<'a, I: IntoIterator<Item = Intersection<'a>>> IntersectionHit<'a> for I {
-    fn hit(self) -> Option<Intersection<'a>> {
-        self.into_iter().fold(None, |acc, incoming| {
+impl<'a> IntersectionHit<'a> for Vec<Intersection<'a>> {
+    // into_iter takes ownership
+    // can't find the generic for iter()
+    fn hit(&self) -> Option<Intersection<'a>> {
+        self.iter().fold(None, |acc, incoming| {
             if incoming.t < 0. {
                 acc
             } else {
                 match acc {
-                    None => Some(incoming),
+                    None => Some(incoming.clone()),
                     Some(ref existing) => {
                         if incoming.t < existing.t {
-                            Some(incoming)
+                            Some(incoming.clone())
                         } else {
                             acc
                         }

@@ -14,6 +14,8 @@ pub struct Material {
     specular: f64,
     shininess: f64,
     pub reflective: f64,
+    pub transparency: f64,
+    pub refractive_index: f64,
     pattern: Option<Pattern>,
 }
 
@@ -26,6 +28,8 @@ impl Material {
             specular,
             shininess: 200.,
             reflective: 0.,
+            transparency: 0.,
+            refractive_index: 1.,
             pattern: None,
         }
     }
@@ -38,6 +42,8 @@ impl Material {
             specular: 0.9,
             shininess: 200.,
             reflective: 0.,
+            transparency: 0.,
+            refractive_index: 1.,
             pattern: None,
         }
     }
@@ -108,17 +114,17 @@ impl Material {
     }
 
     pub fn ambient(mut self, a: f64) -> Self {
-        self.ambient = a.abs();
+        self.ambient = a.abs().clamp(0., 1.);
         self
     }
 
     pub fn diffuse(mut self, d: f64) -> Self {
-        self.diffuse = d.abs();
+        self.diffuse = d.abs().clamp(0., 1.);
         self
     }
 
     pub fn specular(mut self, s: f64) -> Self {
-        self.specular = s.abs();
+        self.specular = s.abs().clamp(0., 1.);
         self
     }
 
@@ -128,7 +134,17 @@ impl Material {
     }
 
     pub fn reflective(mut self, r: f64) -> Self {
-        self.reflective = r.abs();
+        self.reflective = r.abs().clamp(0., 1.);
+        self
+    }
+
+    pub fn transparency(mut self, t: f64) -> Self {
+        self.transparency = t.abs().clamp(0., 1.);
+        self
+    }
+
+    pub fn refractive_index(mut self, r: f64) -> Self {
+        self.refractive_index = r.abs();
         self
     }
 
@@ -245,6 +261,24 @@ mod tests {
     }
 
     #[test]
+    fn refractive_index() -> () {
+        let m = Material::default();
+        assert_eq!(m.refractive_index, 1.);
+        let r = 2.;
+        let new_m = m.refractive_index(-r);
+        assert_eq!(new_m.refractive_index, r);
+    }
+
+    #[test]
+    fn transparency() -> () {
+        let m = Material::default();
+        assert_eq!(m.transparency, 0.);
+        let r = 2.;
+        let new_m = m.transparency(-r);
+        assert_eq!(new_m.transparency, 1.);
+    }
+
+    #[test]
     fn reflective() -> () {
         let m = Material::default();
         assert_eq!(m.reflective, 0.);
@@ -307,5 +341,7 @@ mod tests {
         assert_eq!(m.specular, 0.9);
         assert_eq!(m.shininess, 200.);
         assert_eq!(m.reflective, 0.);
+        assert_eq!(m.transparency, 0.);
+        assert_eq!(m.refractive_index, 1.);
     }
 }

@@ -3,6 +3,7 @@ use crate::math::{colour::Colour, point::Point};
 use super::{
     checker::Checker, gradient::Gradient, nested::Nested, pattern_at::PatternAt, perlin::Perlin,
     radial_gradient::RadialGradient, ring::Ring, solid::Solid, stripe::Stripe,
+    test_pattern::TestPattern,
 };
 
 #[derive(PartialEq, Debug, Clone)]
@@ -15,6 +16,7 @@ pub enum PatternKind {
     Solid(Solid),
     Nested(Box<Nested>),
     Perlin(Box<Perlin>),
+    Test,
 }
 
 impl PatternAt for PatternKind {
@@ -28,6 +30,7 @@ impl PatternAt for PatternKind {
             PatternKind::Solid(solid) => solid.pattern_at(p),
             PatternKind::Nested(nested) => nested.pattern_at(p),
             PatternKind::Perlin(perlin) => perlin.pattern_at(p),
+            PatternKind::Test => TestPattern {}.pattern_at(p),
         }
     }
 }
