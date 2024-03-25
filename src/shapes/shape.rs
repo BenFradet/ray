@@ -3,12 +3,10 @@ use crate::{
         matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::MatrixInvert,
         matrix_transpose::MatrixTranspose, point::Point, vector::Vector,
     },
-    model::{intersection::Intersection, material::Material, ray::Ray},
+    model::material::Material,
 };
 
-use super::{
-    intersect::Intersect, normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere,
-};
+use super::{normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Shape {
@@ -16,7 +14,7 @@ pub struct Shape {
     pub inv_t: Matrix4x4,
     t_inv_t: Matrix4x4,
     pub material: Material,
-    underlying: ShapeKind,
+    pub underlying: ShapeKind,
 }
 
 impl Shape {
@@ -77,12 +75,6 @@ impl Shape {
         let world_normal = self.t_inv_t * object_normal;
         world_normal.w(0.0).norm()
     }
-
-    pub fn intersections(&self, r: &Ray) -> Vec<Intersection> {
-        let t_ray = r.transform(self.inv_t);
-        let ts = self.underlying.intersect(&t_ray);
-        ts.iter().map(|t| Intersection::new(self, *t)).collect()
-    }
 }
 
 #[cfg(test)]
@@ -107,23 +99,6 @@ mod tests {
         let s = Shape::new_sphere(Matrix4x4::translation(0., 1., 0.)).unwrap_or(Shape::id_sphere());
         let res = s.normal_at(Point::new(0., 1.70711, -0.70711));
         assert_eq!(res.rounded(5), vec![0., 0.70711, -0.70711, 0.]);
-    }
-
-    #[test]
-    fn intersections_translated_shape() -> () {
-        let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new_sphere(Matrix4x4::translation(5., 0., 0.)).unwrap_or(Shape::id_sphere());
-        let res = s.intersections(&r);
-        assert_eq!(res, vec![]);
-    }
-
-    #[test]
-    fn intersections_scaled_shape() -> () {
-        let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap_or(Shape::id_sphere());
-        let res = s.intersections(&r);
-        assert_eq!(res[0].t, 3.);
-        assert_eq!(res[1].t, 7.);
     }
 
     #[test]

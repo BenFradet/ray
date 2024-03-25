@@ -1,6 +1,8 @@
+use std::rc::Rc;
+
 use crate::{
     math::{point::Point, vector::Vector},
-    shape::shape::Shape,
+    shapes::shape::Shape,
 };
 
 use super::{intersection::Intersection, ray::Ray};
@@ -44,8 +46,8 @@ impl RefractiveIndices {
 }
 
 #[derive(PartialEq, Debug, Clone)]
-pub struct Comp<'a> {
-    pub intersection: Intersection<'a>,
+pub struct Comp {
+    pub intersection: Intersection,
     pub point: Point,
     pub over_point: Point,
     pub under_point: Point,
@@ -56,10 +58,10 @@ pub struct Comp<'a> {
     pub indices: RefractiveIndices,
 }
 
-impl<'a> Comp<'a> {
+impl Comp {
     const EPS: f64 = 0.00001;
 
-    pub fn new(intersection: Intersection<'a>, ray: Ray, is: Vec<Intersection<'a>>) -> Self {
+    pub fn new(intersection: Intersection, ray: Ray, is: &[Intersection]) -> Self {
         let point = ray.position(intersection.t);
         let eye = -ray.direction;
         let mut normal = intersection.shape.normal_at(point);
@@ -86,26 +88,28 @@ impl<'a> Comp<'a> {
         }
     }
 
-    fn refractive_indices(hit: &Intersection<'a>, is: Vec<Intersection<'a>>) -> RefractiveIndices {
+    fn refractive_indices(hit: &Intersection, is: &[Intersection]) -> RefractiveIndices {
         let mut n1 = 0.;
         let mut n2 = 0.;
-        let mut containers: Vec<Shape> = Vec::new();
+        let mut containers: Vec<Rc<Shape>> = Vec::new();
         for i in is {
-            if i == *hit {
+            if i == hit {
                 match containers.last() {
                     None => n1 = 1.,
                     Some(last) => n1 = last.material.refractive_index,
                 };
             }
 
-            match containers.iter().position(|s| s == i.shape) {
-                None => containers.push(i.shape.clone()),
+            let i_shape = Rc::clone(&i.shape);
+
+            match containers.iter().position(|s| *s == i_shape) {
+                None => containers.push(i_shape),
                 Some(idx) => {
                     containers.remove(idx);
                 }
             }
 
-            if i == *hit {
+            if i == hit {
                 match containers.last() {
                     None => n2 = 1.,
                     Some(last) => n2 = last.material.refractive_index,
@@ -121,7 +125,7 @@ impl<'a> Comp<'a> {
 mod tests {
     use std::f64::consts::SQRT_2;
 
-    use crate::{math::matrix::Matrix4x4, model::material::Material, shape::shape::Shape};
+    use crate::{math::matrix::Matrix4x4, model::material::Material, shapes::shape::Shape};
 
     use super::*;
 
@@ -144,9 +148,8 @@ mod tests {
         let s = Shape::new_sphere(Matrix4x4::translation(0., 0., 1.))
             .unwrap()
             .material(Material::default().transparency(1.).refractive_index(1.));
-        let i = Intersection::new(&s, 5.);
-        let is = vec![i.clone()];
-        let c = Comp::new(i, r, is);
+        let i = Intersection::new(Rc::new(s), 5.);
+        let c = Comp::new(i.clone(), r, &vec![i]);
         assert!(c.under_point.z > Comp::EPS / 2.);
         assert!(c.under_point.z > c.point.z);
     }
@@ -163,25 +166,31 @@ mod tests {
         ]
         .iter()
         .for_each(|(idx, n1, n2)| {
-            let a = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.))
-                .unwrap()
-                .material(Material::default().transparency(1.).refractive_index(1.5));
-            let b = Shape::new_sphere(Matrix4x4::translation(0., 0., -0.25))
-                .unwrap()
-                .material(Material::default().transparency(1.).refractive_index(2.));
-            let c = Shape::new_sphere(Matrix4x4::translation(0., 0., 0.25))
-                .unwrap()
-                .material(Material::default().transparency(1.).refractive_index(2.5));
+            let a = Rc::new(
+                Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.))
+                    .unwrap()
+                    .material(Material::default().transparency(1.).refractive_index(1.5)),
+            );
+            let b = Rc::new(
+                Shape::new_sphere(Matrix4x4::translation(0., 0., -0.25))
+                    .unwrap()
+                    .material(Material::default().transparency(1.).refractive_index(2.)),
+            );
+            let c = Rc::new(
+                Shape::new_sphere(Matrix4x4::translation(0., 0., 0.25))
+                    .unwrap()
+                    .material(Material::default().transparency(1.).refractive_index(2.5)),
+            );
             let r = Ray::new(Point::new(0., 0., -4.), Vector::new(1., 0., 0.));
             let is = vec![
-                Intersection::new(&a, 2.),
-                Intersection::new(&b, 2.75),
-                Intersection::new(&c, 3.25),
-                Intersection::new(&b, 4.75),
-                Intersection::new(&c, 5.25),
-                Intersection::new(&a, 6.),
+                Intersection::new(Rc::clone(&a), 2.),
+                Intersection::new(Rc::clone(&b), 2.75),
+                Intersection::new(Rc::clone(&c), 3.25),
+                Intersection::new(Rc::clone(&b), 4.75),
+                Intersection::new(Rc::clone(&c), 5.25),
+                Intersection::new(Rc::clone(&a), 6.),
             ];
-            let c = Comp::new(is[*idx].clone(), r, is);
+            let c = Comp::new(is[*idx].clone(), r, &is);
             assert_eq!(c.indices.ratio, *n1 / *n2);
         });
     }
@@ -191,8 +200,8 @@ mod tests {
         let s = Shape::id_plane();
         let s2 = SQRT_2 / 2.;
         let r = Ray::new(Point::new(0., 1., -1.), Vector::new(0., -s2, s2));
-        let i = Intersection::new(&s, s2 * 2.);
-        let c = Comp::new(i.clone(), r, vec![i]);
+        let i = Intersection::new(Rc::new(s), s2 * 2.);
+        let c = Comp::new(i.clone(), r, &vec![i]);
         assert_eq!(c.reflect, Vector::new(0., s2, s2));
     }
 
@@ -200,8 +209,8 @@ mod tests {
     fn over_point() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Shape::new_sphere(Matrix4x4::translation(0., 0., 1.)).unwrap_or(Shape::id_sphere());
-        let i = Intersection::new(&s, 5.);
-        let c = Comp::new(i.clone(), r, vec![i]);
+        let i = Intersection::new(Rc::new(s), 5.);
+        let c = Comp::new(i.clone(), r, &vec![i]);
         assert!(c.over_point.z < -Comp::EPS / 2.);
         assert!(c.point.z > c.over_point.z);
     }
@@ -210,8 +219,8 @@ mod tests {
     fn inside() -> () {
         let r = Ray::new(Point::ORIGIN, Vector::new(0., 0., 1.));
         let s = Shape::id_sphere();
-        let i = Intersection::new(&s, 1.);
-        let c = Comp::new(i.clone(), r, vec![i]);
+        let i = Intersection::new(Rc::new(s), 1.);
+        let c = Comp::new(i.clone(), r, &vec![i]);
         assert_eq!(c.point, Point::new(0., 0., 1.));
         assert_eq!(c.eye, Vector::new(0., 0., -1.));
         assert_eq!(c.normal, Vector::new(0., 0., -1.));
@@ -222,21 +231,20 @@ mod tests {
     fn not_inside() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
         let s = Shape::id_sphere();
-        let i = Intersection::new(&s, 4.);
-        let c = Comp::new(i.clone(), r, vec![i]);
+        let i = Intersection::new(Rc::new(s), 4.);
+        let c = Comp::new(i.clone(), r, &vec![i]);
         assert!(!c.inside);
     }
 
     #[test]
     fn new() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere();
-        let i = Intersection::new(&s, 4.);
+        let s = Rc::new(Shape::id_sphere());
+        let i = Intersection::new(Rc::clone(&s), 4.);
         let it = i.t;
-        let is = i.shape;
-        let c = Comp::new(i.clone(), r, vec![i]);
+        let c = Comp::new(i.clone(), r, &vec![i]);
         assert_eq!(c.intersection.t, it);
-        assert_eq!(c.intersection.shape, is);
+        assert_eq!(c.intersection.shape, s);
         assert_eq!(c.point, Point::new(0., 0., -1.));
         assert_eq!(c.eye, Vector::new(0., 0., -1.));
         assert_eq!(c.normal, Vector::new(0., 0., -1.));

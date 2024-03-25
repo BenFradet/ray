@@ -29,7 +29,7 @@ impl Canvas {
         Canvas::new(width, height, Colour::BLACK)
     }
 
-    pub fn render(&mut self, c: &Camera, w: &World) -> () {
+    pub fn render(&mut self, c: &Camera, w: &World) {
         for y in 0..c.vsize {
             for x in 0..c.hsize {
                 let ray = Ray::for_pixel(c, x, y);
@@ -40,7 +40,7 @@ impl Canvas {
     }
 
     // no new canvas to avoid re-allocating storage
-    pub fn update(&mut self, x: usize, y: usize, c: Colour) -> () {
+    pub fn update(&mut self, x: usize, y: usize, c: Colour) {
         let idx = self.idx(x, y);
         if idx < self.storage.len() {
             self.storage[idx] = c;
@@ -57,7 +57,7 @@ impl Canvas {
 }
 
 impl Drawable for Canvas {
-    fn draw(&self, frame: &mut [u8]) -> () {
+    fn draw(&self, frame: &mut [u8]) {
         for (i, pixel) in frame.chunks_exact_mut(4).enumerate() {
             let x = i % self.width;
             let y = i / self.width;

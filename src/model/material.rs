@@ -1,7 +1,9 @@
+use std::rc::Rc;
+
 use crate::{
     math::{colour::Colour, point::Point, vector::Vector},
-    pattern::pattern::Pattern,
-    shape::shape::Shape,
+    patterns::pattern::Pattern,
+    shapes::shape::Shape,
 };
 
 use super::point_light::PointLight;
@@ -34,24 +36,10 @@ impl Material {
         }
     }
 
-    pub fn default() -> Self {
-        Self {
-            colour: Colour::WHITE,
-            ambient: 0.1,
-            diffuse: 0.9,
-            specular: 0.9,
-            shininess: 200.,
-            reflective: 0.,
-            transparency: 0.,
-            refractive_index: 1.,
-            pattern: None,
-        }
-    }
-
     // https://en.wikipedia.org/wiki/Phong_reflection_model
     pub fn lightning(
         &self,
-        shape: &Shape,
+        shape: Rc<Shape>,
         light: PointLight,
         p: Point,
         eye: Vector,
@@ -59,7 +47,7 @@ impl Material {
         in_shadow: bool,
     ) -> Colour {
         let colour = match &self.pattern {
-            Some(pat) => pat.at_shape(&shape, p),
+            Some(pat) => pat.at_shape(shape, p),
             None => self.colour,
         };
 
@@ -154,6 +142,22 @@ impl Material {
     }
 }
 
+impl Default for Material {
+    fn default() -> Self {
+        Self {
+            colour: Colour::WHITE,
+            ambient: 0.1,
+            diffuse: 0.9,
+            specular: 0.9,
+            shininess: 200.,
+            reflective: 0.,
+            transparency: 0.,
+            refractive_index: 1.,
+            pattern: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::f64::consts::SQRT_2;
@@ -164,6 +168,7 @@ mod tests {
 
     #[test]
     fn lightning_with_pattern() -> () {
+        let s = Rc::new(Shape::id_sphere());
         let m = Material::default()
             .ambient(1.)
             .diffuse(0.)
@@ -173,7 +178,7 @@ mod tests {
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
         let c1 = m.lightning(
-            &Shape::id_sphere(),
+            Rc::clone(&s),
             light,
             Point::new(0.9, 0., 0.),
             eye,
@@ -182,7 +187,7 @@ mod tests {
         );
         assert_eq!(c1, Colour::WHITE);
         let c2 = m.lightning(
-            &Shape::id_sphere(),
+            Rc::clone(&s),
             light,
             Point::new(1.1, 0., 0.),
             eye,
@@ -199,7 +204,7 @@ mod tests {
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
-        let res = m.lightning(&Shape::id_sphere(), light, p, eye, normal, true);
+        let res = m.lightning(Rc::new(Shape::id_sphere()), light, p, eye, normal, true);
         assert_eq!(res, Colour::new(0.1, 0.1, 0.1));
     }
 
@@ -210,7 +215,7 @@ mod tests {
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
-        let res = m.lightning(&Shape::id_sphere(), light, p, eye, normal, false);
+        let res = m.lightning(Rc::new(Shape::id_sphere()), light, p, eye, normal, false);
         assert_eq!(res.rounded(5), vec![1.9, 1.9, 1.9]);
     }
 
@@ -222,7 +227,7 @@ mod tests {
         let eye = Vector::new(0., s2, -s2);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., -10.), Colour::WHITE);
-        let res = m.lightning(&Shape::id_sphere(), light, p, eye, normal, false);
+        let res = m.lightning(Rc::new(Shape::id_sphere()), light, p, eye, normal, false);
         assert_eq!(res, Colour::WHITE);
     }
 
@@ -233,7 +238,7 @@ mod tests {
         let eye = Vector::new(0., 0., -1.);
         let normal = eye;
         let light = PointLight::new(Point::new(0., 10., -10.), Colour::WHITE);
-        let res = m.lightning(&Shape::id_sphere(), light, p, eye, normal, false);
+        let res = m.lightning(Rc::new(Shape::id_sphere()), light, p, eye, normal, false);
         assert_eq!(res.rounded(4), vec![0.7364, 0.7364, 0.7364]);
     }
 
@@ -245,7 +250,7 @@ mod tests {
         let eye = Vector::new(0., -s2, -s2);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 10., -10.), Colour::WHITE);
-        let res = m.lightning(&Shape::id_sphere(), light, p, eye, normal, false);
+        let res = m.lightning(Rc::new(Shape::id_sphere()), light, p, eye, normal, false);
         assert_eq!(res.rounded(4), vec![1.6364, 1.6364, 1.6364]);
     }
 
@@ -256,7 +261,7 @@ mod tests {
         let eye = Vector::new(0., 0., -1.);
         let normal = Vector::new(0., 0., -1.);
         let light = PointLight::new(Point::new(0., 0., 10.), Colour::WHITE);
-        let res = m.lightning(&Shape::id_sphere(), light, p, eye, normal, false);
+        let res = m.lightning(Rc::new(Shape::id_sphere()), light, p, eye, normal, false);
         assert_eq!(res.rounded(5), vec![0.1, 0.1, 0.1]);
     }
 

@@ -43,7 +43,7 @@ impl PatternAt for Nested {
 
 #[cfg(test)]
 mod tests {
-    use crate::pattern::{gradient::Gradient, solid::Solid};
+    use crate::patterns::{gradient::Gradient, solid::Solid};
 
     use super::*;
 

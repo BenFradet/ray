@@ -9,5 +9,4 @@ pub mod matrix_sub;
 pub mod matrix_transpose;
 pub mod point;
 pub mod round;
-pub mod tuple;
 pub mod vector;

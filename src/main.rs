@@ -4,11 +4,11 @@ use pixels::{Error, Pixels, SurfaceTexture};
 use ray::{
     math::{colour::Colour, matrix::Matrix4x4, point::Point, vector::Vector},
     model::{camera::Camera, material::Material, point_light::PointLight, world::World},
-    pattern::{
+    patterns::{
         gradient::Gradient, nested::Nested, pattern::Pattern, pattern_kind::PatternKind,
         perlin::Perlin, ring::Ring,
     },
-    shape::shape::Shape,
+    shapes::shape::Shape,
     viewer::{canvas::Canvas, drawable::Drawable, to_file::ToFile},
 };
 use winit::{
@@ -126,9 +126,11 @@ fn main() -> Result<(), Error> {
         vec![PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE)],
     );
 
-    let to = Point::new(0., 1., 0.);
-    let up = Vector::new(0., 1., 0.);
-    let vt = move |eye: Point| -> Matrix4x4 { Matrix4x4::view_transform(eye, to, up) };
+    let vt = {
+        let to = Point::new(0., 1., 0.);
+        let up = Vector::new(0., 1., 0.);
+        move |eye: Point| -> Matrix4x4 { Matrix4x4::view_transform(eye, to, up) }
+    };
 
     let mut eye = Point::new(0., 1.5, -7.);
     let mut camera = Camera::new(width_usize, height_usize, FRAC_PI_3)

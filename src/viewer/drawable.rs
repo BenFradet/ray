@@ -1,3 +1,3 @@
 pub trait Drawable {
-    fn draw(&self, frame: &mut [u8]) -> ();
+    fn draw(&self, frame: &mut [u8]);
 }

@@ -34,7 +34,7 @@ impl<A: MatrixCofactor + MatrixSize + Index<(usize, usize), Output = f64>> Matri
     fn det(&self) -> f64 {
         let mut det = 0.;
         for i in 0..Self::SIZE {
-            det = det + self[(0, i)] * self.cofactor(0, i);
+            det += self[(0, i)] * self.cofactor(0, i);
         }
         det
     }

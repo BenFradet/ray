@@ -35,6 +35,7 @@ pub struct Matrix4x4 {
 }
 
 impl Matrix4x4 {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         m00: f64,
         m01: f64,
@@ -557,6 +558,7 @@ pub struct Matrix3x3 {
 }
 
 impl Matrix3x3 {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         m00: f64,
         m01: f64,

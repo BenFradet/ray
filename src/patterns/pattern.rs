@@ -1,9 +1,11 @@
+use std::rc::Rc;
+
 use crate::{
     math::{
         colour::Colour, matrix::Matrix4x4, matrix_const::MatrixConst, matrix_invert::MatrixInvert,
         point::Point,
     },
-    shape::shape::Shape,
+    shapes::shape::Shape,
 };
 
 use super::{
@@ -76,7 +78,7 @@ impl Pattern {
         Self::id(PatternKind::Checker(Checker::new(a, b)))
     }
 
-    pub fn at_shape(&self, s: &Shape, world_p: Point) -> Colour {
+    pub fn at_shape(&self, s: Rc<Shape>, world_p: Point) -> Colour {
         let object_p = s.inv_t * world_p;
         let pattern_p = self.inv_t * object_p;
         self.underlying.pattern_at(pattern_p)
@@ -85,37 +87,37 @@ impl Pattern {
 
 #[cfg(test)]
 mod tests {
-    use crate::{math::colour::Colour, pattern::stripe::Stripe};
+    use crate::{math::colour::Colour, patterns::stripe::Stripe};
 
     use super::*;
 
     #[test]
     fn at_shape_pattern_shape_ts() -> () {
-        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap();
+        let s = Rc::new(Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap());
         let p = Pattern::new_stripe(
             Colour::WHITE,
             Colour::BLACK,
             Matrix4x4::translation(0.5, 0., 0.),
         )
         .unwrap();
-        let res = p.at_shape(&s, Point::new(2.5, 0., 0.));
+        let res = p.at_shape(s, Point::new(2.5, 0., 0.));
         assert_eq!(res, Colour::WHITE);
     }
 
     #[test]
     fn at_shape_pattern_t() -> () {
-        let s = Shape::id_sphere();
+        let s = Rc::new(Shape::id_sphere());
         let p = Pattern::new_stripe(Colour::WHITE, Colour::BLACK, Matrix4x4::scaling(2., 2., 2.))
             .unwrap();
-        let res = p.at_shape(&s, Point::new(1.5, 0., 0.));
+        let res = p.at_shape(s, Point::new(1.5, 0., 0.));
         assert_eq!(res, Colour::WHITE);
     }
 
     #[test]
     fn at_shape_shape_t() -> () {
-        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap();
+        let s = Rc::new(Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap());
         let p = Pattern::id_stripe(Colour::WHITE, Colour::BLACK);
-        let res = p.at_shape(&s, Point::new(1.5, 0., 0.));
+        let res = p.at_shape(s, Point::new(1.5, 0., 0.));
         assert_eq!(res, Colour::WHITE);
     }
 

@@ -11,7 +11,7 @@ pub trait ToFile {
 impl<T: Display> ToFile for T {
     fn to_file(&self, path: &str) -> Result<()> {
         let mut file = File::create(path)?;
-        file.write_fmt(format_args!("{}", self.to_string()))?;
+        file.write_fmt(format_args!("{}", self))?;
         Ok(())
     }
 }

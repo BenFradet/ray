@@ -1,7 +1,7 @@
 pub mod math;
 pub mod model;
-pub mod pattern;
-pub mod shape;
+pub mod patterns;
+pub mod shapes;
 pub mod viewer;
 
 #[macro_export]

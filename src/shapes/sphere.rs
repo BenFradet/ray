@@ -41,7 +41,9 @@ impl Intersect for Sphere {
 
 #[cfg(test)]
 mod tests {
-    use crate::{math::matrix::Matrix4x4, model::intersection::Intersection, shape::shape::Shape};
+    use std::rc::Rc;
+
+    use crate::{math::matrix::Matrix4x4, model::intersection::Intersection, shapes::shape::Shape};
 
     use super::*;
 
@@ -60,68 +62,70 @@ mod tests {
     #[test]
     fn intersect_after_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., 5.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere();
-        let res = s.intersections(&r);
+        let s = Rc::new(Shape::id_sphere());
+        let res = Intersection::intersections(Rc::clone(&s), &r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(&s, -6.));
-        assert_eq!(res[1], Intersection::new(&s, -4.));
+        assert_eq!(res[0], Intersection::new(Rc::clone(&s), -6.));
+        assert_eq!(res[1], Intersection::new(Rc::clone(&s), -4.));
     }
 
     #[test]
     fn intersect_inside_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., 0.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere();
-        let res = s.intersections(&r);
+        let s = Rc::new(Shape::id_sphere());
+        let res = Intersection::intersections(Rc::clone(&s), &r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(&s, -1.));
-        assert_eq!(res[1], Intersection::new(&s, 1.));
+        assert_eq!(res[0], Intersection::new(Rc::clone(&s), -1.));
+        assert_eq!(res[1], Intersection::new(Rc::clone(&s), 1.));
     }
 
     #[test]
     fn intersect_no_points() -> () {
         let r = Ray::new(Point::new(0., 2., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere();
-        let res = s.intersections(&r);
+        let s = Rc::new(Shape::id_sphere());
+        let res = Intersection::intersections(s, &r);
         assert_eq!(res.len(), 0);
     }
 
     #[test]
     fn intersect_same_point() -> () {
         let r = Ray::new(Point::new(0., 1., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere();
-        let res = s.intersections(&r);
+        let s = Rc::new(Shape::id_sphere());
+        let res = Intersection::intersections(Rc::clone(&s), &r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(&s, 5.));
-        assert_eq!(res[1], Intersection::new(&s, 5.));
+        assert_eq!(res[0], Intersection::new(Rc::clone(&s), 5.));
+        assert_eq!(res[1], Intersection::new(Rc::clone(&s), 5.));
     }
 
     #[test]
     fn intersect_2_points() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere();
-        let res = s.intersections(&r);
+        let s = Rc::new(Shape::id_sphere());
+        let res = Intersection::intersections(Rc::clone(&s), &r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(&s, 4.));
-        assert_eq!(res[1], Intersection::new(&s, 6.));
+        assert_eq!(res[0], Intersection::new(Rc::clone(&s), 4.));
+        assert_eq!(res[1], Intersection::new(Rc::clone(&s), 6.));
     }
 
     #[test]
     fn intersect_translated_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::id_sphere()
-            .t(Matrix4x4::translation(5., 0., 0.))
-            .unwrap();
-        let res = s.intersections(&r);
+        let s = Rc::new(
+            Shape::id_sphere()
+                .t(Matrix4x4::translation(5., 0., 0.))
+                .unwrap(),
+        );
+        let res = Intersection::intersections(s, &r);
         assert_eq!(res.len(), 0);
     }
 
     #[test]
     fn intersect_scaled_sphere() -> () {
         let r = Ray::new(Point::new(0., 0., -5.), Vector::new(0., 0., 1.));
-        let s = Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap();
-        let res = s.intersections(&r);
+        let s = Rc::new(Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.)).unwrap());
+        let res = Intersection::intersections(Rc::clone(&s), &r);
         assert_eq!(res.len(), 2);
-        assert_eq!(res[0], Intersection::new(&s, 3.));
-        assert_eq!(res[1], Intersection::new(&s, 7.));
+        assert_eq!(res[0], Intersection::new(Rc::clone(&s), 3.));
+        assert_eq!(res[1], Intersection::new(Rc::clone(&s), 7.));
     }
 }
