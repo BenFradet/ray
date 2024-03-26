@@ -1,4 +1,7 @@
-use std::f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4};
+use std::{
+    f64::consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4},
+    rc::Rc,
+};
 
 use pixels::{Error, Pixels, SurfaceTexture};
 use ray::{
@@ -122,7 +125,14 @@ fn main() -> Result<(), Error> {
         .material(left_mat);
 
     let world = World::new(
-        vec![floor, left_wall, right_wall, left, middle, right],
+        vec![
+            Rc::new(floor),
+            Rc::new(left_wall),
+            Rc::new(right_wall),
+            Rc::new(left),
+            Rc::new(middle),
+            Rc::new(right),
+        ],
         vec![PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE)],
     );
 
