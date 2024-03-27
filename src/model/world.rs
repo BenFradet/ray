@@ -67,9 +67,9 @@ impl World {
     }
 
     fn shade_hit(&self, c: &Comp, remaining: u8) -> Colour {
+        let shape = &c.intersection.shape;
         let surface = self.lights.iter().fold(Colour::BLACK, |acc, light| {
             let is_shadowed = self.is_shadowed(c.over_point, light);
-            let shape = &c.intersection.shape;
             acc + shape.material.lightning(
                 Rc::clone(shape),
                 *light,
@@ -81,7 +81,14 @@ impl World {
         });
         let reflected = self.reflected_colour(c, remaining);
         let refracted = self.refracted_colour(c, remaining);
-        surface + reflected + refracted
+
+        let mat = &shape.material;
+        if mat.reflective > 0. && mat.transparency > 0. {
+            let reflectance = c.indices.reflectance();
+            surface + reflected * reflectance + refracted * (1. - reflectance)
+        } else {
+            surface + reflected + refracted
+        }
     }
 
     fn reflected_colour(&self, c: &Comp, remaining: u8) -> Colour {
@@ -163,6 +170,36 @@ mod tests {
 
     fn b() -> Shape {
         Shape::new_sphere(Matrix4x4::scaling(0.5, 0.5, 0.5)).unwrap_or(Shape::id_sphere())
+    }
+
+    #[test]
+    fn shade_hit_reflectance() -> () {
+        let p = Rc::new(
+            Shape::new_plane(Matrix4x4::translation(0., -1., 0.))
+                .unwrap()
+                .material(
+                    Material::default()
+                        .transparency(0.5)
+                        .refractive_index(1.5)
+                        .reflective(0.5),
+                ),
+        );
+        let s = Rc::new(
+            Shape::new_sphere(Matrix4x4::translation(0., -3.5, -0.5))
+                .unwrap()
+                .material(
+                    Material::default()
+                        .colour(Colour::new(1., 0., 0.))
+                        .ambient(0.5),
+                ),
+        );
+        let w = World::default().add_shape(Rc::clone(&p)).add_shape(s);
+        let s2 = SQRT_2 / 2.;
+        let r = Ray::new(Point::new(0., 0., -3.), Vector::new(0., -s2, s2));
+        let i = Intersection::new(Rc::clone(&p), s2 * 2.);
+        let c = Comp::new(i.clone(), r, &vec![i]);
+        let res = w.shade_hit(&c, 5);
+        assert_eq!(res.rounded(5), vec![0.93391, 0.69643, 0.69243]);
     }
 
     #[test]

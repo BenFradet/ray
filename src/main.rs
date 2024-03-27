@@ -41,9 +41,12 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
-    let checker_pattern = Pattern::new_checker(Colour::WHITE, Colour::BLACK,
+    let checker_pattern = Pattern::new_checker(
+        Colour::WHITE,
+        Colour::BLACK,
         Matrix4x4::scaling(0.1, 0.1, 0.1),
-    ).unwrap();
+    )
+    .unwrap();
 
     let wall_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
@@ -61,10 +64,7 @@ fn main() -> Result<(), Error> {
         .material(middle_mat);
 
     let world = World::new(
-        vec![
-            Rc::new(floor),
-            Rc::new(middle),
-        ],
+        vec![Rc::new(floor), Rc::new(middle)],
         vec![PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE)],
     );
 

@@ -12,9 +12,13 @@ pub struct Vector {
 }
 
 impl Vector {
-    pub fn new(x: f64, y: f64, z: f64) -> Vector {
+    pub const fn new(x: f64, y: f64, z: f64) -> Vector {
         Vector { x, y, z, w: 0. }
     }
+
+    pub const X: Vector = Vector::new(1., 0., 0.);
+    pub const Y: Vector = Vector::new(0., 1., 0.);
+    pub const Z: Vector = Vector::new(0., 0., 1.);
 
     pub fn len(&self) -> f64 {
         f64::sqrt(self.x.powf(2.) + self.y.powf(2.) + self.z.powf(2.))

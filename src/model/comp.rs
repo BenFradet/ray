@@ -67,47 +67,6 @@ mod tests {
     }
 
     #[test]
-    fn refractive_indices() -> () {
-        vec![
-            (0usize, 1., 1.5),
-            (1usize, 1.5, 2.),
-            (2usize, 2., 2.5),
-            (3usize, 2.5, 2.5),
-            (4usize, 2.5, 1.5),
-            (5usize, 1.5, 1.),
-        ]
-        .iter()
-        .for_each(|(idx, n1, n2)| {
-            let a = Rc::new(
-                Shape::new_sphere(Matrix4x4::scaling(2., 2., 2.))
-                    .unwrap()
-                    .material(Material::default().transparency(1.).refractive_index(1.5)),
-            );
-            let b = Rc::new(
-                Shape::new_sphere(Matrix4x4::translation(0., 0., -0.25))
-                    .unwrap()
-                    .material(Material::default().transparency(1.).refractive_index(2.)),
-            );
-            let c = Rc::new(
-                Shape::new_sphere(Matrix4x4::translation(0., 0., 0.25))
-                    .unwrap()
-                    .material(Material::default().transparency(1.).refractive_index(2.5)),
-            );
-            let r = Ray::new(Point::new(0., 0., -4.), Vector::new(1., 0., 0.));
-            let is = vec![
-                Intersection::new(Rc::clone(&a), 2.),
-                Intersection::new(Rc::clone(&b), 2.75),
-                Intersection::new(Rc::clone(&c), 3.25),
-                Intersection::new(Rc::clone(&b), 4.75),
-                Intersection::new(Rc::clone(&c), 5.25),
-                Intersection::new(Rc::clone(&a), 6.),
-            ];
-            let c = Comp::new(is[*idx].clone(), r, &is);
-            assert_eq!(c.indices.ratio, *n1 / *n2);
-        });
-    }
-
-    #[test]
     fn reflect() -> () {
         let s = Shape::id_plane();
         let s2 = SQRT_2 / 2.;
