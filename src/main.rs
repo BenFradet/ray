@@ -58,7 +58,8 @@ fn main() -> Result<(), Error> {
         .refractive_index(1.333); // water, glass: 1.52, diamond: 2.417
     let water_plane = Shape::new_plane(Matrix4x4::translation(0., 0.4, 0.))
         .unwrap()
-        .material(water_mat);
+        .material(water_mat)
+        .no_shadows();
 
     let floor_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
