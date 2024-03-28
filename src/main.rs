@@ -48,23 +48,32 @@ fn main() -> Result<(), Error> {
     )
     .unwrap();
 
-    let wall_mat = Material::default()
+    let water_mat = Material::default()
+        .colour(Colour::WHITE)
+        .transparency(1.)
+        .reflective(1.)
+        .specular(1.)
+        .shininess(300.)
+        .diffuse(0.3)
+        .refractive_index(1.333); // water, glass: 1.52, diamond: 2.417
+    let water_plane = Shape::new_plane(Matrix4x4::translation(0., 0.4, 0.))
+        .unwrap()
+        .material(water_mat);
+
+    let floor_mat = Material::default()
         .colour(Colour::new(1., 0.9, 0.9))
         .specular(0.);
-    let wall_t = Matrix4x4::scaling(10., 0.01, 10.);
-    let floor = Shape::new_plane(wall_t)
+    let floor_plane = Shape::new_plane(Matrix4x4::scaling(10., 0.01, 10.))
         .unwrap()
-        .material(wall_mat.clone().pattern(checker_pattern.clone()));
+        .material(floor_mat.clone().pattern(checker_pattern.clone()));
 
-    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3)
-        .reflective(0.5)
-        .pattern(checker_pattern);
-    let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5))
+    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3);
+    let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5).scale(0.4, 0.4, 0.4))
         .unwrap()
         .material(middle_mat);
 
     let world = World::new(
-        vec![Rc::new(floor), Rc::new(middle)],
+        vec![Rc::new(floor_plane), Rc::new(middle), Rc::new(water_plane)],
         vec![PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE)],
     );
 

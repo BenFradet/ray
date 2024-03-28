@@ -15,6 +15,7 @@ pub struct Shape {
     t_inv_t: Matrix4x4,
     pub material: Material,
     pub underlying: ShapeKind,
+    pub cast_shadows: bool,
 }
 
 impl Shape {
@@ -26,6 +27,7 @@ impl Shape {
             t_inv_t: inv_t.transpose(),
             material: Material::default(),
             underlying: s,
+            cast_shadows: true,
         })
     }
 
@@ -44,6 +46,7 @@ impl Shape {
             t_inv_t: Matrix4x4::ID,
             material: Material::default(),
             underlying: s,
+            cast_shadows: true,
         }
     }
 
@@ -75,6 +78,16 @@ impl Shape {
         let world_normal = self.t_inv_t * object_normal;
         world_normal.w(0.0).norm()
     }
+
+    pub fn shadows(mut self) -> Self {
+        self.cast_shadows = true;
+        self
+    }
+
+    pub fn no_shadows(mut self) -> Self {
+        self.cast_shadows = false;
+        self
+    }
 }
 
 #[cfg(test)]
@@ -84,6 +97,16 @@ mod tests {
     use crate::math::round::Round;
 
     use super::*;
+
+    #[test]
+    fn shadows() -> () {
+        let mut s = Shape::id_sphere();
+        assert!(s.cast_shadows);
+        s = s.no_shadows();
+        assert!(!s.cast_shadows);
+        s = s.shadows();
+        assert!(s.cast_shadows);
+    }
 
     #[test]
     fn normal_at_transformed_shape() -> () {

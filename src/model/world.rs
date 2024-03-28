@@ -125,7 +125,13 @@ impl World {
         let dist = point_to_light.len();
         let direction = point_to_light.norm();
         let ray = Ray::new(p, direction);
-        match self.intersect(&ray).hit() {
+        // might work with filtering mat.transparency = 1 but transparent object cast shadows?
+        let intersections_casting_shadows: Vec<Intersection> = self
+            .intersect(&ray)
+            .into_iter()
+            .filter(|i| i.shape.cast_shadows)
+            .collect();
+        match intersections_casting_shadows.hit() {
             Some(hit) if hit.t < dist => true,
             _ => false,
         }
@@ -389,6 +395,15 @@ mod tests {
         let w = World::default();
         let p = Point::new(10., -10., 10.);
         assert!(w.is_shadowed(p, &w.lights[0]));
+    }
+
+    #[test]
+    fn is_shadowed_point_behind_shape_no_shadows() -> () {
+        let a = Rc::new(Shape::id_sphere().material(m()).no_shadows());
+        let b = Rc::new(b().no_shadows());
+        let w = World::default().shapes(vec![Rc::clone(&a), Rc::clone(&b)]);
+        let p = Point::new(10., -10., 10.);
+        assert!(!w.is_shadowed(p, &w.lights[0]));
     }
 
     #[test]
