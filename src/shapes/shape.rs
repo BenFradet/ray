@@ -6,7 +6,7 @@ use crate::{
     model::material::Material,
 };
 
-use super::{normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere};
+use super::{cube::Cube, normal::Normal, plane::Plane, shape_kind::ShapeKind, sphere::Sphere};
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct Shape {
@@ -39,6 +39,10 @@ impl Shape {
         Self::new(ShapeKind::P(Plane {}), t)
     }
 
+    pub fn new_cube(t: Matrix4x4) -> Option<Self> {
+        Self::new(ShapeKind::C(Cube {}), t)
+    }
+
     pub fn id(s: ShapeKind) -> Self {
         Self {
             t: Matrix4x4::ID,
@@ -56,6 +60,10 @@ impl Shape {
 
     pub fn id_plane() -> Self {
         Self::id(ShapeKind::P(Plane {}))
+    }
+
+    pub fn id_cube() -> Self {
+        Self::id(ShapeKind::C(Cube {}))
     }
 
     pub fn t(mut self, t: Matrix4x4) -> Option<Self> {

@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul, Sub};
 
-use num::{FromPrimitive, Num, NumCast};
+use num::{traits::ParseFloatError, FromPrimitive, Num, NumCast};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Colour {
@@ -12,6 +12,13 @@ pub struct Colour {
 impl Colour {
     pub const fn new(r: f64, g: f64, b: f64) -> Colour {
         Colour { r, g, b }
+    }
+
+    pub fn hex(r: &str, g: &str, b: &str) -> Result<Colour, ParseFloatError> {
+        let new_r = f64::from_str_radix(r, 16)?;
+        let new_g = f64::from_str_radix(g, 16)?;
+        let new_b = f64::from_str_radix(b, 16)?;
+        Ok(Colour::new(new_r / 255., new_g / 255., new_b / 255.))
     }
 
     pub const BLACK: Colour = Colour::new(0.0, 0.0, 0.0);

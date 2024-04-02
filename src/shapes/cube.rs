@@ -7,6 +7,7 @@ use crate::{
 
 use super::{intersect::Intersect, normal::Normal};
 
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Cube {}
 
 impl Cube {

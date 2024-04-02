@@ -3,12 +3,13 @@ use crate::{
     model::ray::Ray,
 };
 
-use super::{intersect::Intersect, normal::Normal, plane::Plane, sphere::Sphere};
+use super::{cube::Cube, intersect::Intersect, normal::Normal, plane::Plane, sphere::Sphere};
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum ShapeKind {
     P(Plane),
     S(Sphere),
+    C(Cube),
 }
 
 impl Intersect for ShapeKind {
@@ -16,6 +17,7 @@ impl Intersect for ShapeKind {
         match self {
             ShapeKind::P(plane) => plane.intersect(r),
             ShapeKind::S(sphere) => sphere.intersect(r),
+            ShapeKind::C(cube) => cube.intersect(r),
         }
     }
 }
@@ -25,6 +27,7 @@ impl Normal for ShapeKind {
         match self {
             ShapeKind::P(plane) => plane.normal_at(object_point),
             ShapeKind::S(sphere) => sphere.normal_at(object_point),
+            ShapeKind::C(cube) => cube.normal_at(object_point),
         }
     }
 }

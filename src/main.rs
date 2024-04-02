@@ -47,35 +47,23 @@ fn main() -> Result<(), Error> {
         Matrix4x4::scaling(0.1, 0.1, 0.1),
     )
     .unwrap();
-
-    let water_mat = Material::default()
-        .colour(Colour::WHITE)
-        .transparency(1.)
-        .reflective(1.)
-        .specular(1.)
-        .shininess(300.)
-        .diffuse(0.3)
-        .refractive_index(1.333); // water, glass: 1.52, diamond: 2.417
-    let water_plane = Shape::new_plane(Matrix4x4::translation(0., 0.4, 0.))
+    let floor_and_roof = Shape::new_cube(Matrix4x4::scaling(20., 10., 20.))
         .unwrap()
-        .material(water_mat)
-        .no_shadows();
+        .material(Material::default().pattern(checker_pattern));
 
-    let floor_mat = Material::default()
-        .colour(Colour::new(1., 0.9, 0.9))
-        .specular(0.);
-    let floor_plane = Shape::new_plane(Matrix4x4::scaling(10., 0.01, 10.))
-        .unwrap()
-        .material(floor_mat.clone().pattern(checker_pattern.clone()));
+    let stripe_pattern = Pattern::new_stripe(
+        Colour::hex("4f", "3b", "3b").unwrap_or(Colour::WHITE),
+        Colour::hex("3b", "4f", "3b").unwrap_or(Colour::BLACK),
+        Matrix4x4::scaling(0.1, 0.1, 0.1),
+    ).unwrap();
 
-    let middle_mat = Material::new(Colour::new(0.1, 1., 0.5), 0.1, 0.7, 0.3);
-    let middle = Shape::new_sphere(Matrix4x4::translation(-0.5, 1., 0.5).scale(0.4, 0.4, 0.4))
+    let walls = Shape::new_cube(Matrix4x4::scaling(18., 15., 18.))
         .unwrap()
-        .material(middle_mat);
+        .material(Material::default().pattern(stripe_pattern));
 
     let world = World::new(
-        vec![Rc::new(floor_plane), Rc::new(middle), Rc::new(water_plane)],
-        vec![PointLight::new(Point::new(-10., 10., -10.), Colour::WHITE)],
+        vec![Rc::new(floor_and_roof), Rc::new(walls)],
+        vec![PointLight::new(Point::new(-8., 8., -8.), Colour::WHITE)],
     );
 
     let vt = {
