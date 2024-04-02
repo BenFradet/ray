@@ -1,3 +1,4 @@
+pub mod cube;
 pub mod intersect;
 pub mod normal;
 pub mod plane;
