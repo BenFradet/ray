@@ -1,13 +1,34 @@
 use std::f64::INFINITY;
 
-use crate::model::ray::Ray;
+use crate::{
+    math::{point::Point, vector::Vector},
+    model::ray::Ray,
+};
 
-use super::intersect::Intersect;
+use super::{intersect::Intersect, normal::Normal};
 
 pub struct Cube {}
 
 impl Cube {
     const EPS: f64 = 0.00001;
+}
+
+impl Normal for Cube {
+    fn normal_at(&self, object_point: Point) -> Vector {
+        let maxc = object_point
+            .x
+            .abs()
+            .max(object_point.y.abs())
+            .max(object_point.z.abs());
+
+        if maxc == object_point.x.abs() {
+            Vector::new(object_point.x, 0., 0.)
+        } else if maxc == object_point.y.abs() {
+            Vector::new(0., object_point.y, 0.)
+        } else {
+            Vector::new(0., 0., object_point.z)
+        }
+    }
 }
 
 impl Intersect for Cube {
@@ -32,8 +53,26 @@ impl Intersect for Cube {
         }
 
         let (xtmin, xtmax) = check_axis(r.origin.x, r.direction.x);
+        if xtmin == xtmax && xtmin.abs() > 1. {
+            return vec![];
+        }
         let (ytmin, ytmax) = check_axis(r.origin.y, r.direction.y);
+        if ytmin == ytmax && ytmin.abs() > 1. {
+            return vec![];
+        }
+        if xtmin.abs() > 1.
+            && ytmin.abs() > 1.
+            && xtmax.abs() > 1.
+            && ytmax.abs() > 1.
+            && xtmin.signum() == xtmax.signum()
+            && ytmin.signum() == ytmax.signum()
+        {
+            return vec![];
+        }
         let (ztmin, ztmax) = check_axis(r.origin.z, r.direction.z);
+        if ztmin == ztmax && ztmin.abs() > 1. {
+            return vec![];
+        }
 
         let tmin = xtmin.max(ytmin).max(ztmin);
         let tmax = xtmax.min(ytmax).min(ztmax);
@@ -47,9 +86,27 @@ impl Intersect for Cube {
 
 #[cfg(test)]
 mod tests {
-    use crate::math::{point::Point, vector::Vector};
-
     use super::*;
+
+    #[test]
+    fn normal_at() -> () {
+        vec![
+            (Point::new(1., 0.5, -0.8), Vector::new(1., 0., 0.)),
+            (Point::new(-1., -0.2, 0.9), Vector::new(-1., 0., 0.)),
+            (Point::new(-0.4, 1., -0.1), Vector::new(0., 1., 0.)),
+            (Point::new(0.3, -1., -0.7), Vector::new(0., -1., 0.)),
+            (Point::new(-0.6, 0.3, 1.), Vector::new(0., 0., 1.)),
+            (Point::new(0.4, 0.4, -1.), Vector::new(0., 0., -1.)),
+            (Point::new(1., 1., 1.), Vector::new(1., 0., 0.)),
+            (Point::new(-1., -1., -1.), Vector::new(-1., 0., 0.)),
+        ]
+        .iter()
+        .for_each(|(point, normal)| {
+            let c = Cube {};
+            let res = c.normal_at(*point);
+            assert_eq!(res, *normal);
+        });
+    }
 
     #[test]
     fn no_intersect() -> () {
